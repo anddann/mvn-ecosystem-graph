@@ -37,8 +37,10 @@ public class MvnArtifactNode {
     private MvnArtifactNode parent;
 
     // must be list to be ordered, in the mvn resolution process the order of dependencies matters for resolving
+    //relationship type=DEPENDENCY
     private List<DependencyRelation> dependencies = new ArrayList<>();
 
+    //relationship type=DEPENDENCY_MANAGEMENT
     private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
 }
