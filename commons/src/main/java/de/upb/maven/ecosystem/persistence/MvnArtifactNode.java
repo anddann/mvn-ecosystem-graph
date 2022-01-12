@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +26,11 @@ public class MvnArtifactNode {
     private String artifact;
     private String version;
 
-    private String classifier;
+    // the default is null
+    private String classifier = null;
 
-    private String type = "jar";
+    // When no packaging is declared, Maven assumes the packaging is the default: jar
+    private String packaging = "jar";
 
     private Map<String, String> properties = new HashMap<>();
 
