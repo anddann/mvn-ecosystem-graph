@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DependencyRelation {
 
-
     private DependencyScope scope;
     private boolean optional;
 
