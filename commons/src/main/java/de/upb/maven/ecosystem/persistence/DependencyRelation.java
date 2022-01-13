@@ -29,6 +29,9 @@ public class DependencyRelation {
     private int position;
 
 
+    //the url of the repo
+    private String scmURL;
+
     // TODO add exclusions
 
 }
