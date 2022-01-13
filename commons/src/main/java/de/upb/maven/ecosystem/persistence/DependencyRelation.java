@@ -20,6 +20,9 @@ public class DependencyRelation {
     //This defaults to jar. While it usually represents the extension on the filename of the dependency, that is not always the case: a type can be mapped to a different extension and a classifier. The type often corresponds to the packaging used, though this is also not always the case.
     private String type = "jar";
 
+    //also defaults to jar <--> same as in the
+    private String classifier="jar";
+
     private MvnArtifactNode dependency;
 
     // in the mvn resolution process the order of dependencies matters for resolving. Thus, we store its position in the pom file, starting from 0

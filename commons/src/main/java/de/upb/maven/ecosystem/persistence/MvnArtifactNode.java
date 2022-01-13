@@ -32,16 +32,22 @@ public class MvnArtifactNode {
     // When no packaging is declared, Maven assumes the packaging is the default: jar
     private String packaging = "jar";
 
+    // the maven properties declared in this artifact's pom which are inherited to the children
     private Map<String, String> properties = new HashMap<>();
 
     //relationship type=PARENT
     private MvnArtifactNode parent;
 
     // must be list to be ordered, in the mvn resolution process the order of dependencies matters for resolving
-    //relationship type=DEPENDENCY
+    //relationship type=DEPENDENCY / DEPENDS_ON
+    // inherited to the children
     private List<DependencyRelation> dependencies = new ArrayList<>();
 
-    //relationship type=DEPENDENCY_MANAGEMENT
+    //relationship type=DEPENDENCY_MANAGEMENT / MANAGES
     private List<DependencyRelation> dependencyManagement = new ArrayList<>();
+
+    // relationship type = IMPORTS // should only contain dependency imports
+    private List<DependencyRelation> dependencyManagementImport = new ArrayList<>();
+
 
 }
