@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +47,15 @@ public class MvnArtifactNode {
     //relationship type=DEPENDENCY_MANAGEMENT / MANAGES
     private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
-    // relationship type = IMPORTS // should only contain dependency imports
-    private List<DependencyRelation> dependencyManagementImport = new ArrayList<>();
+
+    public void setParent(MvnArtifactNode parent) {
+        // quick sanity check
+        if (!StringUtils.equals(parent.getPackaging(), "pom")) {
+            // the parent artifact may only have the packaging pom
+            throw new IllegalArgumentException("A Maven parent must have packaging: pom");
+        }
+        this.parent = parent;
+    }
 
 
 }

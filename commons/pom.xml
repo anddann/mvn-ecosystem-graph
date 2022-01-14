@@ -67,5 +67,20 @@
             <version>3.12.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>4.4.2</version>
+        </dependency>
+
+        <!-- embedded db for testing -->
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>3.5.30</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 </project>

@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // the relationship
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,14 +17,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DependencyRelation {
 
-    private DependencyScope scope;
+    //the default scope is compile
+    private DependencyScope scope = DependencyScope.COMPILE;
     private boolean optional;
 
-    //This defaults to jar. While it usually represents the extension on the filename of the dependency, that is not always the case: a type can be mapped to a different extension and a classifier. The type often corresponds to the packaging used, though this is also not always the case.
+    //This defaults to jar.
+    // While it usually represents the extension on the filename of the dependency, that is not always the case: a type can be mapped to a different extension and a classifier. The type often corresponds to the packaging used, though this is also not always the case.
     private String type = "jar";
 
-    //also defaults to jar <--> same as in the
-    private String classifier="jar";
+    // defaults to null
+    private String classifier = null;
 
     private MvnArtifactNode dependency;
 
@@ -32,6 +37,7 @@ public class DependencyRelation {
     //the url of the repo
     private String scmURL;
 
-    // TODO add exclusions
+    // contains the exclusions in the format g:a
+    private List<String> exclusions = new ArrayList<>();
 
 }
