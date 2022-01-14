@@ -14,6 +14,7 @@ import org.neo4j.driver.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,7 +32,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final Driver driver;
-
 
     public DoaMvnArtifactNodeImpl(Driver driver) {
         this.driver = driver;
@@ -44,22 +45,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
      */
     public static void sanityCheck(MvnArtifactNode mvnArtifactNode) throws IllegalArgumentException {
 
-        if (StringUtils.isBlank(mvnArtifactNode.getGroup())) {
-            logger.error("Group is blank");
-            throw new IllegalArgumentException("Group is blank");
-        }
-        if (StringUtils.isBlank(mvnArtifactNode.getArtifact())) {
-            logger.error("Artifact is blank");
-            throw new IllegalArgumentException("Artifact is blank");
-        }
-        if (StringUtils.isBlank(mvnArtifactNode.getVersion())) {
-            logger.error("Version is blank");
-            throw new IllegalArgumentException("Version is blank");
-        }
-        if (StringUtils.isBlank(mvnArtifactNode.getPackaging())) {
-            logger.error("Packaging is blank");
-            throw new IllegalArgumentException("Packaging is blank");
-        }
+
         if (mvnArtifactNode.getParent() != null
                 && !StringUtils.equals(mvnArtifactNode.getParent().getPackaging(), "pom")) {
             // the parent artifact may only have the packaging pom
@@ -79,6 +65,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 logger.error("The dependency relation type/packaging do not match");
                 throw new IllegalArgumentException("The dependency relation type/packaging do not match");
             }
+
         }
 
         for (DependencyRelation dependencyRelation : mvnArtifactNode.getDependencyManagement()) {
@@ -103,7 +90,71 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 logger.error("The import dependency has not packaging: pom");
                 throw new IllegalArgumentException("The import dependency has not packaging: pom");
             }
+
         }
+
+        final Set<Integer> posDeps = mvnArtifactNode.getDependencies().stream().map(x -> x.getPosition()).collect(Collectors.toSet());
+        for (int i = 0; i < mvnArtifactNode.getDependencies().size(); i++) {
+            final boolean remove = posDeps.remove(i);
+            if (!remove) {
+                logger.error("Position of dependency is incorrect");
+                throw new IllegalArgumentException("Position of dependency is incorrect");
+            }
+        }
+
+        if (!posDeps.isEmpty()) {
+            logger.error("Position of dependency is incorrect");
+            throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
+
+
+        final Set<Integer> posMgmt = mvnArtifactNode.getDependencyManagement().stream().map(x -> x.getPosition()).collect(Collectors.toSet());
+        for (int i = 0; i < mvnArtifactNode.getDependencyManagement().size(); i++) {
+            final boolean remove = posMgmt.remove(i);
+            if (!remove) {
+                logger.error("Position of dependency Management is incorrect");
+                throw new IllegalArgumentException("Position of dependency Management is incorrect");
+            }
+        }
+
+        if (!posMgmt.isEmpty()) {
+            logger.error("Position of dependency Management is incorrect");
+            throw new IllegalArgumentException("Position of dependency Management is incorrect");
+        }
+
+
+        if (StringUtils.isBlank(mvnArtifactNode.getPackaging())) {
+            logger.error("Packaging is blank");
+            throw new IllegalArgumentException("Packaging is blank");
+        }
+
+        //check nodes for sanity
+        List<MvnArtifactNode> mvnArtifactNodes = new ArrayList<>();
+        mvnArtifactNodes.add(mvnArtifactNode);
+        mvnArtifactNodes.addAll(mvnArtifactNode.getDependencies().stream().map(DependencyRelation::getDependency).collect(Collectors.toList()));
+        mvnArtifactNodes.addAll(mvnArtifactNode.getDependencyManagement().stream().map(DependencyRelation::getDependency).collect(Collectors.toList()));
+        for (MvnArtifactNode nodeToCheck : mvnArtifactNodes) {
+
+            if (StringUtils.isBlank(nodeToCheck.getGroup())) {
+                logger.error("Group is blank");
+                throw new IllegalArgumentException("Group is blank");
+            }
+            if (StringUtils.isBlank(nodeToCheck.getArtifact())) {
+                logger.error("Artifact is blank");
+                throw new IllegalArgumentException("Artifact is blank");
+            }
+            if (StringUtils.isBlank(nodeToCheck.getVersion())) {
+                logger.error("Version is blank");
+                throw new IllegalArgumentException("Version is blank");
+            }
+            if (StringUtils.startsWith(nodeToCheck.getVersion(), "$")) {
+                logger.error("Version is unresolved property");
+                throw new IllegalArgumentException("Version is unresolved property");
+
+            }
+
+        }
+
     }
 
     /**
@@ -376,25 +427,24 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         return Optional.empty();
     }
 
-    public boolean containsNodeWithVersionGQ(String groupId, String artifactId, String version, String classifier, String targetVersion) {
+    public boolean containsNodeWithVersionGQ(
+            String groupId, String artifactId, String version, String classifier, String targetVersion) {
         // match based on gav, classifier
         String query =
                 String.format(
                         "MATCH (n:MvnArtifact {g:%s, a:%s, v:%s, c:%s}) return n.crawlerVersion",
-                        groupId,
-                        artifactId,
-                        version,
-                        classifier);
+                        groupId, artifactId, version, classifier);
         String versionNumber;
         try (Session session = driver.session()) {
-            versionNumber = session.writeTransaction(tx ->
-            {
-                Result result = tx.run(query);
-                if (result.single() == null) {
-                    return null;
-                }
-                return result.single().get(0).asString();
-            });
+            versionNumber =
+                    session.writeTransaction(
+                            tx -> {
+                                Result result = tx.run(query);
+                                if (result.single() == null) {
+                                    return null;
+                                }
+                                return result.single().get(0).asString();
+                            });
         }
         if (StringUtils.isBlank(versionNumber)) {
             return false;

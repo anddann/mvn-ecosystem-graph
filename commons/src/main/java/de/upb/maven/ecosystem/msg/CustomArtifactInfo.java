@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomArtifactInfo {
 
-    private String classifier;
-    private String groupId;
-    private String artifactVersion;
-    private String fileExtension;
-    private String packaging;
-    private String artifactId;
-    private String distribution;
-    private String licenseUrl;
-    private String bundleLicense;
-    private String repoURL;
+  private String classifier;
+  private String groupId;
+  private String artifactVersion;
+  private String fileExtension;
+  private String packaging;
+  private String artifactId;
+  private String distribution;
+  private String licenseUrl;
+  private String bundleLicense;
+  private String repoURL;
 }

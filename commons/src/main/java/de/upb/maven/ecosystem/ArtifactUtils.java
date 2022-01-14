@@ -3,37 +3,36 @@ package de.upb.maven.ecosystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 
 public class ArtifactUtils {
-    public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
-        // CAUTION: the url is not the right download url. The download url ist replaced
-        ArrayList<String> res = Lists.newArrayList();
+  public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
+    // CAUTION: the url is not the right download url. The download url ist replaced
+    ArrayList<String> res = Lists.newArrayList();
 
-        String classifier = "";
-        if (info.getClassifier() != null) {
-            classifier = "-" + info.getClassifier();
-        }
-        String repoURL = info.getRepoURL();
-        if (StringUtils.isBlank(repoURL)) {
-            throw new IllegalArgumentException("Repo URL is blank");
-        }
-
-        if (repoURL.endsWith("/")) {
-            repoURL = repoURL.substring(0, repoURL.length() - 1);
-        }
-        res.add(repoURL);
-        String gId = info.getGroupId().replace(".", "/");
-        res.add(gId);
-        String aId = info.getArtifactId();
-        res.add(aId);
-        String vId = info.getArtifactVersion();
-        res.add(vId);
-        res.add(aId + "-" + vId + classifier + "." + info.getFileExtension());
-        return new URL(Joiner.on("/").join(res));
+    String classifier = "";
+    if (info.getClassifier() != null) {
+      classifier = "-" + info.getClassifier();
     }
+    String repoURL = info.getRepoURL();
+    if (StringUtils.isBlank(repoURL)) {
+      throw new IllegalArgumentException("Repo URL is blank");
+    }
+
+    if (repoURL.endsWith("/")) {
+      repoURL = repoURL.substring(0, repoURL.length() - 1);
+    }
+    res.add(repoURL);
+    String gId = info.getGroupId().replace(".", "/");
+    res.add(gId);
+    String aId = info.getArtifactId();
+    res.add(aId);
+    String vId = info.getArtifactVersion();
+    res.add(vId);
+    res.add(aId + "-" + vId + classifier + "." + info.getFileExtension());
+    return new URL(Joiner.on("/").join(res));
+  }
 }

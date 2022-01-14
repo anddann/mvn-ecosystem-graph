@@ -5,17 +5,17 @@ import java.util.Optional;
 
 public interface Dao<T> {
 
-    Optional<T> get(long id);
+  Optional<T> get(long id);
 
-    Optional<T> get(T instance);
+  Optional<T> get(T instance);
 
-    List<T> getAll();
+  List<T> getAll();
 
-    void save(T t);
+  void save(T t);
 
-    void saveOrMerge(T instance);
+  void saveOrMerge(T instance);
 
-    void update(T t, String[] params);
+  void update(T t, String[] params);
 
-    void delete(T t);
+  void delete(T t);
 }

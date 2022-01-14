@@ -10,267 +10,263 @@ import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Superclass to bootstrap rabbitmq collectives
- */
+/** Superclass to bootstrap rabbitmq collectives */
 public abstract class RabbitMQCollective {
-    public static final String DEFAULT_RABBITMQ_REPLY_TO = "amq.rabbitmq.reply-to";
-    public static final int PREFETCH_COUNT = 1;
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMQCollective.class);
-    private final String queueName;
-    private final String replyQueue;
-    private final int queue_length;
-    private final String rabbitmqUser;
-    private final String rabbitmqPass;
-    private final boolean workerNode;
-    private final String rabbitmqHost;
+  public static final String DEFAULT_RABBITMQ_REPLY_TO = "amq.rabbitmq.reply-to";
+  public static final int PREFETCH_COUNT = 1;
+  private static final Logger logger = LoggerFactory.getLogger(RabbitMQCollective.class);
+  private final String queueName;
+  private final String replyQueue;
+  private final int queue_length;
+  private final String rabbitmqUser;
+  private final String rabbitmqPass;
+  private final boolean workerNode;
+  private final String rabbitmqHost;
 
-    /**
-     * This queue is used to reduce back pressure to the workers. It will only allow a fixed amount of
-     * messages queued with rabbit and block the enqueueing thread until there is place in the queue
-     * again.
-     */
-    private ArrayBlockingQueue<Object> actor_queue;
+  /**
+   * This queue is used to reduce back pressure to the workers. It will only allow a fixed amount of
+   * messages queued with rabbit and block the enqueueing thread until there is place in the queue
+   * again.
+   */
+  private ArrayBlockingQueue<Object> actor_queue;
 
-    private Channel activeChannel;
+  private Channel activeChannel;
 
-    /**
-     * Uses environment variables to infer field values
-     *
-     * @param queueName
-     */
-    public RabbitMQCollective(String queueName) {
-        this(
-                queueName,
-                getRabbitMQHostFromEnvironment(),
-                getRabbitMQUserFromEnvironment(),
-                getRabbitMQPassFromEnvironment(),
-                getWorkerNodeFromEnvironment(),
-                DEFAULT_RABBITMQ_REPLY_TO,
-                getActorLimit());
+  /**
+   * Uses environment variables to infer field values
+   *
+   * @param queueName
+   */
+  public RabbitMQCollective(String queueName) {
+    this(
+        queueName,
+        getRabbitMQHostFromEnvironment(),
+        getRabbitMQUserFromEnvironment(),
+        getRabbitMQPassFromEnvironment(),
+        getWorkerNodeFromEnvironment(),
+        DEFAULT_RABBITMQ_REPLY_TO,
+        getActorLimit());
+  }
+
+  public RabbitMQCollective(
+      String queueName,
+      String rabbitmqHost,
+      String rabbitmqUser,
+      String rabbitmqPass,
+      boolean workerNode,
+      String replyQueueName,
+      int queue_length) {
+    this.rabbitmqUser = rabbitmqUser;
+    this.rabbitmqPass = rabbitmqPass;
+    this.workerNode = workerNode;
+    this.rabbitmqHost = rabbitmqHost;
+    this.queueName = queueName;
+    this.replyQueue = replyQueueName;
+    this.queue_length = queue_length;
+
+    logger.info("rabbitmqHost: {}", rabbitmqHost);
+    logger.info("rabbitmqUser: {}", rabbitmqUser);
+    logger.info("workerNode: {}", workerNode);
+    logger.info("ACTOR_LIMIT: {}", queue_length);
+  }
+
+  public static String getRabbitMQHostFromEnvironment() {
+    String res = System.getenv("RABBITMQ_HOST");
+    if (res == null || res.isEmpty()) {
+      res = "localhost";
+    }
+    return res;
+  }
+
+  public static String getRabbitMQUserFromEnvironment() {
+    String res = System.getenv("RABBITMQ_USER");
+    if (res == null || res.isEmpty()) {
+      res = "guest";
+    }
+    return res;
+  }
+
+  public static String getRabbitMQPassFromEnvironment() {
+    String res = System.getenv("RABBITMQ_PASS");
+    if (res == null || res.isEmpty()) {
+      res = "guest";
+    }
+    return res;
+  }
+
+  public static boolean getWorkerNodeFromEnvironment() {
+    String res = System.getenv("WORKER_NODE");
+
+    boolean workerNode;
+    if (res == null || res.isEmpty()) {
+      workerNode = true;
+    } else {
+      workerNode = Boolean.parseBoolean(res);
     }
 
-    public RabbitMQCollective(
-            String queueName,
-            String rabbitmqHost,
-            String rabbitmqUser,
-            String rabbitmqPass,
-            boolean workerNode,
-            String replyQueueName,
-            int queue_length) {
-        this.rabbitmqUser = rabbitmqUser;
-        this.rabbitmqPass = rabbitmqPass;
-        this.workerNode = workerNode;
-        this.rabbitmqHost = rabbitmqHost;
-        this.queueName = queueName;
-        this.replyQueue = replyQueueName;
-        this.queue_length = queue_length;
+    return workerNode;
+  }
 
-        logger.info("rabbitmqHost: {}", rabbitmqHost);
-        logger.info("rabbitmqUser: {}", rabbitmqUser);
-        logger.info("workerNode: {}", workerNode);
-        logger.info("ACTOR_LIMIT: {}", queue_length);
+  public static int getActorLimit() {
+    String res = System.getenv("ACTOR_LIMIT");
+    int actorLimit;
+    if (res == null || res.isEmpty()) {
+      actorLimit = 20;
+    } else {
+      actorLimit = Integer.parseInt(res);
     }
+    return actorLimit;
+  }
 
-    public static String getRabbitMQHostFromEnvironment() {
-        String res = System.getenv("RABBITMQ_HOST");
-        if (res == null || res.isEmpty()) {
-            res = "localhost";
-        }
-        return res;
-    }
+  protected void runWorker(Channel channel) throws IOException, TimeoutException {
+    DeliverCallback deliverCallback =
+        (consumerTag, delivery) -> {
+          try {
+            doWorkerJob(delivery);
+          } catch (Exception e) {
+            logger.error("[Worker] job failed...", e);
+          } finally {
+            channel.basicPublish(
+                "", delivery.getProperties().getReplyTo(), null, "Polo".getBytes());
 
-    public static String getRabbitMQUserFromEnvironment() {
-        String res = System.getenv("RABBITMQ_USER");
-        if (res == null || res.isEmpty()) {
-            res = "guest";
-        }
-        return res;
-    }
+            channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            logger.info("[Worker] Send Ack");
+          }
+        };
+    channel.basicConsume(getQueueName(), false, deliverCallback, consumerTag -> {});
+  }
 
-    public static String getRabbitMQPassFromEnvironment() {
-        String res = System.getenv("RABBITMQ_PASS");
-        if (res == null || res.isEmpty()) {
-            res = "guest";
-        }
-        return res;
-    }
+  protected abstract void doWorkerJob(Delivery delivery) throws IOException;
 
-    public static boolean getWorkerNodeFromEnvironment() {
-        String res = System.getenv("WORKER_NODE");
+  protected void runProducer(Channel channel) throws Exception {
+    setupResponseListener(channel);
 
-        boolean workerNode;
-        if (res == null || res.isEmpty()) {
-            workerNode = true;
-        } else {
-            workerNode = Boolean.parseBoolean(res);
-        }
+    AMQP.BasicProperties props =
+        new AMQP.BasicProperties.Builder().replyTo(getReplyQueue()).build();
 
-        return workerNode;
-    }
+    doProducerJob(props);
+  }
 
-    public static int getActorLimit() {
-        String res = System.getenv("ACTOR_LIMIT");
-        int actorLimit;
-        if (res == null || res.isEmpty()) {
-            actorLimit = 20;
-        } else {
-            actorLimit = Integer.parseInt(res);
-        }
-        return actorLimit;
-    }
+  protected abstract void doProducerJob(AMQP.BasicProperties props) throws Exception;
 
-    protected void runWorker(Channel channel) throws IOException, TimeoutException {
-        DeliverCallback deliverCallback =
-                (consumerTag, delivery) -> {
-                    try {
-                        doWorkerJob(delivery);
-                    } catch (Exception e) {
-                        logger.error("[Worker] job failed...", e);
-                    } finally {
-                        channel.basicPublish(
-                                "", delivery.getProperties().getReplyTo(), null, "Polo".getBytes());
+  private void setupResponseListener(Channel channel) throws IOException {
+    final BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
 
-                        channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        logger.info("[Worker] Send Ack");
-                    }
-                };
-        channel.basicConsume(getQueueName(), false, deliverCallback, consumerTag -> {
+    channel.basicConsume(
+        getReplyQueue(),
+        true,
+        new DefaultConsumer(channel) {
+          @Override
+          public void handleDelivery(
+              String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
+              throws UnsupportedEncodingException {
+            logger.info("[Producer] Received Ack");
+            response.offer(new String(body, StandardCharsets.UTF_8));
+            actor_queue.poll();
+            logger.info("[Producer] Removed Element from Queue");
+          }
         });
+  }
+
+  protected void run() throws Exception {
+    preFlightCheck();
+    activeChannel = createChannel();
+    if (!workerNode) {
+      actor_queue = new ArrayBlockingQueue<>(queue_length);
+      runProducer(activeChannel);
+      logger.error("[Producer] Producer finished");
+    } else {
+      runWorker(activeChannel);
+      // usually only consumer define a prefetch counts
+      logger.error("[Worker] Worker finished");
     }
+  }
 
-    protected abstract void doWorkerJob(Delivery delivery) throws IOException;
+  /**
+   * Is executed before the worker/producer starts its job. Can be used to setup some required
+   * resources.
+   */
+  protected abstract void preFlightCheck();
 
-    protected void runProducer(Channel channel) throws Exception {
-        setupResponseListener(channel);
-
-        AMQP.BasicProperties props =
-                new AMQP.BasicProperties.Builder().replyTo(getReplyQueue()).build();
-
-        doProducerJob(props);
-    }
-
-    protected abstract void doProducerJob(AMQP.BasicProperties props) throws Exception;
-
-    private void setupResponseListener(Channel channel) throws IOException {
-        final BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
-
-        channel.basicConsume(
-                getReplyQueue(),
-                true,
-                new DefaultConsumer(channel) {
-                    @Override
-                    public void handleDelivery(
-                            String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-                            throws UnsupportedEncodingException {
-                        logger.info("[Producer] Received Ack");
-                        response.offer(new String(body, StandardCharsets.UTF_8));
-                        actor_queue.poll();
-                        logger.info("[Producer] Removed Element from Queue");
-                    }
-                });
-    }
-
-    protected void run() throws Exception {
-        preFlightCheck();
-        activeChannel = createChannel();
-        if (!workerNode) {
-            actor_queue = new ArrayBlockingQueue<>(queue_length);
-            runProducer(activeChannel);
-            logger.error("[Producer] Producer finished");
-        } else {
-            runWorker(activeChannel);
-            // usually only consumer define a prefetch counts
-            logger.error("[Worker] Worker finished");
-        }
-    }
-
-    /**
-     * Is executed before the worker/producer starts its job. Can be used to setup some required
-     * resources.
-     */
-    protected abstract void preFlightCheck();
-
-    private Channel createChannel() throws IOException, TimeoutException {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(rabbitmqHost);
+  private Channel createChannel() throws IOException, TimeoutException {
+    ConnectionFactory factory = new ConnectionFactory();
+    factory.setHost(rabbitmqHost);
     /*  factory.setAutomaticRecoveryEnabled(true);
     // attempt recovery every 10 seconds
     factory.setNetworkRecoveryInterval(10000);*/
-        factory.setUsername(rabbitmqUser);
-        factory.setPassword(rabbitmqPass);
+    factory.setUsername(rabbitmqUser);
+    factory.setPassword(rabbitmqPass);
 
-        // do not call in try block like above, otherwise the channel is closed after the loop
-        Connection connection = factory.newConnection();
-        connection.addShutdownListener(
-                new ShutdownListener() {
-                    @Override
-                    public void shutdownCompleted(ShutdownSignalException cause) {
-                        logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
-                        RabbitMQCollective.this.shutdown();
-                        final boolean hardError = cause.isHardError();
-                        int signal = -1;
+    // do not call in try block like above, otherwise the channel is closed after the loop
+    Connection connection = factory.newConnection();
+    connection.addShutdownListener(
+        new ShutdownListener() {
+          @Override
+          public void shutdownCompleted(ShutdownSignalException cause) {
+            logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
+            RabbitMQCollective.this.shutdown();
+            final boolean hardError = cause.isHardError();
+            int signal = -1;
 
-                        System.exit(signal);
-                    }
-                });
+            System.exit(signal);
+          }
+        });
 
-        Channel channel = connection.createChannel();
+    Channel channel = connection.createChannel();
 
-        channel.addShutdownListener(
-                new ShutdownListener() {
-                    @Override
-                    public void shutdownCompleted(ShutdownSignalException cause) {
-                        logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
-                        RabbitMQCollective.this.shutdown();
-                        final boolean hardError = cause.isHardError();
-                        int signal = -1;
+    channel.addShutdownListener(
+        new ShutdownListener() {
+          @Override
+          public void shutdownCompleted(ShutdownSignalException cause) {
+            logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
+            RabbitMQCollective.this.shutdown();
+            final boolean hardError = cause.isHardError();
+            int signal = -1;
 
-                        System.exit(signal);
-                    }
-                });
+            System.exit(signal);
+          }
+        });
 
-        channel.queueDeclare(queueName, false, false, false, null);
-        channel.basicQos(PREFETCH_COUNT);
+    channel.queueDeclare(queueName, false, false, false, null);
+    channel.basicQos(PREFETCH_COUNT);
 
-        return channel;
-    }
+    return channel;
+  }
 
-    public String getReplyQueue() {
-        return replyQueue;
-    }
+  public String getReplyQueue() {
+    return replyQueue;
+  }
 
-    public String getQueueName() {
-        return queueName;
-    }
+  public String getQueueName() {
+    return queueName;
+  }
 
-    /**
-     * Enqueues the given body to the rabbit queue.
-     *
-     * @param props Rabbit props acquired in the producer job
-     * @param body  Body of the message that should be enqueued
-     * @throws InterruptedException
-     * @throws IOException
-     */
-    public void enqueue(AMQP.BasicProperties props, byte[] body)
-            throws IOException, InterruptedException {
-        actor_queue.put(body);
-        activeChannel.basicPublish("", getQueueName(), props, body);
-    }
+  /**
+   * Enqueues the given body to the rabbit queue.
+   *
+   * @param props Rabbit props acquired in the producer job
+   * @param body Body of the message that should be enqueued
+   * @throws InterruptedException
+   * @throws IOException
+   */
+  public void enqueue(AMQP.BasicProperties props, byte[] body)
+      throws IOException, InterruptedException {
+    actor_queue.put(body);
+    activeChannel.basicPublish("", getQueueName(), props, body);
+  }
 
-    public boolean isWorkerNode() {
-        return workerNode;
-    }
+  public boolean isWorkerNode() {
+    return workerNode;
+  }
 
-    protected abstract void shutdown();
+  protected abstract void shutdown();
 }
