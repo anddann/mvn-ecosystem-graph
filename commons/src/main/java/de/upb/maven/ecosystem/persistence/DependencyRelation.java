@@ -17,12 +17,14 @@ import java.util.List;
 @NoArgsConstructor
 public class DependencyRelation {
 
-    //the default scope is compile
+    // the default scope is compile
     private DependencyScope scope = DependencyScope.COMPILE;
     private boolean optional;
 
-    //This defaults to jar.
-    // While it usually represents the extension on the filename of the dependency, that is not always the case: a type can be mapped to a different extension and a classifier. The type often corresponds to the packaging used, though this is also not always the case.
+    // This defaults to jar.
+    // While it usually represents the extension on the filename of the dependency, that is not always
+    // the case: a type can be mapped to a different extension and a classifier. The type often
+    // corresponds to the packaging used, though this is also not always the case.
     private String type = "jar";
 
     // defaults to null
@@ -30,14 +32,13 @@ public class DependencyRelation {
 
     private MvnArtifactNode dependency;
 
-    // in the mvn resolution process the order of dependencies matters for resolving. Thus, we store its position in the pom file, starting from 0
+    // in the mvn resolution process the order of dependencies matters for resolving. Thus, we store
+    // its position in the pom file, starting from 0
     private int position;
 
-
-    //the url of the repo
+    // the url of the repo
     private String scmURL;
 
     // contains the exclusions in the format g:a
     private List<String> exclusions = new ArrayList<>();
-
 }

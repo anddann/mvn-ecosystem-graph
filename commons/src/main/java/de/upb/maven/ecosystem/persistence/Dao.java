@@ -15,9 +15,7 @@ public interface Dao<T> {
 
     void saveOrMerge(T instance);
 
-
     void update(T t, String[] params);
-
 
     void delete(T t);
 }

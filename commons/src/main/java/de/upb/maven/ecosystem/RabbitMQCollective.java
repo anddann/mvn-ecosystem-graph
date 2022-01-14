@@ -22,14 +22,11 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Superclass to bootstrap rabbitmq collectives
- *
  */
 public abstract class RabbitMQCollective {
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMQCollective.class);
-
     public static final String DEFAULT_RABBITMQ_REPLY_TO = "amq.rabbitmq.reply-to";
     public static final int PREFETCH_COUNT = 1;
-
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMQCollective.class);
     private final String queueName;
     private final String replyQueue;
     private final int queue_length;
@@ -46,6 +43,44 @@ public abstract class RabbitMQCollective {
     private ArrayBlockingQueue<Object> actor_queue;
 
     private Channel activeChannel;
+
+    /**
+     * Uses environment variables to infer field values
+     *
+     * @param queueName
+     */
+    public RabbitMQCollective(String queueName) {
+        this(
+                queueName,
+                getRabbitMQHostFromEnvironment(),
+                getRabbitMQUserFromEnvironment(),
+                getRabbitMQPassFromEnvironment(),
+                getWorkerNodeFromEnvironment(),
+                DEFAULT_RABBITMQ_REPLY_TO,
+                getActorLimit());
+    }
+
+    public RabbitMQCollective(
+            String queueName,
+            String rabbitmqHost,
+            String rabbitmqUser,
+            String rabbitmqPass,
+            boolean workerNode,
+            String replyQueueName,
+            int queue_length) {
+        this.rabbitmqUser = rabbitmqUser;
+        this.rabbitmqPass = rabbitmqPass;
+        this.workerNode = workerNode;
+        this.rabbitmqHost = rabbitmqHost;
+        this.queueName = queueName;
+        this.replyQueue = replyQueueName;
+        this.queue_length = queue_length;
+
+        logger.info("rabbitmqHost: {}", rabbitmqHost);
+        logger.info("rabbitmqUser: {}", rabbitmqUser);
+        logger.info("workerNode: {}", workerNode);
+        logger.info("ACTOR_LIMIT: {}", queue_length);
+    }
 
     public static String getRabbitMQHostFromEnvironment() {
         String res = System.getenv("RABBITMQ_HOST");
@@ -93,44 +128,6 @@ public abstract class RabbitMQCollective {
             actorLimit = Integer.parseInt(res);
         }
         return actorLimit;
-    }
-
-    /**
-     * Uses environment variables to infer field values
-     *
-     * @param queueName
-     */
-    public RabbitMQCollective(String queueName) {
-        this(
-                queueName,
-                getRabbitMQHostFromEnvironment(),
-                getRabbitMQUserFromEnvironment(),
-                getRabbitMQPassFromEnvironment(),
-                getWorkerNodeFromEnvironment(),
-                DEFAULT_RABBITMQ_REPLY_TO,
-                getActorLimit());
-    }
-
-    public RabbitMQCollective(
-            String queueName,
-            String rabbitmqHost,
-            String rabbitmqUser,
-            String rabbitmqPass,
-            boolean workerNode,
-            String replyQueueName,
-            int queue_length) {
-        this.rabbitmqUser = rabbitmqUser;
-        this.rabbitmqPass = rabbitmqPass;
-        this.workerNode = workerNode;
-        this.rabbitmqHost = rabbitmqHost;
-        this.queueName = queueName;
-        this.replyQueue = replyQueueName;
-        this.queue_length = queue_length;
-
-        logger.info("rabbitmqHost: {}", rabbitmqHost);
-        logger.info("rabbitmqUser: {}", rabbitmqUser);
-        logger.info("workerNode: {}", workerNode);
-        logger.info("ACTOR_LIMIT: {}", queue_length);
     }
 
     protected void runWorker(Channel channel) throws IOException, TimeoutException {
