@@ -1,0 +1,68 @@
+version: '3.7'
+services:
+
+
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3.8
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit consumer_timeout 3600000
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - "5672:5672"
+    deploy:
+      mode: global
+    networks:
+      - crawler-net
+
+
+  maven-central-indexer:
+    restart: always
+    image: mvn-central-indexer:0.5.0-SNAPSHOT
+    depends_on:
+      - rabbitmq
+      - redis
+    deploy:
+      mode: global
+    volumes:
+      - central-index-data:/data/
+    env_file:
+      - production.env
+    environment:
+      - WORKER_NODE=false
+      # let the repo url always end with /
+      - MAVEN_REPO_URL=https://repo1.maven.org/maven2/
+      - RABBITMQ_USER=myuser
+      - RABBITMQ_PASS=mypassword
+    networks:
+      - crawler-net
+
+  worker:
+    restart: always
+    image: mvn-crawler:0.5.0-SNAPSHOT
+    deploy:
+      replicas: 1
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        window: 120s
+    depends_on:
+      - maven-central-indexer
+      - rabbitmq
+    env_file:
+      - production.env
+    environment:
+      - WORKER_NODE=true
+      - RABBITMQ_USER=myuser
+      - RABBITMQ_PASS=mypassword
+    networks:
+      - crawler-net
+
+volumes:
+  central-index-data:
+
+networks:
+  crawler-net:
+    external: false

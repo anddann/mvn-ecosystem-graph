@@ -28,6 +28,9 @@ public class MvnArtifactNode {
   private String artifact;
   private String version;
 
+  // the url of the repo
+  private String scmURL;
+
   // the default is null
   private String classifier = null;
 

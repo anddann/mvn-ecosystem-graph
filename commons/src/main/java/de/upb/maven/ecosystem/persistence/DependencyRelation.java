@@ -29,14 +29,11 @@ public class DependencyRelation {
   // defaults to null
   private String classifier = null;
 
-  private MvnArtifactNode dependency;
+  private MvnArtifactNode tgtNode;
 
   // in the mvn resolution process the order of dependencies matters for resolving. Thus, we store
   // its position in the pom file, starting from 0
   private int position;
-
-  // the url of the repo
-  private String scmURL;
 
   // contains the exclusions in the format g:a
   private List<String> exclusions = new ArrayList<>();
