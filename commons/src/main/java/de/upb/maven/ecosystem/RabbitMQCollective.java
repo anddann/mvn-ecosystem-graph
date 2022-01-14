@@ -23,7 +23,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Superclass to bootstrap rabbitmq collectives
  *
- * @author Manuel Benz at 23.03.20
  */
 public abstract class RabbitMQCollective {
     private static final Logger logger = LoggerFactory.getLogger(RabbitMQCollective.class);
