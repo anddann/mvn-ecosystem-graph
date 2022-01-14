@@ -6,7 +6,8 @@ public enum DependencyScope {
     RUNTIME,
     TEST,
     SYSTEM,
-    IMPORT;
     // IMPORT: This scope is only supported on a dependency of type pom in the <dependencyManagement>
     // section.
+    IMPORT
+
 }

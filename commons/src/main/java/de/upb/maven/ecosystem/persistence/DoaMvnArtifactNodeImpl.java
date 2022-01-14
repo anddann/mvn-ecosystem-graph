@@ -32,10 +32,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     private final Driver driver;
 
 
-    public DoaMvnArtifactNodeImpl() {
-        this(Neo4JConnector.getDriver());
-    }
-
     public DoaMvnArtifactNodeImpl(Driver driver) {
         this.driver = driver;
     }
@@ -143,9 +139,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
 
     private MvnArtifactNode constructJavaObject() {
-        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
         // set the fields
-        return mvnArtifactNode;
+        return new MvnArtifactNode();
     }
 
     @Override
@@ -322,7 +317,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             // create the dependency nodes
             write(
                     instance.getDependencies().stream()
-                            .map(x -> x.getDependency())
+                            .map(DependencyRelation::getDependency)
                             .collect(Collectors.toList()),
                     session,
                     this::createNodeQuery);
@@ -330,7 +325,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             // create the dependency management nodes
             write(
                     instance.getDependencyManagement().stream()
-                            .map(x -> x.getDependency())
+                            .map(DependencyRelation::getDependency)
                             .collect(Collectors.toList()),
                     session,
                     this::createNodeQuery);
