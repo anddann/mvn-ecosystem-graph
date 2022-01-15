@@ -9,6 +9,7 @@ import de.upb.maven.ecosystem.persistence.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.DependencyScope;
 import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.Neo4JConnector;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,12 +19,16 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,35 +47,97 @@ public class ArtifactProcessor {
     private final DaoMvnArtifactNode daoMvnArtifactNode;
     private final String repoUrl;
 
+
+    //TODO -- make the code nice in the future by using a worklist and  resolve all parents first...(like in SootResovler https://github.com/soot-oss/soot/blob/develop/src/main/java/soot/SootResolver.java)
+    // add ech parent to resolveList and all found import and then go over them and resolve from top->bottom dependencies and properties
+    //TODO four worklist --> iterate over them in for loop if i = ...
+    // worklist 1 - resolve node in FIFO order (starting with child)
+    // worklist 2 - resolve properties in LIFO order (starting with parent)
+    // worklist 3 - resolve imports in dependency management
+    // worklist 4 - (for dependencies --> that do not came out of the db --> resolve all their direct dependencies)
+
+
+    private static final int RESOLVE_NODE = 0;
+
+    private static final int RESOLVE_PROPERTIES = 1;
+
+    private static final int RESOLVE_IMPORTS = 2;
+
+    private static final int RESOLVE_DIRECT_DEPENDENCIES = 3;
+
+
+    private final Deque<MvnArtifactNode>[] worklist = new Deque[4];
+
+    private final List<MvnArtifactNode> writeToDB = new ArrayList<>();
+
+
     public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
         TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
         this.daoMvnArtifactNode = doaArtifactNode;
         this.repoUrl = repoUrl;
+        // FIFO queue
+        worklist[RESOLVE_NODE] = new ArrayDeque<MvnArtifactNode>();
+        //LIFO
+        worklist[RESOLVE_PROPERTIES] = new ArrayDeque<MvnArtifactNode>();
+        worklist[RESOLVE_IMPORTS] = new ArrayDeque<MvnArtifactNode>();
+        worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<MvnArtifactNode>();
     }
 
-    @Nullable
-    public MvnArtifactNode process(CustomArtifactInfo mvenartifactinfo) {
 
-        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-        mvnArtifactNode.setGroup(mvenartifactinfo.getGroupId());
-        mvnArtifactNode.setArtifact(mvenartifactinfo.getArtifactId());
-        mvnArtifactNode.setVersion(mvenartifactinfo.getArtifactVersion());
-
-        mvnArtifactNode.setClassifier(mvenartifactinfo.getClassifier());
-        mvnArtifactNode.setPackaging(mvenartifactinfo.getPackaging());
-        mvnArtifactNode.setCrawlerVersion(Neo4JConnector.getCrawlerVersion());
-
-        // return if it already exists
-        final Optional<MvnArtifactNode> optionalMvnArtifactNode =
-                daoMvnArtifactNode.get(mvnArtifactNode);
-        if (optionalMvnArtifactNode.isPresent()) {
-            return optionalMvnArtifactNode.get();
+    private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
+        switch (resolvinglevel) {
+            case RESOLVE_NODE:
+                //FIFO resolve parents in FIFO order (starting with child)
+                worklist[RESOLVE_NODE].addLast(node);
+                break;
+            case RESOLVE_PROPERTIES:
+                //LIFO resolve properties in LIFO order (starting with parent)
+                worklist[RESOLVE_PROPERTIES].addFirst(node);
+                break;
+            case RESOLVE_IMPORTS:
+                //LIFO resolve imports in LIFO order (starting with parent) // actually the order is irrelevant here?
+                //TODO -- I'm afraid I've to re-trigger processResolveWorklist to resolve the imports?
+                worklist[RESOLVE_IMPORTS].addFirst(node);
+                break;
+            case RESOLVE_DIRECT_DEPENDENCIES:
+                //LIFO resolve imports in LIFO order (starting with parent) // actually the order is irrelevant here?
+                worklist[RESOLVE_DIRECT_DEPENDENCIES].addLast(node);
+                break;
+            default:
+                throw new IllegalArgumentException("No valid resolving leven given");
         }
 
-        // 2. Download file
-        // 2.1 try by URL
-        // Compute further information from the pom
-        addInfoFromPom(mvenartifactinfo, mvnArtifactNode);
+
+    }
+
+    protected void processResolveWorklist() {
+        for (int i = RESOLVE_NODE; i <= RESOLVE_DIRECT_DEPENDENCIES; i++) {
+            Deque<MvnArtifactNode> currWorklist = worklist[i];
+            while (!currWorklist.isEmpty()) {
+                MvnArtifactNode mvnNode = currWorklist.pop();
+                switch (i) {
+                    case RESOLVE_NODE:
+                        resolveNode(mvnNode);
+                        addtoWorklist(mvnNode, RESOLVE_PROPERTIES);
+                        break;
+                    case RESOLVE_PROPERTIES:
+                        resolvePropertiesOfNodes(mvnNode);
+                        addtoWorklist(mvnNode, RESOLVE_IMPORTS);
+                        break;
+                    case RESOLVE_IMPORTS:
+                        resolveImportNodes(mvnNode);
+                        // problem here we might need to re-cath some nodes??? // after the properties have been resolved ?
+                        addtoWorklist(mvnNode, RESOLVE_DIRECT_DEPENDENCIES);
+                        break;
+                    case RESOLVE_DIRECT_DEPENDENCIES:
+                        resolveDirectDependencies(mvnNode);
+                        break;
+                }
+            }
+        }
+    }
+
+    private void resolveDirectDependencies(MvnArtifactNode mvnArtifactNode) {
 
         // resolve all direct dependencies using the parent and dependency management edges
         // go through the dependencies and resolve the properties
@@ -86,58 +153,27 @@ public class ArtifactProcessor {
             if (StringUtils.isBlank(dependencyRelation.getTgtNode().getVersion())) {
                 dependencyWithoutVersion.add(dependencyRelation.getTgtNode());
             } else if (StringUtils.startsWith(dependencyRelation.getTgtNode().getVersion(), "$")) {
-                dependencyPropertiesToResolve.add(mvnArtifactNode);
+                dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
             }
         }
 
-        //TODO -- make the code nice in the future by using a worklist and  resolve all parents first...(like in SootResovler https://github.com/soot-oss/soot/blob/develop/src/main/java/soot/SootResolver.java)
-        // add ech parent to resolveList and all found import and then go over them and resolve from top->bottom dependencies and properties
+        //all properties should be resolved now, otherwise we are in an inconsistent state
+        if (!dependencyPropertiesToResolve.isEmpty()) {
+            // we still have unresolved properties?
+            LOGGER.error("we still have unresolved properties?");
+            throw new InvalidStateException("Properties not resolved. Invalid State");
+        }
 
+
+        // get the dependencyMgt Nodes to check
         // USE as fifo with add and poll since the order matters
         ArrayDeque<MvnArtifactNode> dependencyManagementNodesToCheck = new ArrayDeque<>();
         // resolve parents first <-> since the dependency management may also contain properties that we
         // need to resolve first
-        MvnArtifactNode currentNode = mvnArtifactNode;
-        while (currentNode != null) {
-            // check for properties
-            final Map<String, String> properties = mvnArtifactNode.getProperties();
+        dependencyManagementNodesToCheck.add(mvnArtifactNode);
 
-            for (Iterator<MvnArtifactNode> iterator = dependencyPropertiesToResolve.iterator();
-                 iterator.hasNext(); ) {
-                MvnArtifactNode dep = iterator.next();
-                String version = dep.getVersion().substring(2, dep.getVersion().length() - 1);
-                final String s = properties.get(version);
-                if (s != null) {
-                    dep.setVersion(s);
-                    iterator.remove();
-                }
-            }
 
-            dependencyManagementNodesToCheck.add(currentNode);
-
-            final MvnArtifactNode parent = currentNode.getParent();
-            if (parent != null) {
-                CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
-                customArtifactInfo.setGroupId(parent.getGroup());
-                customArtifactInfo.setArtifactId(parent.getArtifact());
-                customArtifactInfo.setArtifactVersion(parent.getVersion());
-                customArtifactInfo.setPackaging("pom");
-                customArtifactInfo.setClassifier(parent.getClassifier());
-                customArtifactInfo.setRepoURL(this.repoUrl);
-                final MvnArtifactNode process = process(customArtifactInfo);
-                currentNode.setParent(process);
-                currentNode = process;
-
-            } else {
-                currentNode = null;
-            }
-        }
-        if (!dependencyPropertiesToResolve.isEmpty()) {
-            // we still have unresolved properties?
-            LOGGER.error("we still have unresolved properties?");
-        }
-
-        // go through dependency mgt
+        // resolve the properties without a version
         while (!dependencyWithoutVersion.isEmpty() && !dependencyManagementNodesToCheck.isEmpty()) {
             final MvnArtifactNode poll = dependencyManagementNodesToCheck.poll();
 
@@ -145,12 +181,12 @@ public class ArtifactProcessor {
                     .sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
 
             // default dependencymgt nodes
-            final List<DependencyRelation> defaultNodes =
+            final List<DependencyRelation> dependencyMgmNode =
                     poll.getDependencyManagement().stream()
                             .filter(x -> x.getScope() != DependencyScope.IMPORT)
                             .collect(Collectors.toList());
-            defaultNodes.sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
-            for (DependencyRelation dependencyRelation : defaultNodes) {
+            dependencyMgmNode.sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
+            for (DependencyRelation dependencyRelation : dependencyMgmNode) {
                 final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
 
                 // check if we found our managed dependency
@@ -165,6 +201,13 @@ public class ArtifactProcessor {
                 }
             }
 
+            //TODO -- Check what is resolved first (recursive imports or parent?)
+            //search in the parent for dependency mgmt
+            if (poll.getParent() != null) {
+                dependencyManagementNodesToCheck.add(poll.getParent());
+            }
+
+            //check if we import other dependency management sections
             // import dependencymgt nodes
             final List<DependencyRelation> importNodes =
                     poll.getDependencyManagement().stream()
@@ -175,30 +218,143 @@ public class ArtifactProcessor {
             for (DependencyRelation dependencyRelation : importNodes) {
 
                 final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
-
                 // expliclty add add the head of the queue, since this is the closed import
-
-                CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
-                customArtifactInfo.setGroupId(tgtNode.getGroup());
-                customArtifactInfo.setArtifactId(tgtNode.getArtifact());
-                customArtifactInfo.setArtifactVersion(tgtNode.getVersion());
-                customArtifactInfo.setPackaging("pom");
-                customArtifactInfo.setClassifier(tgtNode.getClassifier());
-                customArtifactInfo.setRepoURL(this.repoUrl);
-                currentNode = process(customArtifactInfo);
-                dependencyManagementNodesToCheck.addFirst(currentNode);
+                dependencyManagementNodesToCheck.addFirst(tgtNode);
             }
+
+
         }
+
 
         if (!dependencyWithoutVersion.isEmpty()) {
             // we still have unresolved properties?
             LOGGER.error("we still have unresolved deps?");
         }
 
-        LOGGER.info("Done crawling Artifact");
+    }
 
-        // when nothing to resolve write into db
-        daoMvnArtifactNode.saveOrMerge(mvnArtifactNode);
+
+    private void resolveImportNodes(MvnArtifactNode mvnNode) {
+        LOGGER.info("Resolve Imports: {}", mvnNode);
+
+
+        final List<DependencyRelation> importNodes =
+                mvnNode.getDependencyManagement().stream()
+                        .filter(x -> x.getScope() == DependencyScope.IMPORT)
+                        .collect(Collectors.toList());
+        // this nodes must be resolved now, after the properties level
+        importNodes.stream().map(x -> x.getTgtNode()).forEach(x -> addtoWorklist(x, RESOLVE_NODE));
+
+        //TODO:  have to retrigger resolving to completelty resolve the new import nodes; maybe there is a nicer approach
+        processResolveWorklist();
+
+    }
+
+    private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
+        LOGGER.info("Resolve Properties: {}", mvnArtifactNode);
+
+        Queue<DependencyRelation> dependenciesToCheck = new ArrayDeque<>();
+        dependenciesToCheck.addAll(mvnArtifactNode.getDependencies());
+        dependenciesToCheck.addAll(mvnArtifactNode.getDependencyManagement());
+
+
+        Queue<MvnArtifactNode> dependencyPropertiesToResolve = new ArrayDeque<>();
+
+        while (!dependenciesToCheck.isEmpty()) {
+            DependencyRelation dependencyRelation = dependenciesToCheck.poll();
+            if (StringUtils.startsWith(dependencyRelation.getTgtNode().getVersion(), "$")) {
+                dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+            }
+        }
+
+        MvnArtifactNode currentNode = mvnArtifactNode;
+        while (currentNode != null) {
+            // check for properties
+            final Map<String, String> properties = mvnArtifactNode.getProperties();
+
+            for (Iterator<MvnArtifactNode> iterator = dependencyPropertiesToResolve.iterator();
+                 iterator.hasNext(); ) {
+                MvnArtifactNode dep = iterator.next();
+                String version = dep.getVersion().substring(2, dep.getVersion().length() - 1);
+
+                //special handling for the property ${project.version}
+                // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
+                //One factor to note is that these variables are processed after inheritance as outlined above. This means that if a parent project uses a variable, then its definition in the child, not the parent, will be the one eventually used.
+                if (StringUtils.equals(version, "project.version")) {
+                    //use the lowest child version
+                    dep.setVersion(mvnArtifactNode.getVersion());
+                    iterator.remove();
+
+                } else {
+                    final String s = properties.get(version);
+                    if (s != null) {
+                        dep.setVersion(s);
+                        iterator.remove();
+                    }
+                }
+            }
+            //search in the parent
+            currentNode = currentNode.getParent();
+        }
+
+
+    }
+
+    private void resolveNode(MvnArtifactNode mvnNode) {
+        LOGGER.info("Resolve node: {}", mvnNode);
+
+        //lookup in database if we have the node already
+        // return if it already exists
+        final Optional<MvnArtifactNode> optionalMvnArtifactNode =
+                daoMvnArtifactNode.get(mvnNode);
+        if (optionalMvnArtifactNode.isPresent()) {
+            //merge with mvnNode - use the shallow info from the database
+            try {
+                BeanUtils.copyProperties(mvnNode, optionalMvnArtifactNode.get());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LOGGER.error("Failed to shallow copy object with", e);
+            }
+        } else {
+            // get the pom
+            addInfoFromPom(mvnNode);
+            //must be stored to the db later
+            writeToDB.add(mvnNode);
+        }
+        //put the parent on the worklist
+        if (mvnNode.getParent() != null) {
+            addtoWorklist(mvnNode.getParent(), RESOLVE_NODE);
+        }
+
+    }
+
+
+    @Nullable
+    public MvnArtifactNode process(CustomArtifactInfo mvenartifactinfo) {
+
+
+        LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
+
+
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setGroup(mvenartifactinfo.getGroupId());
+        mvnArtifactNode.setArtifact(mvenartifactinfo.getArtifactId());
+        mvnArtifactNode.setVersion(mvenartifactinfo.getArtifactVersion());
+
+        mvnArtifactNode.setClassifier(mvenartifactinfo.getClassifier());
+        mvnArtifactNode.setPackaging(mvenartifactinfo.getPackaging());
+        mvnArtifactNode.setCrawlerVersion(Neo4JConnector.getCrawlerVersion());
+
+        addtoWorklist(mvnArtifactNode, RESOLVE_NODE);
+
+        processResolveWorklist();
+
+        for (MvnArtifactNode node : writeToDB) {
+            daoMvnArtifactNode.saveOrMerge(node);
+        }
+
+
+        LOGGER.info("Done crawling Artifact: {}", mvenartifactinfo);
+
 
         return mvnArtifactNode;
     }
@@ -209,16 +365,15 @@ public class ArtifactProcessor {
      *
      * @param info
      */
-    public void addInfoFromPom(final CustomArtifactInfo info, MvnArtifactNode mvnArtifactNode) {
+    public void addInfoFromPom(MvnArtifactNode mvnArtifactNode) {
 
         // Derive pom.xml from info
         CustomArtifactInfo pomInfo = new CustomArtifactInfo();
-        pomInfo.setClassifier(info.getClassifier());
-        pomInfo.setGroupId(info.getGroupId());
-        pomInfo.setArtifactVersion(info.getArtifactVersion());
-        pomInfo.setArtifactId(info.getArtifactId());
-        pomInfo.setBundleLicense(info.getBundleLicense());
-        pomInfo.setRepoURL(info.getRepoURL());
+        pomInfo.setClassifier(mvnArtifactNode.getClassifier());
+        pomInfo.setGroupId(mvnArtifactNode.getGroup());
+        pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
+        pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
+        pomInfo.setRepoURL(this.repoUrl);
         pomInfo.setFileExtension("pom");
         Path pomLocation = null;
         try {

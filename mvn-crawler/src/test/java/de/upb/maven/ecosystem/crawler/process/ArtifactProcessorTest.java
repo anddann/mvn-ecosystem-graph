@@ -12,61 +12,63 @@ import java.util.Optional;
 
 public class ArtifactProcessorTest extends TestCase {
 
+    private DaoMvnArtifactNode databaseMock = new DaoMvnArtifactNode() {
+        // the database
+        private final HashMap<String, MvnArtifactNode> cache = new HashMap<>();
+
+        @Override
+        public Optional<MvnArtifactNode> getParent(long id) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<MvnArtifactNode> get(long id) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
+
+
+            return Optional.ofNullable(cache.get(instance.getGroup() + instance.getArtifact()));
+
+        }
+
+        @Override
+        public List<MvnArtifactNode> getAll() {
+            return null;
+        }
+
+        @Override
+        public void save(MvnArtifactNode mvnArtifactNode) {
+
+        }
+
+        @Override
+        public void saveOrMerge(MvnArtifactNode instance) {
+            cache.put(instance.getGroup() + instance.getArtifact(), instance);
+        }
+
+        @Override
+        public void update(MvnArtifactNode mvnArtifactNode, String[] params) {
+
+        }
+
+        @Override
+        public void delete(MvnArtifactNode mvnArtifactNode) {
+
+        }
+    };
+
     public void testProcess() throws IOException {
-        DaoMvnArtifactNode daoMvnArtifactNode = new DaoMvnArtifactNode() {
-            // the database
-            private final HashMap<String, MvnArtifactNode> cache = new HashMap<>();
-
-            @Override
-            public Optional<MvnArtifactNode> getParent(long id) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Optional<MvnArtifactNode> get(long id) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
 
 
-                return Optional.ofNullable(cache.get(instance.getGroup() + instance.getArtifact()));
-
-            }
-
-            @Override
-            public List<MvnArtifactNode> getAll() {
-                return null;
-            }
-
-            @Override
-            public void save(MvnArtifactNode mvnArtifactNode) {
-
-            }
-
-            @Override
-            public void saveOrMerge(MvnArtifactNode instance) {
-                cache.put(instance.getGroup() + instance.getArtifact(), instance);
-            }
-
-            @Override
-            public void update(MvnArtifactNode mvnArtifactNode, String[] params) {
-
-            }
-
-            @Override
-            public void delete(MvnArtifactNode mvnArtifactNode) {
-
-            }
-        };
-
-        ArtifactProcessor artifactProcessor = new ArtifactProcessor(daoMvnArtifactNode, "https://repo1.maven.org/maven2/");
+        ArtifactProcessor artifactProcessor = new ArtifactProcessor(databaseMock, "https://repo1.maven.org/maven2/");
 
         CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
         artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -79,4 +81,6 @@ public class ArtifactProcessorTest extends TestCase {
 
 
     }
+
+
 }
