@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
 import junit.framework.TestCase;
 
@@ -51,6 +52,7 @@ public class ArtifactProcessorTest extends TestCase {
 
         @Override
         public void saveOrMerge(MvnArtifactNode instance) {
+            DoaMvnArtifactNodeImpl.sanityCheck(instance);
             cache.put(instance.getGroup() + instance.getArtifact(), instance);
         }
 
@@ -76,10 +78,11 @@ public class ArtifactProcessorTest extends TestCase {
         artifactInfo.setArtifactId("atlas-csv-service");
         artifactInfo.setArtifactVersion("2.2.0-M.3");
         artifactInfo.setFileExtension("jar");
+        artifactInfo.setPackaging("jar");
 
-        artifactProcessor.process(artifactInfo);
+        final MvnArtifactNode process = artifactProcessor.process(artifactInfo);
 
-
+        assertNotNull(process);
     }
 
 
