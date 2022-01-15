@@ -90,6 +90,9 @@ public class ArtifactProcessor {
             }
         }
 
+        //TODO -- make the code nice in the future by using a worklist and  resolve all parents first...(like in SootResovler https://github.com/soot-oss/soot/blob/develop/src/main/java/soot/SootResolver.java)
+        // add ech parent to resolveList and all found import and then go over them and resolve from top->bottom dependencies and properties
+
         // USE as fifo with add and poll since the order matters
         ArrayDeque<MvnArtifactNode> dependencyManagementNodesToCheck = new ArrayDeque<>();
         // resolve parents first <-> since the dependency management may also contain properties that we
