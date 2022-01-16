@@ -26,7 +26,7 @@ public class Neo4JConnector {
   public static String getNeo4jPASS() {
     String res = System.getenv("NEO4J_PASS");
     if (res == null || res.isEmpty()) {
-      res = "";
+      res = "test";
     }
     return res;
   }
