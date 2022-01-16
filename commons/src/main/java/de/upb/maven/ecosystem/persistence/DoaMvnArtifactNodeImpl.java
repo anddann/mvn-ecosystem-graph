@@ -12,6 +12,7 @@ import org.neo4j.driver.Query;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
+import org.neo4j.driver.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +172,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
      */
     @NotNull
     private Map<String, Object> createProperties(Object entity) {
+//        Map<String, Object> map = OBJECT_MAPPER.convertValue(entity, new TypeReference<Map<String, Object>>() {
+//        });
+//        return map;
         Map<String, Object> properties = new HashMap<>();
 
         JsonNode objectNode = OBJECT_MAPPER.valueToTree(entity);
@@ -208,16 +212,47 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
         // todo must I include the packaging?
 
-        // match based on gav, classifier
-        String query =
-                String.format(
-                        "MATCH (n:MvnArtifact {group:%s, artifact:%s, version:%s, classifier:%s}) return n",
-                        instance.getGroup(),
-                        instance.getArtifact(),
-                        instance.getVersion(),
-                        instance.getClassifier());
+        Map<String, Object> parameters = new HashMap<>();
 
-        return Optional.empty();
+        // match based on gav, classifier
+        String query = "MATCH (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier}) return n";
+
+
+        parameters.put("group", instance.getGroup());
+        parameters.put("artifact", instance.getArtifact());
+        parameters.put("version", instance.getVersion());
+        parameters.put("classifier", instance.getClassifier());
+        Optional<MvnArtifactNode> res;
+        try (Session session = driver.session()) {
+            final Value value = session.readTransaction(
+                    tx -> {
+                        Result result = tx.run(query, parameters);
+                        if (result == null) {
+                            return null;
+                        }
+                        return result.single().get(0);
+                    });
+
+            if (value == null) {
+                return Optional.empty();
+            }
+            // create the node back
+            final MvnArtifactNode mvnArtifactNode = OBJECT_MAPPER.convertValue(value.asMap(), MvnArtifactNode.class);
+            // get back the properties
+            //TODO implement more general approach
+            try {
+                final String o = (String) value.asMap().get("properties.json");
+                final Map<String, String> stringStringMap;
+                stringStringMap = OBJECT_MAPPER.readValue(o, Map.class);
+                mvnArtifactNode.setProperties(stringStringMap);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return Optional.of(mvnArtifactNode);
+
+        }
+
+
     }
 
     @Override

@@ -25,6 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DoaMvnArtifactNodeImplTest {
 
@@ -146,6 +150,61 @@ public class DoaMvnArtifactNodeImplTest {
 
         DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
         doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
+
+
+    @Test
+    public void saveDependency() {
+
+        //TODO
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
+
+
+    @Test
+    public void saveDependencyMgmt() {
+        //TODO
+
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
+
+
+    @Test
+    public void saveAndGetSingleNode() {
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+
+        //get the node
+        final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+        assertNotNull(mvnArtifactNode1);
+        assertTrue(mvnArtifactNode1.isPresent());
+
     }
 
 }

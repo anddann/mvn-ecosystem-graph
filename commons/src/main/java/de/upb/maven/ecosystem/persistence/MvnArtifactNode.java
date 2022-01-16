@@ -3,6 +3,8 @@ package de.upb.maven.ecosystem.persistence;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,8 @@ public class MvnArtifactNode {
     private String packaging = "jar";
 
     // the maven properties declared in this artifact's pom which are inherited to the children
+//    @JsonSerialize(as = Object.class)
+//    @JsonProperty("properties_json")
     private Map<String, String> properties = new HashMap<>();
 
     // relationship type=PARENT
