@@ -233,6 +233,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     private <T> void write(Collection<T> entities, Session session, Function<T, Query> queryFactory) {
         try (Transaction tx = session.beginTransaction()) {
             for (T entity : entities) {
+                if (entity == null) {
+                    continue;
+                }
+
+
                 Query query = queryFactory.apply(entity);
                 tx.run(query);
             }
@@ -244,6 +249,10 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             T srcNode, Collection<U> entities, Session session, BiFunction<T, U, Query> queryFactory) {
         try (Transaction tx = session.beginTransaction()) {
             for (U entity : entities) {
+                if (entity == null) {
+                    continue;
+                }
+
                 Query query = queryFactory.apply(srcNode, entity);
                 tx.run(query);
             }
@@ -258,20 +267,25 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     // corresponds to the packaging used, though this is also not always the case.
 
     private Query createNodeQuery(MvnArtifactNode node) {
+        Map<String, Object> parameters = new HashMap<>();
+
         StringBuilder query = new StringBuilder();
-        query.append(
-                String.format(
-                        "MERGE (n:MvnArtifact {group:%s, artifact:%s, version:%s, classifier:%s, packaging:%s})",
-                        node.getGroup(),
-                        node.getArtifact(),
-                        node.getVersion(),
-                        node.getClassifier(),
-                        node.getPackaging()));
+        query.append("MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})");
         query.append(" ON CREATE SET n = $props");
         query.append(" ON MATCH SET n += $props");
+        query.append(" RETURN n");
+
         Map<String, Object> properties = createProperties(node);
 
-        return new Query(query.toString(), Collections.singletonMap("props", properties));
+        parameters.put("props", properties);
+        parameters.put("group", node.getGroup());
+        parameters.put("artifact", node.getArtifact());
+        parameters.put("version", node.getVersion());
+        parameters.put("classifier", node.getClassifier());
+        parameters.put("packaging", node.getPackaging());
+
+
+        return new Query(query.toString(), parameters);
     }
 
     private Query createDependencyManagementRelationQuery(
@@ -322,10 +336,10 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query
-                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+                .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)")
                 .append(
                         " WHERE " + createMatchingCondition(srcNode, "src", "src.", parameters) + " AND " + createMatchingCondition(parent, "parent", "parent.", parameters))
-                .append(" CREATE (tgt)-[r:PARENT]->(src)");
+                .append(" CREATE (parent)-[r:PARENT]->(src)");
 
 
         return new Query(query.toString(), parameters);
@@ -406,22 +420,22 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
 
     private String createMatchingCondition(MvnArtifactNode mvnArtifactNode, String label, @Nullable String prefixParameter, Map<String, Object> parameters) {
-        if (StringUtils.isNotBlank(prefixParameter) && !StringUtils.endsWith(".", prefixParameter)) {
-            // add the dot
-            prefixParameter = prefixParameter + ".";
+        if (StringUtils.isNotBlank(prefixParameter) && StringUtils.endsWith(prefixParameter, ".")) {
+            // remove the dot
+            prefixParameter = prefixParameter.substring(0, prefixParameter.length() - 2);
         }
 
-        String groupParameter = prefixParameter + "group";
-        String artifactParameter = prefixParameter + "artifact";
-        String versionParameter = prefixParameter + "version";
-        String classifierParameter = prefixParameter + "classifier";
+        String groupParameter = prefixParameter + "Group";
+        String artifactParameter = prefixParameter + "Artifact";
+        String versionParameter = prefixParameter + "Version";
+        String classifierParameter = prefixParameter + "Classifier";
 
         parameters.put(groupParameter, mvnArtifactNode.getGroup());
         parameters.put(artifactParameter, mvnArtifactNode.getArtifact());
         parameters.put(versionParameter, mvnArtifactNode.getVersion());
         parameters.put(classifierParameter, mvnArtifactNode.getClassifier());
 
-        return String.format("%1$s.group = $%2$s AND %1$s.artifact = $$%3$s AND %1$s.version = $$%4$s AND %1$s.classifier = $$%5$s", label, groupParameter, artifactParameter, versionParameter, classifierParameter);
+        return String.format("%1$s.group = $%2$s AND %1$s.artifact = $%3$s AND %1$s.version = $%4$s AND %1$s.classifier = $%5$s", label, groupParameter, artifactParameter, versionParameter, classifierParameter);
     }
 
     private String createMatchExpression(String group, String artifact, String version, String classifier, String label, @Nullable String prefixParameter, HashMap<String, Object> parameters) {
