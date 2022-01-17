@@ -52,14 +52,13 @@ public class ArtifactManager {
         try {
 
             new ArtifactProcessor(doaArtifactNode, ai.getRepoURL()).process(ai);
-        } catch (IllegalThreadStateException ex) {
-
+        } catch (Exception ex) {
             LOGGER.error("Crawling of artifact:  {} , failed with ", ai.getGroupId() + ":" + ai.getArtifactId() + ":" + ai.getArtifactVersion() + "-" + ai.getClassifier(), ex);
             try {
                 String log = ai.getGroupId() + ":" + ai.getArtifactId() + ":" + ai.getArtifactVersion() + "-" + ai.getClassifier() + " -- " + ex.getMessage() + "\n";
                 Files.write(Paths.get("failed_artifacts.txt"), log.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             } catch (IOException e) {
-                //exception handling left as an exercise for the reader
+                LOGGER.error("Could not write failed_artifacts file", e);
             }
         }
 
