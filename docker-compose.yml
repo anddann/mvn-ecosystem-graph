@@ -24,6 +24,10 @@ services:
       - rabbitmq
     deploy:
       mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 90s
+        window: 240s
     volumes:
       - central-index-data:/data/
     env_file:

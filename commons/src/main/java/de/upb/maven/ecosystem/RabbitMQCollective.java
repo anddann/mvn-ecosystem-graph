@@ -10,6 +10,7 @@ import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.Envelope;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -176,16 +177,35 @@ public abstract class RabbitMQCollective {
   }
 
   protected void run() throws Exception {
+    logger.info("Check if rabbitmq is up and running");
+    boolean rabbitIsAvailable = false;
+    while (!rabbitIsAvailable) {
+      rabbitIsAvailable = reachable();
+      if (!rabbitIsAvailable) {
+        logger.info("rabbitmq is not available waiting for {} sec", 30);
+        Thread.sleep(1000 * 30);
+      }
+    }
+
+    logger.info("Execute pre-flight check");
     preFlightCheck();
     activeChannel = createChannel();
     if (!workerNode) {
+      logger.info("[Producer] Run Producer");
       actor_queue = new ArrayBlockingQueue<>(queue_length);
       runProducer(activeChannel);
-      logger.error("[Producer] Producer finished");
     } else {
+      logger.info("[Worker] Run Worker");
       runWorker(activeChannel);
       // usually only consumer define a prefetch counts
-      logger.error("[Worker] Worker finished");
+    }
+  }
+
+  private static boolean reachable() {
+    try (Socket ignored = new Socket(getRabbitMQHostFromEnvironment(), 5672)) {
+      return true;
+    } catch (IOException ignored) {
+      return false;
     }
   }
 
