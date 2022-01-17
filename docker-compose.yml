@@ -22,7 +22,6 @@ services:
     image: mvn-central-indexer:0.5.0-SNAPSHOT
     depends_on:
       - rabbitmq
-      - redis
     deploy:
       mode: global
     volumes:
@@ -38,27 +37,27 @@ services:
     networks:
       - crawler-net
 
-  worker:
-    restart: always
-    image: mvn-crawler:0.5.0-SNAPSHOT
-    deploy:
-      replicas: 1
-      mode: replicated
-      restart_policy:
-        condition: on-failure
-        delay: 30s
-        window: 120s
-    depends_on:
-      - maven-central-indexer
-      - rabbitmq
-    env_file:
-      - production.env
-    environment:
-      - WORKER_NODE=true
-      - RABBITMQ_USER=myuser
-      - RABBITMQ_PASS=mypassword
-    networks:
-      - crawler-net
+#  worker:
+#    restart: always
+#    image: mvn-crawler:0.5.0-SNAPSHOT
+#    deploy:
+#      replicas: 1
+#      mode: replicated
+#      restart_policy:
+#        condition: on-failure
+#        delay: 30s
+#        window: 120s
+#    depends_on:
+#      - maven-central-indexer
+#      - rabbitmq
+#    env_file:
+#      - production.env
+#    environment:
+#      - WORKER_NODE=true
+#      - RABBITMQ_USER=myuser
+#      - RABBITMQ_PASS=mypassword
+#    networks:
+#      - crawler-net
 
 volumes:
   central-index-data:
