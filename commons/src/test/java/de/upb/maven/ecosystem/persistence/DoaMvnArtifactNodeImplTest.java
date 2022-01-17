@@ -1,13 +1,6 @@
 package de.upb.maven.ecosystem.persistence;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.base.Stopwatch;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,180 +22,204 @@ import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class DoaMvnArtifactNodeImplTest {
 
-  private static final boolean runEmbedded = true;
-  private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImplTest.class);
+    private static final boolean runEmbedded = true;
+    private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImplTest.class);
 
-  public static final String LISTEN_ADDRESS = "localhost:7687";
-  public static final String CREDENTIAL = "neo4j";
+    public static final String LISTEN_ADDRESS = "localhost:7687";
+    public static final String CREDENTIAL = "neo4j";
 
-  private static Path databasePath;
-  private static GraphDatabaseService databaseService;
+    private static Path databasePath;
+    private static GraphDatabaseService databaseService;
 
-  @Rule public TestName currentTestName = new TestName();
+    @Rule
+    public TestName currentTestName = new TestName();
 
-  @BeforeClass
-  public static void setupTestDb() throws IOException {
-    if (runEmbedded) {
-      Stopwatch sw = Stopwatch.createStarted();
-      databasePath = Files.createTempDirectory(CREDENTIAL);
-      databaseService = createDB();
-      logger.info("Started Neo4j Test instance after {}", sw);
+    @BeforeClass
+    public static void setupTestDb() throws IOException {
+        if (runEmbedded) {
+            Stopwatch sw = Stopwatch.createStarted();
+            databasePath = Files.createTempDirectory(CREDENTIAL);
+            databaseService = createDB();
+            logger.info("Started Neo4j Test instance after {}", sw);
+        }
     }
-  }
 
-  @AfterClass
-  public static void shutdown() throws IOException {
-    if (databaseService != null) {
-      databaseService.shutdown();
-      FileUtils.deleteRecursively(databasePath.toFile());
+    @AfterClass
+    public static void shutdown() throws IOException {
+        if (databaseService != null) {
+            databaseService.shutdown();
+            FileUtils.deleteRecursively(databasePath.toFile());
+        }
     }
-  }
 
-  @Before
-  public void clearDb() {
-    try (Session session = createDriver().session()) {
-      try (Transaction tx = session.beginTransaction()) {
-        Query clear = new Query("MATCH (n) DETACH DELETE (n)");
-        tx.run(clear);
-        tx.commit();
-      }
+    @Before
+    public void clearDb() {
+        try (Session session = createDriver().session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                Query clear = new Query("MATCH (n) DETACH DELETE (n)");
+                tx.run(clear);
+                tx.commit();
+            }
+        }
     }
-  }
 
-  private static GraphDatabaseService createDB() throws IOException {
+    private static GraphDatabaseService createDB() throws IOException {
 
-    logger.info("Creating dbms in {}", databasePath);
+        logger.info("Creating dbms in {}", databasePath);
 
-    BoltConnector bolt = new BoltConnector("0");
+        BoltConnector bolt = new BoltConnector("0");
 
-    GraphDatabaseService graphDb =
-        new GraphDatabaseFactory()
-            .newEmbeddedDatabaseBuilder(databasePath.toFile())
-            .setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
-            .setConfig(GraphDatabaseSettings.string_block_size, "60")
-            .setConfig(GraphDatabaseSettings.array_block_size, "300")
-            .setConfig(bolt.enabled, Settings.TRUE)
-            .setConfig(bolt.type, "BOLT")
-            .setConfig(bolt.listen_address, LISTEN_ADDRESS)
-            .newGraphDatabase();
+        GraphDatabaseService graphDb =
+                new GraphDatabaseFactory()
+                        .newEmbeddedDatabaseBuilder(databasePath.toFile())
+                        .setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
+                        .setConfig(GraphDatabaseSettings.string_block_size, "60")
+                        .setConfig(GraphDatabaseSettings.array_block_size, "300")
+                        .setConfig(bolt.enabled, Settings.TRUE)
+                        .setConfig(bolt.type, "BOLT")
+                        .setConfig(bolt.listen_address, LISTEN_ADDRESS)
+                        .newGraphDatabase();
 
-    // Registers a shutdown hook for the Neo4j instance so that it
-    // shuts down nicely when the VM exits (even if you "Ctrl-C" the
-    // running application).
-    Runtime.getRuntime()
-        .addShutdownHook(
-                new Thread(() -> graphDb.shutdown()));
+        // Registers a shutdown hook for the Neo4j instance so that it
+        // shuts down nicely when the VM exits (even if you "Ctrl-C" the
+        // running application).
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDb.shutdown()));
 
-    return graphDb;
-  }
+        return graphDb;
+    }
 
-  private Driver createDriver() {
-    return GraphDatabase.driver(
-        "bolt://" + LISTEN_ADDRESS, AuthTokens.basic(CREDENTIAL, CREDENTIAL));
-  }
+    private Driver createDriver() {
+        return GraphDatabase.driver(
+                "bolt://" + LISTEN_ADDRESS, AuthTokens.basic(CREDENTIAL, CREDENTIAL));
+    }
 
-  @Test
-  public void saveOrMerge() {
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setArtifact("a");
-    mvnArtifactNode.setGroup("g");
-    mvnArtifactNode.setVersion("1.0");
+    @Test
+    public void saveOrMerge() {
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
 
-    MvnArtifactNode parent = new MvnArtifactNode();
-    parent.setArtifact("parent");
-    parent.setGroup("g");
-    parent.setVersion("1.0");
+        MvnArtifactNode parent = new MvnArtifactNode();
+        parent.setArtifact("parent");
+        parent.setGroup("g");
+        parent.setVersion("1.0");
 
-    parent.setPackaging("pom");
+        parent.setPackaging("pom");
 
-    mvnArtifactNode.setParent(parent);
+        mvnArtifactNode.setParent(parent);
 
-    Driver driver = createDriver();
+        Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
-  }
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
 
-  @Test
-  public void saveOrMergeSingleNode() {
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setArtifact("a");
-    mvnArtifactNode.setGroup("g");
-    mvnArtifactNode.setVersion("1.0");
+    @Test
+    public void saveOrMergeSingleNode() {
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
 
-    Driver driver = createDriver();
+        Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
-  }
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
 
-  @Test
-  public void saveDependency() {
+    @Test
+    public void saveDependency() {
 
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setArtifact("a");
-    mvnArtifactNode.setGroup("g");
-    mvnArtifactNode.setVersion("1.0");
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
 
-    MvnArtifactNode dep = new MvnArtifactNode();
-    dep.setArtifact("depA");
-    dep.setGroup("depG");
-    dep.setVersion("1.0");
-    dep.setPackaging("jar");
-    DependencyRelation dependencyRelation = new DependencyRelation();
-    dependencyRelation.setPosition(0);
-    dependencyRelation.setTgtNode(dep);
+        MvnArtifactNode dep = new MvnArtifactNode();
+        dep.setArtifact("depA");
+        dep.setGroup("depG");
+        dep.setVersion("1.0");
+        dep.setPackaging("jar");
+        DependencyRelation dependencyRelation = new DependencyRelation();
+        dependencyRelation.setPosition(0);
+        dependencyRelation.setTgtNode(dep);
 
-    mvnArtifactNode.getDependencies().add(dependencyRelation);
+        mvnArtifactNode.getDependencies().add(dependencyRelation);
 
-    Driver driver = createDriver();
+        Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
-  }
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
 
-  @Test
-  public void saveDependencyMgmt() {
+    @Test
+    public void saveDependencyMgmt() {
 
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setArtifact("a");
-    mvnArtifactNode.setGroup("g");
-    mvnArtifactNode.setVersion("1.0");
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
 
-    MvnArtifactNode dep = new MvnArtifactNode();
-    dep.setArtifact("depA");
-    dep.setGroup("depG");
-    dep.setVersion("1.0");
-    dep.setPackaging("jar");
-    DependencyRelation dependencyRelation = new DependencyRelation();
-    dependencyRelation.setPosition(0);
-    dependencyRelation.setTgtNode(dep);
+        MvnArtifactNode dep = new MvnArtifactNode();
+        dep.setArtifact("depA");
+        dep.setGroup("depG");
+        dep.setVersion("1.0");
+        dep.setPackaging("jar");
+        DependencyRelation dependencyRelation = new DependencyRelation();
+        dependencyRelation.setPosition(0);
+        dependencyRelation.setTgtNode(dep);
 
-    mvnArtifactNode.getDependencyManagement().add(dependencyRelation);
+        mvnArtifactNode.getDependencyManagement().add(dependencyRelation);
 
-    Driver driver = createDriver();
+        Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
-  }
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    }
 
-  @Test
-  public void saveAndGetSingleNode() {
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setArtifact("a");
-    mvnArtifactNode.setGroup("g");
-    mvnArtifactNode.setVersion("1.0");
+    @Test
+    public void saveAndGetSingleNode() {
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
 
-    Driver driver = createDriver();
+        Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
-    // get the node
-    final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
-    assertNotNull(mvnArtifactNode1);
-    assertTrue(mvnArtifactNode1.isPresent());
-  }
+        // get the node
+        final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+        assertNotNull(mvnArtifactNode1);
+        assertTrue(mvnArtifactNode1.isPresent());
+    }
+
+    @Test
+    public void containsNodeWithVersionGQ() {
+
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+
+        final boolean b = doaMvnArtifactNodeImpl.containsNodeWithVersionGQ("g", "a", "1.0", null, Neo4JConnector.getCrawlerVersion());
+        assertTrue(b);
+    }
 }

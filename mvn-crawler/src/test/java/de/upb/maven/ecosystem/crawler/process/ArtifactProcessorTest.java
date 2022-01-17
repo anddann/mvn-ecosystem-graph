@@ -27,12 +27,17 @@ public class ArtifactProcessorTest extends TestCase {
           return Optional.empty();
         }
 
-          @Override
-          public boolean containsNodeWithVersionGQ(String groupId, String artifactId, String version, String classifier, String targetVersion) {
-              return false;
-          }
+        @Override
+        public boolean containsNodeWithVersionGQ(
+            String groupId,
+            String artifactId,
+            String version,
+            String classifier,
+            String targetVersion) {
+          return false;
+        }
 
-          @Override
+        @Override
         public Optional<MvnArtifactNode> get(long id) {
           return Optional.empty();
         }

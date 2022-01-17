@@ -272,7 +272,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     private Query createNodeQuery(MvnArtifactNode node) {
         Map<String, Object> parameters = new HashMap<>();
 
-        String query = "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})" + " ON CREATE SET n = $props" + " ON MATCH SET n += $props" + " RETURN n";
+        String query =
+                "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})"
+                        + " ON CREATE SET n = $props"
+                        + " ON MATCH SET n += $props"
+                        + " RETURN n";
 
         Map<String, Object> properties = createProperties(node);
 
@@ -293,7 +297,12 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query.append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)");
-        query.append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters));
+        query
+                .append(" WHERE ")
+                .append(createMatchingCondition(srcNode, "src", "src.", parameters))
+                .append(" AND ")
+                .append(
+                        createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters));
 
         if (dependencyRelation.getScope() == DependencyScope.IMPORT) {
             query.append(" CREATE (src)-[r:IMPORTS $props]->(tgt)");
@@ -315,8 +324,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query
-                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)").append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(
-                        dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters))
+                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+                .append(" WHERE ")
+                .append(createMatchingCondition(srcNode, "src", "src.", parameters))
+                .append(" AND ")
+                .append(createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters))
                 .append(" CREATE (src)-[r:DEPENDS_ON $props]->(tgt)");
 
         Map<String, Object> properties = createProperties(dependencyRelation);
@@ -331,7 +343,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query
-                .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)").append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(parent, "parent", "parent.", parameters))
+                .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)")
+                .append(" WHERE ")
+                .append(createMatchingCondition(srcNode, "src", "src.", parameters))
+                .append(" AND ")
+                .append(createMatchingCondition(parent, "parent", "parent.", parameters))
                 .append(" CREATE (parent)-[r:PARENT]->(src)");
 
         return new Query(query.toString(), parameters);
@@ -408,7 +424,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     @Override
     public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
         throw new UnsupportedOperationException("getParent() not implemented");
-
     }
 
     private String createMatchingCondition(
@@ -483,7 +498,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             String groupId, String artifactId, String version, String classifier, String targetVersion) {
 
         if (StringUtils.isBlank(classifier)) {
-            //neo4j cannot deal with null values
+            // neo4j cannot deal with null values
             classifier = "null";
         }
 
@@ -498,7 +513,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                     session.writeTransaction(
                             tx -> {
                                 Result result = tx.run(query, parameters);
-                                if (result.single() == null) {
+                                if (result == null) {
                                     return null;
                                 }
                                 return result.single().get(0).asString();

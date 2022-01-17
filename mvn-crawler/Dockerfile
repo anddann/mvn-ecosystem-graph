@@ -5,8 +5,6 @@ ENTRYPOINT ["/bin/bash", "-c", "exec java -jar /usr/share/myservice/myservice.ja
 # Add Maven dependencies (not shaded into the artifact; Docker-cached)
 COPY target/lib /usr/share/myservice/lib
 
-COPY ng /usr/local/bin
-
 # Add the service itself
 ARG JAR_FILE
 ADD target/${JAR_FILE} /usr/share/myservice/myservice.jar

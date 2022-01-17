@@ -3,13 +3,12 @@ package de.upb.maven.ecosystem.persistence;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,7 +42,7 @@ public class DependencyRelation {
 
   // contains the exclusions in the format g:a
   @JsonProperty("exclusions_json")
-  //flatt the nested object into a string, since neo4j does not support complex types
+  // flatt the nested object into a string, since neo4j does not support complex types
   @JsonSerialize(using = ToStringSerializer.class)
   @JsonDeserialize(using = CustomNullDeserializer.class)
   private List<String> exclusions = new ArrayList<>();

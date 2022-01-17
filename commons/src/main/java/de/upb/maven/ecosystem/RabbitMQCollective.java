@@ -8,8 +8,6 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.Envelope;
-import com.rabbitmq.client.ShutdownListener;
-import com.rabbitmq.client.ShutdownSignalException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -209,26 +207,26 @@ public abstract class RabbitMQCollective {
     // do not call in try block like above, otherwise the channel is closed after the loop
     Connection connection = factory.newConnection();
     connection.addShutdownListener(
-            cause -> {
-              logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
-              RabbitMQCollective.this.shutdown();
-              final boolean hardError = cause.isHardError();
-              int signal = -1;
+        cause -> {
+          logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
+          RabbitMQCollective.this.shutdown();
+          final boolean hardError = cause.isHardError();
+          int signal = -1;
 
-              System.exit(signal);
-            });
+          System.exit(signal);
+        });
 
     Channel channel = connection.createChannel();
 
     channel.addShutdownListener(
-            cause -> {
-              logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
-              RabbitMQCollective.this.shutdown();
-              final boolean hardError = cause.isHardError();
-              int signal = -1;
+        cause -> {
+          logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
+          RabbitMQCollective.this.shutdown();
+          final boolean hardError = cause.isHardError();
+          int signal = -1;
 
-              System.exit(signal);
-            });
+          System.exit(signal);
+        });
 
     channel.queueDeclare(queueName, false, false, false, null);
     channel.basicQos(PREFETCH_COUNT);
