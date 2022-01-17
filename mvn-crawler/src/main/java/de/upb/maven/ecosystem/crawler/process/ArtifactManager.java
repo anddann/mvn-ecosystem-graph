@@ -8,6 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 public class ArtifactManager {
@@ -50,7 +53,14 @@ public class ArtifactManager {
 
             new ArtifactProcessor(doaArtifactNode, ai.getRepoURL()).process(ai);
         } catch (IllegalThreadStateException ex) {
+
             LOGGER.error("Crawling of artifact:  {} , failed with ", ai.getGroupId() + ":" + ai.getArtifactId() + ":" + ai.getArtifactVersion() + "-" + ai.getClassifier(), ex);
+            try {
+                String log = ai.getGroupId() + ":" + ai.getArtifactId() + ":" + ai.getArtifactVersion() + "-" + ai.getClassifier() + " -- " + ex.getMessage() + "\n";
+                Files.write(Paths.get("failed_artifacts.txt"), log.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                //exception handling left as an exercise for the reader
+            }
         }
 
         LOGGER.info("Done with: " + crawledArtifacts);
