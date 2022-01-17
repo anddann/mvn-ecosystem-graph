@@ -93,12 +93,7 @@ public class DoaMvnArtifactNodeImplTest {
     // running application).
     Runtime.getRuntime()
         .addShutdownHook(
-            new Thread() {
-              @Override
-              public void run() {
-                graphDb.shutdown();
-              }
-            });
+                new Thread(() -> graphDb.shutdown()));
 
     return graphDb;
   }

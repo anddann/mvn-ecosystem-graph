@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 public class ArtifactProcessorTest extends TestCase {
 
-  private DaoMvnArtifactNode databaseMock =
+  private final DaoMvnArtifactNode databaseMock =
       new DaoMvnArtifactNode() {
         // the database
         private final HashMap<String, MvnArtifactNode> cache = new HashMap<>();
@@ -27,7 +27,12 @@ public class ArtifactProcessorTest extends TestCase {
           return Optional.empty();
         }
 
-        @Override
+          @Override
+          public boolean containsNodeWithVersionGQ(String groupId, String artifactId, String version, String classifier, String targetVersion) {
+              return false;
+          }
+
+          @Override
         public Optional<MvnArtifactNode> get(long id) {
           return Optional.empty();
         }

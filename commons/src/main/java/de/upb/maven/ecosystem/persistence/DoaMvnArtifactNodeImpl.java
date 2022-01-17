@@ -93,7 +93,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         final Set<Integer> posDeps =
                 mvnArtifactNode.getDependencies().stream()
-                        .map(x -> x.getPosition())
+                        .map(DependencyRelation::getPosition)
                         .collect(Collectors.toSet());
         for (int i = 0; i < mvnArtifactNode.getDependencies().size(); i++) {
             final boolean remove = posDeps.remove(i);
@@ -110,7 +110,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         final Set<Integer> posMgmt =
                 mvnArtifactNode.getDependencyManagement().stream()
-                        .map(x -> x.getPosition())
+                        .map(DependencyRelation::getPosition)
                         .collect(Collectors.toSet());
         for (int i = 0; i < mvnArtifactNode.getDependencyManagement().size(); i++) {
             final boolean remove = posMgmt.remove(i);
@@ -171,14 +171,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
      */
     @NotNull
     private Map<String, Object> createProperties(Object entity) {
-        Map<String, Object> map = OBJECT_MAPPER.convertValue(entity, new TypeReference<Map<String, Object>>() {
+        return OBJECT_MAPPER.convertValue(entity, new TypeReference<Map<String, Object>>() {
         });
-        return map;
-    }
-
-    private MvnArtifactNode constructJavaObject() {
-        // set the fields
-        return new MvnArtifactNode();
     }
 
     @Override
@@ -189,7 +183,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     @Override
     public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
         // todo must I include the packaging?
-
         Map<String, Object> parameters = new HashMap<>();
 
         // match based on gav, classifier
@@ -271,8 +264,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         }
     }
 
-    // TODO
-    // for dependency relatiopns
+    // TODO: refine dependency relations?
     // While it usually represents the extension on the filename of the dependency, that is not always
     // the case: a type can be mapped to a different extension and a classifier. The type often
     // corresponds to the packaging used, though this is also not always the case.
@@ -280,12 +272,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     private Query createNodeQuery(MvnArtifactNode node) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder query = new StringBuilder();
-        query.append(
-                "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})");
-        query.append(" ON CREATE SET n = $props");
-        query.append(" ON MATCH SET n += $props");
-        query.append(" RETURN n");
+        String query = "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})" + " ON CREATE SET n = $props" + " ON MATCH SET n += $props" + " RETURN n";
 
         Map<String, Object> properties = createProperties(node);
 
@@ -296,7 +283,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         parameters.put("classifier", node.getClassifier());
         parameters.put("packaging", node.getPackaging());
 
-        return new Query(query.toString(), parameters);
+        return new Query(query, parameters);
     }
 
     private Query createDependencyManagementRelationQuery(
@@ -306,11 +293,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query.append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)");
-        query.append(
-                " WHERE "
-                        + createMatchingCondition(srcNode, "src", "src.", parameters)
-                        + " AND "
-                        + createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters));
+        query.append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters));
 
         if (dependencyRelation.getScope() == DependencyScope.IMPORT) {
             query.append(" CREATE (src)-[r:IMPORTS $props]->(tgt)");
@@ -332,13 +315,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query
-                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
-                .append(
-                        " WHERE "
-                                + createMatchingCondition(srcNode, "src", "src.", parameters)
-                                + " AND "
-                                + createMatchingCondition(
-                                dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters))
+                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)").append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(
+                        dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters))
                 .append(" CREATE (src)-[r:DEPENDS_ON $props]->(tgt)");
 
         Map<String, Object> properties = createProperties(dependencyRelation);
@@ -353,12 +331,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         StringBuilder query = new StringBuilder();
         query
-                .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)")
-                .append(
-                        " WHERE "
-                                + createMatchingCondition(srcNode, "src", "src.", parameters)
-                                + " AND "
-                                + createMatchingCondition(parent, "parent", "parent.", parameters))
+                .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)").append(" WHERE ").append(createMatchingCondition(srcNode, "src", "src.", parameters)).append(" AND ").append(createMatchingCondition(parent, "parent", "parent.", parameters))
                 .append(" CREATE (parent)-[r:PARENT]->(src)");
 
         return new Query(query.toString(), parameters);
@@ -434,8 +407,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     @Override
     public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
-        // TODO
-        return Optional.empty();
+        throw new UnsupportedOperationException("getParent() not implemented");
+
     }
 
     private String createMatchingCondition(
@@ -509,6 +482,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     public boolean containsNodeWithVersionGQ(
             String groupId, String artifactId, String version, String classifier, String targetVersion) {
 
+        if (StringUtils.isBlank(classifier)) {
+            //neo4j cannot deal with null values
+            classifier = "null";
+        }
+
         HashMap<String, Object> parameters = new HashMap<>();
         // match based on gav, classifier
         String query =
@@ -529,6 +507,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         if (StringUtils.isBlank(versionNumber)) {
             return false;
         }
-        return StringUtils.compare(versionNumber, targetVersion) < 0 ? false : true;
+        return StringUtils.compare(versionNumber, targetVersion) >= 0;
     }
 }

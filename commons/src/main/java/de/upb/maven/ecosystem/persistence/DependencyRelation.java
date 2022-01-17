@@ -43,7 +43,7 @@ public class DependencyRelation {
 
   // contains the exclusions in the format g:a
   @JsonProperty("exclusions_json")
-  //flatt the embeded object into a string, since neo4j does not support complex types
+  //flatt the nested object into a string, since neo4j does not support complex types
   @JsonSerialize(using = ToStringSerializer.class)
   @JsonDeserialize(using = CustomNullDeserializer.class)
   private List<String> exclusions = new ArrayList<>();

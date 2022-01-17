@@ -45,7 +45,7 @@ public abstract class AbstractCrawler extends RabbitMQCollective {
     try {
       super.run();
     } finally {
-      // in a multi threaded environment this code is alway executed...
+      // in a multi-threaded environment this code is always executed...
       /// shutdown();
       Runtime.getRuntime()
           .addShutdownHook(

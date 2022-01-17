@@ -1,11 +1,9 @@
 package de.upb.maven.ecosystem.persistence;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class CustomNullDeserializer extends StdDeserializer<Map<String, String>> {
@@ -20,8 +18,8 @@ public class CustomNullDeserializer extends StdDeserializer<Map<String, String>>
     }
 
     @Override
-    public Map<String, String> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        //TODO write correct desizlizer
+    public Map<String, String> deserialize(JsonParser p, DeserializationContext ctxt) {
+        //TODO write correct deserializer
 
         return null;
     }

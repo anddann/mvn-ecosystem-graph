@@ -31,6 +31,9 @@ public class MvnArtifactNode {
     private String artifact;
     private String version;
 
+    //TODO set in code for multiple repo support
+    private String repoURL = "https://repo1.maven.org/maven2/";
+
     // the url of the repo
     private String scmURL;
 
@@ -42,7 +45,7 @@ public class MvnArtifactNode {
 
     // the maven properties declared in this artifact's pom which are inherited to the children
     @JsonProperty("properties_json")
-    //flatt the embeded object into a string, since neo4j does not support complex types
+    //flatt the nested object into a string, since neo4j does not support complex types
     @JsonSerialize(using = ToStringSerializer.class)
     @JsonDeserialize(using = CustomNullDeserializer.class)
     private Map<String, String> properties = new HashMap<>();

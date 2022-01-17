@@ -55,7 +55,7 @@ public class Main extends AbstractCrawler {
   }
 
   @Override
-  protected void doProducerJob(AMQP.BasicProperties props) throws Exception {
+  protected void doProducerJob(AMQP.BasicProperties props) {
     LOGGER.info("No Producer registered");
   }
 

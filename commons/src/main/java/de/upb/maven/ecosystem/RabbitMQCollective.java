@@ -192,7 +192,7 @@ public abstract class RabbitMQCollective {
   }
 
   /**
-   * Is executed before the worker/producer starts its job. Can be used to setup some required
+   * Is executed before the worker/producer starts its job. Can be used to set up some required
    * resources.
    */
   protected abstract void preFlightCheck();
@@ -209,32 +209,26 @@ public abstract class RabbitMQCollective {
     // do not call in try block like above, otherwise the channel is closed after the loop
     Connection connection = factory.newConnection();
     connection.addShutdownListener(
-        new ShutdownListener() {
-          @Override
-          public void shutdownCompleted(ShutdownSignalException cause) {
-            logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
-            RabbitMQCollective.this.shutdown();
-            final boolean hardError = cause.isHardError();
-            int signal = -1;
+            cause -> {
+              logger.info("Received Connection Shutdown signal with cause: " + cause.getMessage());
+              RabbitMQCollective.this.shutdown();
+              final boolean hardError = cause.isHardError();
+              int signal = -1;
 
-            System.exit(signal);
-          }
-        });
+              System.exit(signal);
+            });
 
     Channel channel = connection.createChannel();
 
     channel.addShutdownListener(
-        new ShutdownListener() {
-          @Override
-          public void shutdownCompleted(ShutdownSignalException cause) {
-            logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
-            RabbitMQCollective.this.shutdown();
-            final boolean hardError = cause.isHardError();
-            int signal = -1;
+            cause -> {
+              logger.info("Received Channel Shutdown signal with cause: " + cause.getMessage());
+              RabbitMQCollective.this.shutdown();
+              final boolean hardError = cause.isHardError();
+              int signal = -1;
 
-            System.exit(signal);
-          }
-        });
+              System.exit(signal);
+            });
 
     channel.queueDeclare(queueName, false, false, false, null);
     channel.basicQos(PREFETCH_COUNT);
