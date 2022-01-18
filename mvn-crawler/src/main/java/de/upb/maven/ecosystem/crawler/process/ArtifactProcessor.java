@@ -5,11 +5,10 @@ import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.crawler.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,8 +108,8 @@ public class ArtifactProcessor {
                 MvnArtifactNode mvnNode = currWorklist.pop();
                 switch (i) {
                     case RESOLVE_NODE:
-                        resolveNode(mvnNode);
-                        addtoWorklist(mvnNode, RESOLVE_PROPERTIES);
+                        final MvnArtifactNode mvnArtifactNode = resolveNode(mvnNode);
+                        addtoWorklist(mvnArtifactNode, RESOLVE_PROPERTIES);
                         break;
                     case RESOLVE_PROPERTIES:
                         resolvePropertiesOfNodes(mvnNode);
@@ -281,28 +279,24 @@ public class ArtifactProcessor {
         }
     }
 
-    private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
+    private MvnArtifactNode resolveNode(MvnArtifactNode mvnNode) throws IOException {
         LOGGER.info("Resolve node: {}", mvnNode);
 
         // lookup in database if we have the node already
         // return if it already exists
         final Optional<MvnArtifactNode> optionalMvnArtifactNode = daoMvnArtifactNode.get(mvnNode);
-        if (optionalMvnArtifactNode.isPresent()) {
-
-            //FIXME -- shallow copy does not work
-            // problem, when we have a "dangling" node in the db.
-            // 1. we saw the node as a dependency and added it to the db
-            // 2. we return the node here, however, neither its properties nor its dependencies have been resolved before...
-            // merge with mvnNode - use the shallow info from the database
-            try {
-                BeanUtils.copyProperties(mvnNode, optionalMvnArtifactNode.get());
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                LOGGER.error("Failed to shallow copy object with", e);
-            }
+        //
+        // problem, when we have a "dangling" node in the db.
+        // 1. we saw the node as a dependency and added it to the db
+        // 2. we return the node here, however, neither its properties nor its dependencies have been resolved before...
+        // merge with mvnNode - use the shallow info from the database
+        if (optionalMvnArtifactNode.isPresent() && optionalMvnArtifactNode.get().getResolvingLevel() == MvnArtifactNode.ResolvingLevel.FULL) {
+            mvnNode = optionalMvnArtifactNode.get();
         } else {
             // get the pom
 
             addInfoFromPom(mvnNode);
+            mvnNode.setResolvingLevel(MvnArtifactNode.ResolvingLevel.FULL);
             // must be stored to the db later
             writeToDBList.add(mvnNode);
 
@@ -312,6 +306,7 @@ public class ArtifactProcessor {
         if (mvnNode.getParent().isPresent()) {
             addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
         }
+        return mvnNode;
     }
 
     @Nullable

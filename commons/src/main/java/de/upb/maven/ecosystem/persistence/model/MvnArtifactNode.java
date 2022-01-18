@@ -58,7 +58,7 @@ public class MvnArtifactNode {
 
     // relationship type=PARENT
     @JsonIgnore
-    private Optional<MvnArtifactNode> parent;
+    private Optional<MvnArtifactNode> parent = Optional.empty();
 
     // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
     // resolving

@@ -51,8 +51,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
      */
     public static void sanityCheck(MvnArtifactNode mvnArtifactNode) throws IllegalArgumentException {
 
-        if (mvnArtifactNode.getParent() != null
-                && !StringUtils.equals(mvnArtifactNode.getParent().getPackaging(), "pom")) {
+        if (mvnArtifactNode.getParent().isPresent()
+                && !StringUtils.equals(mvnArtifactNode.getParent().get().getPackaging(), "pom")) {
             // the parent artifact may only have the packaging pom
             logger.error("The packaging of the parent is invalid");
             throw new IllegalArgumentException("A Maven parent must have packaging: pom");
@@ -244,22 +244,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
             final Value n = record.get("n");
             if (n != null) {
-                // create the node back
-                final MvnArtifactNodeProxy mvnArtifactNode =
-                        OBJECT_MAPPER.convertValue(n.asMap(), MvnArtifactNodeProxy.class);
-                mvnArtifactNode.setDoaMvnArtifactNode(this);
-                // get back the properties
-                try {
-                    // TODO adapt deserializer in the future to use jackson only
-                    final String o = (String) n.asMap().get("properties_json");
-                    final Map<String, String> stringStringMap;
-                    stringStringMap = OBJECT_MAPPER.readValue(o, Map.class);
-                    mvnArtifactNode.setProperties(stringStringMap);
-                } catch (JsonProcessingException e) {
-                    logger.error("Could not parse node from db back", e);
-                    e.printStackTrace();
-                }
-                return Optional.of(mvnArtifactNode);
+
+                return Optional.of(createProxyNode(n));
 
             }
             return Optional.empty();
@@ -315,9 +301,12 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         String query =
                 "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging})"
-                        + " ON CREATE SET n = $props"
-                        + " ON MATCH SET n += $props"
-                        + " RETURN n";
+                        + " ON CREATE SET n = $props";
+        if (node.getResolvingLevel() == MvnArtifactNode.ResolvingLevel.FULL) {
+            // only override if the resolving level of this node is full
+            query += " ON MATCH SET n += $props";
+        }
+        query += " RETURN n";
 
         Map<String, Object> properties = createProperties(node);
 
@@ -502,25 +491,31 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             if (value == null) {
                 return Optional.empty();
             }
-            // create the node back
-            final DependencyRelation depRelation =
-                    OBJECT_MAPPER.convertValue(value.asMap(), DependencyRelation.class);
-            // get back the properties
-            try {
-                // TODO adapt deserializer in the future to use jackson only
-                final String o = (String) value.asMap().get("exclusions_json");
-                final List<String> stringStringMap;
-                stringStringMap = OBJECT_MAPPER.readValue(o, List.class);
-                depRelation.setExclusions(stringStringMap);
-                //TODO?? reference to tgtNode and srceNode, set them...
 
-            } catch (JsonProcessingException e) {
-                logger.error("Could not parse node from db back", e);
-                e.printStackTrace();
-            }
-            return Optional.of(depRelation);
+            return Optional.of(createDepRelation(value));
         }
 
+    }
+
+
+    private DependencyRelation createDepRelation(Value value) {
+        // create the node back
+        final DependencyRelation depRelation =
+                OBJECT_MAPPER.convertValue(value.asMap(), DependencyRelation.class);
+        // get back the properties
+        try {
+            // TODO adapt deserializer in the future to use jackson only
+            final String o = (String) value.asMap().get("exclusions_json");
+            final List<String> stringStringMap;
+            stringStringMap = OBJECT_MAPPER.readValue(o, List.class);
+            depRelation.setExclusions(stringStringMap);
+            //TODO?? reference to tgtNode and srceNode, set them...
+
+        } catch (JsonProcessingException e) {
+            logger.error("Could not parse node from db back", e);
+            e.printStackTrace();
+        }
+        return depRelation;
     }
 
     private String createMatchingCondition(
@@ -626,4 +621,93 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         }
         return StringUtils.compare(versionNumber, targetVersion) >= 0;
     }
+
+    @Override
+    public List<DependencyRelation> getDependencyManagement(MvnArtifactNode instance) {
+        HashMap<String, Object> parameters = new HashMap<>();
+
+        StringBuilder query = new StringBuilder();
+        query
+                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+                .append(" WHERE ")
+                .append(createMatchingCondition(instance, "src", "src.", parameters))
+                .append(" MATCH (src)-[r:MANAGES|:IMPORTS]->(tgt)").append(" RETURN r, tgt");
+
+        try (Session session = driver.session()) {
+            List<DependencyRelation> list =
+                    session.readTransaction(
+                            tx -> {
+                                Result result = tx.run(query.toString(), parameters);
+                                if (result == null) {
+                                    return Collections.emptyList();
+                                }
+                                List<DependencyRelation> dependencyRelations = new ArrayList<>();
+                                while (result.hasNext()) {
+                                    final Record next = result.next();
+                                    final DependencyRelation r = createDepRelation(next.get("r"));
+                                    final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
+                                    r.setTgtNode(tgt);
+                                    dependencyRelations.add(r);
+                                }
+                                return dependencyRelations;
+                            });
+
+            return Collections.emptyList();
+        }
+    }
+
+
+    private MvnArtifactNodeProxy createProxyNode(Value value) {
+        // create the node back
+        final MvnArtifactNodeProxy mvnArtifactNode =
+                OBJECT_MAPPER.convertValue(value.asMap(), MvnArtifactNodeProxy.class);
+        mvnArtifactNode.setDoaMvnArtifactNode(this);
+        // get back the properties
+        try {
+            // TODO adapt deserializer in the future to use jackson only
+            final String o = (String) value.asMap().get("properties_json");
+            final Map<String, String> stringStringMap;
+            stringStringMap = OBJECT_MAPPER.readValue(o, Map.class);
+            mvnArtifactNode.setProperties(stringStringMap);
+        } catch (JsonProcessingException e) {
+            logger.error("Could not parse node from db back", e);
+            e.printStackTrace();
+        }
+        return mvnArtifactNode;
+    }
+
+    @Override
+    public List<DependencyRelation> getDependencies(MvnArtifactNode instance) {
+        HashMap<String, Object> parameters = new HashMap<>();
+
+        StringBuilder query = new StringBuilder();
+        query
+                .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+                .append(" WHERE ")
+                .append(createMatchingCondition(instance, "src", "src.", parameters))
+                .append(" MATCH (src)-[r:DEPENDS_ON]->(tgt)").append(" RETURN r, tgt");
+
+        try (Session session = driver.session()) {
+            List<DependencyRelation> list =
+                    session.readTransaction(
+                            tx -> {
+                                Result result = tx.run(query.toString(), parameters);
+                                if (result == null) {
+                                    return Collections.emptyList();
+                                }
+                                List<DependencyRelation> dependencyRelations = new ArrayList<>();
+                                while (result.hasNext()) {
+                                    final Record next = result.next();
+                                    final DependencyRelation r = createDepRelation(next.get("r"));
+                                    final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
+                                    r.setTgtNode(tgt);
+                                    dependencyRelations.add(r);
+                                }
+                                return dependencyRelations;
+                            });
+
+            return Collections.emptyList();
+        }
+    }
+
 }

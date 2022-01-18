@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.persistence;
 
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.MvnArtifactNodeProxy;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
@@ -282,6 +283,67 @@ public class DoaMvnArtifactNodeImplTest {
         assertNotNull(mvnArtifactNode1.get());
         assertNotNull(mvnArtifactNode1.get().getExclusions());
         assertEquals(2, mvnArtifactNode1.get().getExclusions().size());
+
+    }
+
+
+    @Test
+    public void testProxObject() {
+
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+        // the dependency
+        MvnArtifactNode depNode = new MvnArtifactNode();
+        depNode.setArtifact("da");
+        depNode.setGroup("dg");
+        depNode.setVersion("2.0");
+
+        // the relation
+        DependencyRelation dependencyRelation = new DependencyRelation();
+        dependencyRelation.setTgtNode(depNode);
+        dependencyRelation.setPosition(0);
+        mvnArtifactNode.getDependencies().add(dependencyRelation);
+
+        List<String> exclusions = new ArrayList<>();
+        exclusions.add("a:a");
+        exclusions.add("b:b");
+
+        dependencyRelation.setExclusions(exclusions);
+
+
+        MvnArtifactNode depNode2 = new MvnArtifactNode();
+        depNode2.setArtifact("da2");
+        depNode2.setGroup("dg2");
+        depNode2.setVersion("4.0");
+
+        // the relation
+        DependencyRelation dependencyRelation2 = new DependencyRelation();
+        dependencyRelation2.setTgtNode(depNode2);
+        dependencyRelation2.setPosition(1);
+
+        mvnArtifactNode.getDependencies().add(dependencyRelation2);
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+
+
+        // get the node and the relationship
+
+        final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+        assertNotNull(mvnArtifactNode1);
+        assertTrue(mvnArtifactNode1.isPresent());
+        final MvnArtifactNode proxyNode = mvnArtifactNode1.get();
+        assertTrue(proxyNode instanceof MvnArtifactNodeProxy);
+
+        final List<DependencyRelation> dependencies = proxyNode.getDependencies();
+        assertNotNull(dependencies);
+        assertEquals(2, dependencies.size());
+
 
     }
 
