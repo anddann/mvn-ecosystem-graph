@@ -19,7 +19,6 @@ public class MvnArtifactNodeProxy extends MvnArtifactNode {
 
   @Override
   public List<DependencyRelation> getDependencies() {
-    // add...
     if (depsResolved == false) {
       final List<DependencyRelation> dependencies = doaMvnArtifactNode.getDependencies(this);
       super.setDependencies(dependencies);

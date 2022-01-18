@@ -323,7 +323,6 @@ public class ArtifactProcessor {
 
         processResolveWorklist();
 
-
         LOGGER.info("Done crawling Artifact: {}", mvenartifactinfo);
 
         return writeToDBList;
@@ -363,17 +362,15 @@ public class ArtifactProcessor {
                     parent.setArtifact(mavenProjectParent.getArtifactId());
                     parent.setVersion(mavenProjectParent.getVersion());
                     parent.setPackaging("pom");
-                    mvnArtifactNode.setParent(parent);
+                    mvnArtifactNode.setParent(Optional.of(parent));
                 }
 
                 HashMap<String, String> newPros = new HashMap<>();
                 for (Map.Entry<Object, Object> entry : model.getProperties().entrySet()) {
                     newPros.put(entry.getKey().toString(), entry.getValue().toString());
                 }
-
                 // add the properties
                 mvnArtifactNode.setProperties(newPros);
-
                 // find the dependencies, and add them
                 if (model.getDependencies() != null) {
                     for (int i = 0; i < model.getDependencies().size(); i++) {
