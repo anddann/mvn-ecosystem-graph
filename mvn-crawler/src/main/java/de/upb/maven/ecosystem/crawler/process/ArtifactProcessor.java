@@ -109,7 +109,7 @@ public class ArtifactProcessor {
         }
     }
 
-    protected void processResolveWorklist() {
+    protected void processResolveWorklist() throws IOException {
         for (int i = RESOLVE_NODE; i <= RESOLVE_DIRECT_DEPENDENCIES; i++) {
             Deque<MvnArtifactNode> currWorklist = worklist[i];
             while (!currWorklist.isEmpty()) {
@@ -221,7 +221,7 @@ public class ArtifactProcessor {
         }
     }
 
-    private void resolveImportNodes(MvnArtifactNode mvnNode) {
+    private void resolveImportNodes(MvnArtifactNode mvnNode) throws IOException {
         LOGGER.info("Resolve Imports: {}", mvnNode);
 
         final List<DependencyRelation> importNodes =
@@ -287,29 +287,28 @@ public class ArtifactProcessor {
         }
     }
 
-    private void resolveNode(MvnArtifactNode mvnNode) {
+    private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
         LOGGER.info("Resolve node: {}", mvnNode);
 
         // lookup in database if we have the node already
         // return if it already exists
+        //TODO also give back a shallow reference to the parent...
         final Optional<MvnArtifactNode> optionalMvnArtifactNode = daoMvnArtifactNode.get(mvnNode);
         if (optionalMvnArtifactNode.isPresent()) {
             // merge with mvnNode - use the shallow info from the database
             try {
+
                 BeanUtils.copyProperties(mvnNode, optionalMvnArtifactNode.get());
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("Failed to shallow copy object with", e);
             }
         } else {
             // get the pom
-            try {
+
                 addInfoFromPom(mvnNode);
                 // must be stored to the db later
                 writeToDBList.add(mvnNode);
-            } catch (IOException e) {
-                LOGGER.error("Failed to resolve node: {}", mvnNode, e);
-                return;
-            }
+
 
         }
         // put the parent on the worklist
@@ -319,7 +318,7 @@ public class ArtifactProcessor {
     }
 
     @Nullable
-    public Collection<MvnArtifactNode> process(CustomArtifactInfo mvenartifactinfo) {
+    public Collection<MvnArtifactNode> process(CustomArtifactInfo mvenartifactinfo) throws IOException {
 
         LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
 

@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
+import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
@@ -38,4 +39,17 @@ public class ArtifactUtils {
         res.add(aId + "-" + vId + classifier + "." + info.getFileExtension());
         return new URL(Joiner.on("/").join(res));
     }
+
+    public static URL constructURL(MvnArtifactNode info) throws MalformedURLException {
+        CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
+        customArtifactInfo.setGroupId(info.getGroup());
+        customArtifactInfo.setArtifactId(info.getArtifact());
+        customArtifactInfo.setArtifactVersion(info.getVersion());
+        customArtifactInfo.setClassifier(info.getClassifier());
+        customArtifactInfo.setPackaging(info.getPackaging());
+        customArtifactInfo.setRepoURL(info.getRepoURL());
+        return constructURL(customArtifactInfo);
+    }
+
+
 }
