@@ -1,8 +1,9 @@
-package de.upb.maven.ecosystem.persistence;
+package de.upb.maven.ecosystem.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +21,14 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MvnArtifactNode {
+
+
+    public enum ResolvingLevel {
+        DANGLING, FULL;
+    }
+
+
+    private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
 
     // version number that created this node, e.g., used for updating and check which crawler was used
     private String crawlerVersion = Neo4JConnector.getCrawlerVersion();
@@ -48,7 +58,7 @@ public class MvnArtifactNode {
 
     // relationship type=PARENT
     @JsonIgnore
-    private MvnArtifactNode parent;
+    private Optional<MvnArtifactNode> parent;
 
     // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
     // resolving
@@ -62,12 +72,13 @@ public class MvnArtifactNode {
     private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
     public void setParent(MvnArtifactNode parent) {
+        // TODO add nullness check?
         // quick sanity check
         if (!StringUtils.equals(parent.getPackaging(), "pom")) {
             // the parent artifact may only have the packaging pom
             throw new IllegalArgumentException("A Maven parent must have packaging: pom");
         }
-        this.parent = parent;
+        this.parent = Optional.of(parent);
     }
 
     public void setClassifier(String classifier) {

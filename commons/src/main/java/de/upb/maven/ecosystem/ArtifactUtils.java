@@ -3,7 +3,7 @@ package de.upb.maven.ecosystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;

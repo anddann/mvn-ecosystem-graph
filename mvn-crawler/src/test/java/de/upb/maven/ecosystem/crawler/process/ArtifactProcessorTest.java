@@ -1,9 +1,10 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.DoaMvnArtifactNodeImpl;
-import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -26,6 +27,11 @@ public class ArtifactProcessorTest extends TestCase {
 
                 @Override
                 public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
+                    return Optional.empty();
+                }
+
+                @Override
+                public Optional<DependencyRelation> getRelationship(MvnArtifactNode instance, MvnArtifactNode dependency) {
                     return Optional.empty();
                 }
 

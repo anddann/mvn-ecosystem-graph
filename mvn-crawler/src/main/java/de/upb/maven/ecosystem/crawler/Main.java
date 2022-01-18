@@ -9,8 +9,8 @@ import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.DoaMvnArtifactNodeImpl;
-import de.upb.maven.ecosystem.persistence.Neo4JConnector;
+import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import java.io.IOException;
 import org.slf4j.LoggerFactory;
 

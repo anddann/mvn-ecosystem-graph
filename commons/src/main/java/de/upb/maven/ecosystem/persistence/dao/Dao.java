@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.persistence;
+package de.upb.maven.ecosystem.persistence.dao;
 
 import java.util.List;
 import java.util.Optional;

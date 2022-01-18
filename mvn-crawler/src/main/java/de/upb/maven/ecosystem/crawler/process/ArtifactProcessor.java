@@ -4,11 +4,11 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.crawler.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.DependencyRelation;
-import de.upb.maven.ecosystem.persistence.DependencyScope;
-import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.Neo4JConnector;
+import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.model.DependencyScope;
+import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -47,12 +47,7 @@ public class ArtifactProcessor {
     private final DaoMvnArtifactNode daoMvnArtifactNode;
     private final String repoUrl;
 
-    // TODO -- make the code nice in the future by using a worklist and  resolve all parents
-    // first...(like in SootResovler
-    // https://github.com/soot-oss/soot/blob/develop/src/main/java/soot/SootResolver.java)
-    // add ech parent to resolveList and all found import and then go over them and resolve from
-    // top->bottom dependencies and properties
-    // TODO four worklist --> iterate over them in for loop if i = ...
+    // use a worklist to iteratively resolve all required (parent-/import-) pom.xml files
     // worklist 1 - resolve node in FIFO order (starting with child)
     // worklist 2 - resolve properties in LIFO order (starting with parent)
     // worklist 3 - resolve imports in dependency management
@@ -96,7 +91,6 @@ public class ArtifactProcessor {
             case RESOLVE_IMPORTS:
                 // LIFO resolve imports in LIFO order (starting with parent) // actually the order is
                 // irrelevant here?
-                // TODO -- I'm afraid I've to re-trigger processResolveWorklist to resolve the imports?
                 worklist[RESOLVE_IMPORTS].addFirst(node);
                 break;
             case RESOLVE_DIRECT_DEPENDENCIES:
@@ -197,8 +191,8 @@ public class ArtifactProcessor {
 
             // TODO -- Check what is resolved first (recursive imports or parent?)
             // search in the parent for dependency mgmt
-            if (poll.getParent() != null) {
-                dependencyManagementNodesToCheck.add(poll.getParent());
+            if (poll.getParent().isPresent()) {
+                dependencyManagementNodesToCheck.add(poll.getParent().get());
             }
 
             // check if we import other dependency management sections
@@ -231,7 +225,7 @@ public class ArtifactProcessor {
         // these nodes must be resolved now, after the properties level
         importNodes.stream().map(DependencyRelation::getTgtNode).forEach(x -> addtoWorklist(x, RESOLVE_NODE));
 
-        // TODO:  have to retrigger resolving to completelty resolve the new import nodes; maybe there
+        // TODO:  have to retrigger resolving to completely resolve the new import nodes; maybe there
         // is a nicer approach
         processResolveWorklist();
     }
@@ -283,7 +277,7 @@ public class ArtifactProcessor {
                 }
             }
             // search in the parent
-            currentNode = currentNode.getParent();
+            currentNode = currentNode.getParent().orElse(null);
         }
     }
 
@@ -292,12 +286,15 @@ public class ArtifactProcessor {
 
         // lookup in database if we have the node already
         // return if it already exists
-        //TODO also give back a shallow reference to the parent...
         final Optional<MvnArtifactNode> optionalMvnArtifactNode = daoMvnArtifactNode.get(mvnNode);
         if (optionalMvnArtifactNode.isPresent()) {
+
+            //FIXME -- shallow copy does not work
+            // problem, when we have a "dangling" node in the db.
+            // 1. we saw the node as a dependency and added it to the db
+            // 2. we return the node here, however, neither its properties nor its dependencies have been resolved before...
             // merge with mvnNode - use the shallow info from the database
             try {
-
                 BeanUtils.copyProperties(mvnNode, optionalMvnArtifactNode.get());
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("Failed to shallow copy object with", e);
@@ -305,15 +302,15 @@ public class ArtifactProcessor {
         } else {
             // get the pom
 
-                addInfoFromPom(mvnNode);
-                // must be stored to the db later
-                writeToDBList.add(mvnNode);
+            addInfoFromPom(mvnNode);
+            // must be stored to the db later
+            writeToDBList.add(mvnNode);
 
 
         }
         // put the parent on the worklist
-        if (mvnNode.getParent() != null) {
-            addtoWorklist(mvnNode.getParent(), RESOLVE_NODE);
+        if (mvnNode.getParent().isPresent()) {
+            addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
         }
     }
 
@@ -374,9 +371,7 @@ public class ArtifactProcessor {
                     parent.setGroup(mavenProjectParent.getGroupId());
                     parent.setArtifact(mavenProjectParent.getArtifactId());
                     parent.setVersion(mavenProjectParent.getVersion());
-                    // todo check
                     parent.setPackaging("pom");
-
                     mvnArtifactNode.setParent(parent);
                 }
 
@@ -413,7 +408,7 @@ public class ArtifactProcessor {
                     Files.delete(pomLocation);
                 }
             } catch (IOException e) {
-                    //nothing to do
+                //nothing to do
             }
         }
     }

@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.persistence;
+package de.upb.maven.ecosystem.persistence.dao;
 
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;

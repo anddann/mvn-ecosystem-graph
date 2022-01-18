@@ -1,6 +1,10 @@
 package de.upb.maven.ecosystem.persistence;
 
 import com.google.common.base.Stopwatch;
+import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
+import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,11 +29,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DoaMvnArtifactNodeImplTest {
 
@@ -211,7 +216,7 @@ public class DoaMvnArtifactNodeImplTest {
     @Test
     public void jsonSerializerTest() {
 
-        //String properties_json -> {tychoVersion=0.20.0, emfVersion=2.10.1, h2Version=1.4.180, update.site.url=http://download.eclipse.org/modeling/emf/cdo/updates/releases/4.4/}
+        //String properties_json -> {tychoVersion=0.20.0, emfVersion=2.10.1}
         MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
         mvnArtifactNode.setArtifact("a");
         mvnArtifactNode.setGroup("g");
@@ -231,7 +236,52 @@ public class DoaMvnArtifactNodeImplTest {
         final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
         assertNotNull(mvnArtifactNode1);
         assertTrue(mvnArtifactNode1.isPresent());
+        assertNotNull(mvnArtifactNode1.get().getProperties());
 
+        assertEquals(2, mvnArtifactNode1.get().getProperties().size());
+
+    }
+
+    @Test
+    public void jsonSerializerTestRelationShip() {
+
+        MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+        mvnArtifactNode.setArtifact("a");
+        mvnArtifactNode.setGroup("g");
+        mvnArtifactNode.setVersion("1.0");
+
+        // the dependency
+        MvnArtifactNode depNode = new MvnArtifactNode();
+        depNode.setArtifact("da");
+        depNode.setGroup("dg");
+        depNode.setVersion("2.0");
+
+        // the relation
+        DependencyRelation dependencyRelation = new DependencyRelation();
+        dependencyRelation.setTgtNode(depNode);
+        mvnArtifactNode.getDependencies().add(dependencyRelation);
+
+        List<String> exclusions = new ArrayList<>();
+        exclusions.add("a:a");
+        exclusions.add("b:b");
+
+        dependencyRelation.setExclusions(exclusions);
+
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+        doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+
+
+        // get the node and the relationship
+
+        final Optional<DependencyRelation> mvnArtifactNode1 = doaMvnArtifactNodeImpl.getRelationship(mvnArtifactNode, depNode);
+        assertNotNull(mvnArtifactNode1);
+        assertTrue(mvnArtifactNode1.isPresent());
+
+        assertNotNull(mvnArtifactNode1.get());
+        assertNotNull(mvnArtifactNode1.get().getExclusions());
+        assertEquals(2, mvnArtifactNode1.get().getExclusions().size());
 
     }
 
