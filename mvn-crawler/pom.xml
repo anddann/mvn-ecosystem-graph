@@ -156,11 +156,14 @@
             <version>1.9.4</version>
         </dependency>
 
+        <!-- embedded db for testing -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>3.5.30</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

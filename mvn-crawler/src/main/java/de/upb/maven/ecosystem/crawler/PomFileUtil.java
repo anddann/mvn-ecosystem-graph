@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class PomFileUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(PomFileUtil.class);
-  private static final Set<String> ARCHIVE_TYPES =
-      Sets.newHashSet("zip", "war", "jar");
+  private static final Set<String> ARCHIVE_TYPES = Sets.newHashSet("zip", "war", "jar");
 
   public PomFileUtil() {}
 

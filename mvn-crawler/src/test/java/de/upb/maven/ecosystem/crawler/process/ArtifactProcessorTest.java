@@ -1,89 +1,121 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Query;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.io.fs.FileUtils;
+import org.neo4j.kernel.configuration.BoltConnector;
+import org.neo4j.kernel.configuration.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class ArtifactProcessorTest extends TestCase {
+import static org.junit.Assert.*;
 
-    private final DaoMvnArtifactNode databaseMock =
-            new DaoMvnArtifactNode() {
-                // the database
-                private final HashMap<String, MvnArtifactNode> cache = new HashMap<>();
+public class ArtifactProcessorTest {
 
-                @Override
-                public Optional<MvnArtifactNode> getParent(long id) {
-                    return Optional.empty();
-                }
+    private static final boolean runEmbedded = true;
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactProcessorTest.class);
 
-                @Override
-                public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
-                    return Optional.empty();
-                }
+    public static final String LISTEN_ADDRESS = "localhost:7687";
+    public static final String CREDENTIAL = "neo4j";
 
-                @Override
-                public Optional<DependencyRelation> getRelationship(MvnArtifactNode instance, MvnArtifactNode dependency) {
-                    return Optional.empty();
-                }
+    private static Path databasePath;
+    private static GraphDatabaseService databaseService;
 
-                @Override
-                public boolean containsNodeWithVersionGQ(
-                        String groupId,
-                        String artifactId,
-                        String version,
-                        String classifier,
-                        String targetVersion) {
-                    return false;
-                }
+    @Rule
+    public TestName currentTestName = new TestName();
 
-                @Override
-                public Optional<MvnArtifactNode> get(long id) {
-                    return Optional.empty();
-                }
+    @BeforeClass
+    public static void setupTestDb() throws IOException {
+        if (runEmbedded) {
+            Stopwatch sw = Stopwatch.createStarted();
+            databasePath = Files.createTempDirectory(CREDENTIAL);
+            databaseService = createDB();
+            logger.info("Started Neo4j Test instance after {}", sw);
+        }
+    }
 
-                @Override
-                public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
+    @AfterClass
+    public static void shutdown() throws IOException {
+        if (databaseService != null) {
+            databaseService.shutdown();
+            FileUtils.deleteRecursively(databasePath.toFile());
+        }
+    }
 
-                    return Optional.ofNullable(cache.get(instance.getGroup() + instance.getArtifact()));
-                }
+    @Before
+    public void clearDb() {
+        try (Session session = createDriver().session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                Query clear = new Query("MATCH (n) DETACH DELETE (n)");
+                tx.run(clear);
+                tx.commit();
+            }
+        }
+    }
 
-                @Override
-                public List<MvnArtifactNode> getAll() {
-                    return null;
-                }
+    private static GraphDatabaseService createDB() throws IOException {
 
-                @Override
-                public void save(MvnArtifactNode mvnArtifactNode) {
-                }
+        logger.info("Creating dbms in {}", databasePath);
 
-                @Override
-                public void saveOrMerge(MvnArtifactNode instance) {
-                    DoaMvnArtifactNodeImpl.sanityCheck(instance);
-                    cache.put(instance.getGroup() + instance.getArtifact(), instance);
-                }
+        BoltConnector bolt = new BoltConnector("0");
 
-                @Override
-                public void update(MvnArtifactNode mvnArtifactNode, String[] params) {
-                }
+        GraphDatabaseService graphDb =
+                new GraphDatabaseFactory()
+                        .newEmbeddedDatabaseBuilder(databasePath.toFile())
+                        .setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
+                        .setConfig(GraphDatabaseSettings.string_block_size, "60")
+                        .setConfig(GraphDatabaseSettings.array_block_size, "300")
+                        .setConfig(bolt.enabled, Settings.TRUE)
+                        .setConfig(bolt.type, "BOLT")
+                        .setConfig(bolt.listen_address, LISTEN_ADDRESS)
+                        .newGraphDatabase();
 
-                @Override
-                public void delete(MvnArtifactNode mvnArtifactNode) {
-                }
-            };
+        // Registers a shutdown hook for the Neo4j instance so that it
+        // shuts down nicely when the VM exits (even if you "Ctrl-C" the
+        // running application).
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDb.shutdown()));
 
+        return graphDb;
+    }
+
+    private Driver createDriver() {
+        return GraphDatabase.driver(
+                "bolt://" + LISTEN_ADDRESS, AuthTokens.basic(CREDENTIAL, CREDENTIAL));
+    }
+
+    @Test
     public void testProcess() throws IOException {
 
+        Driver driver = createDriver();
+
+        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
         ArtifactProcessor artifactProcessor =
-                new ArtifactProcessor(databaseMock, "https://repo1.maven.org/maven2/");
+                new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
         CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
         artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -97,6 +129,51 @@ public class ArtifactProcessorTest extends TestCase {
 
         assertNotNull(process);
         assertFalse(process.isEmpty());
-        //TODO add semantic test
+        assertEquals(5, process.size());
+        final List<MvnArtifactNode> collect = process.stream().collect(Collectors.toList());
+
+
+        // TODO test properties
+
+
+        final MvnArtifactNode mvnArtifactNode = collect.get(0);
+        assertEquals("io.atlasmap", mvnArtifactNode.getGroup());
+        assertEquals("atlas-csv-service", mvnArtifactNode.getArtifact());
+        assertEquals("2.2.0-M.3", mvnArtifactNode.getVersion());
+        assertTrue(mvnArtifactNode.getParent().isPresent());
+        assertEquals(12, mvnArtifactNode.getDependencies().size());
+
+
+        final MvnArtifactNode p1 = collect.get(1);
+        assertEquals("io.atlasmap", p1.getGroup());
+        assertEquals("atlas-csv-parent", p1.getArtifact());
+        assertEquals("2.2.0-M.3", p1.getVersion());
+        assertTrue(p1.getParent().isPresent());
+        assertEquals(0, p1.getDependencies().size());
+
+        final MvnArtifactNode p2 = collect.get(2);
+        assertEquals("io.atlasmap", p2.getGroup());
+        assertEquals("atlasmap-lib", p2.getArtifact());
+        assertEquals("2.2.0-M.3", p2.getVersion());
+        assertTrue(p2.getParent().isPresent());
+        assertEquals(0, p2.getDependencies().size());
+
+
+        final MvnArtifactNode p3 = collect.get(3);
+        assertEquals("io.atlasmap", p3.getGroup());
+        assertEquals("atlas-parent", p3.getArtifact());
+        assertEquals("2.2.0-M.3", p3.getVersion());
+        assertTrue(p3.getParent().isPresent());
+        assertEquals(0, p3.getDependencies().size());
+        assertEquals(85, p3.getDependencyManagement().size());
+
+
+        final MvnArtifactNode p4 = collect.get(4);
+        assertEquals("io.atlasmap", p4.getGroup());
+        assertEquals("atlasmapio", p4.getArtifact());
+        assertEquals("2.2.0-M.3", p4.getVersion());
+        assertEquals(0, p4.getDependencies().size());
+        assertFalse(p4.getParent().isPresent());
+
     }
 }
