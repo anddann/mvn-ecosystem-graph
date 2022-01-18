@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.Neo4JConnector;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Objects;
 
 public class ArtifactManager {
@@ -51,7 +53,16 @@ public class ArtifactManager {
                 ai.getArtifactVersion());
         try {
 
-            new ArtifactProcessor(doaArtifactNode, ai.getRepoURL()).process(ai);
+            final Collection<MvnArtifactNode> newResolvedNodes = new ArtifactProcessor(doaArtifactNode, ai.getRepoURL()).process(ai);
+            if (newResolvedNodes != null) {
+                LOGGER.info("Writing nodes: #{} to db", newResolvedNodes.size());
+
+                for (MvnArtifactNode node : newResolvedNodes) {
+                    doaArtifactNode.saveOrMerge(node);
+                }
+            } else {
+                LOGGER.warn("No nodes have been resolved");
+            }
         } catch (Exception ex) {
             LOGGER.error("Crawling of artifact:  {} , failed with ", ai.getGroupId() + ":" + ai.getArtifactId() + ":" + ai.getArtifactVersion() + "-" + ai.getClassifier(), ex);
             try {

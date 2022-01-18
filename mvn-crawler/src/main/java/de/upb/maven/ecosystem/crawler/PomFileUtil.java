@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class PomFileUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(PomFileUtil.class);
   private static final Set<String> ARCHIVE_TYPES =
-      Sets.newHashSet(new String[] {"zip", "war", "jar"});
+      Sets.newHashSet("zip", "war", "jar");
 
   public PomFileUtil() {}
 
@@ -49,7 +49,7 @@ public class PomFileUtil {
       FileSystem fs = path.getFileSystem().provider().getFileSystem(uri);
       path = fs.getPath("/").resolve(zipFile[1]);
     } catch (Exception var6) {
-      Map<String, String> env = new HashMap<String, String>();
+      Map<String, String> env = new HashMap<>();
       env.put("create", "false");
       Path root = FileSystems.newFileSystem(URI.create(zipFile[0]), env).getPath("/");
       path = root.resolve(zipFile[1]);

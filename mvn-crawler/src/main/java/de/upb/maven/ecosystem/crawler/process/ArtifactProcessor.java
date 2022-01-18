@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,11 +76,11 @@ public class ArtifactProcessor {
         this.daoMvnArtifactNode = doaArtifactNode;
         this.repoUrl = repoUrl;
         // FIFO queue
-        worklist[RESOLVE_NODE] = new ArrayDeque<MvnArtifactNode>();
+        worklist[RESOLVE_NODE] = new ArrayDeque<>();
         // LIFO
-        worklist[RESOLVE_PROPERTIES] = new ArrayDeque<MvnArtifactNode>();
-        worklist[RESOLVE_IMPORTS] = new ArrayDeque<MvnArtifactNode>();
-        worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<MvnArtifactNode>();
+        worklist[RESOLVE_PROPERTIES] = new ArrayDeque<>();
+        worklist[RESOLVE_IMPORTS] = new ArrayDeque<>();
+        worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<>();
     }
 
     private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
@@ -178,9 +179,7 @@ public class ArtifactProcessor {
             // default dependencymgt nodes
             final List<DependencyRelation> dependencyMgmNode =
                     poll.getDependencyManagement().stream()
-                            .filter(x -> x.getScope() != DependencyScope.IMPORT)
-                            .collect(Collectors.toList());
-            dependencyMgmNode.sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
+                            .filter(x -> x.getScope() != DependencyScope.IMPORT).sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition())).collect(Collectors.toList());
             for (DependencyRelation dependencyRelation : dependencyMgmNode) {
                 final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
 
@@ -206,9 +205,7 @@ public class ArtifactProcessor {
             // import dependencymgt nodes
             final List<DependencyRelation> importNodes =
                     poll.getDependencyManagement().stream()
-                            .filter(x -> x.getScope() == DependencyScope.IMPORT)
-                            .collect(Collectors.toList());
-            importNodes.sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
+                            .filter(x -> x.getScope() == DependencyScope.IMPORT).sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition())).collect(Collectors.toList());
 
             for (DependencyRelation dependencyRelation : importNodes) {
 
@@ -232,7 +229,7 @@ public class ArtifactProcessor {
                         .filter(x -> x.getScope() == DependencyScope.IMPORT)
                         .collect(Collectors.toList());
         // these nodes must be resolved now, after the properties level
-        importNodes.stream().map(x -> x.getTgtNode()).forEach(x -> addtoWorklist(x, RESOLVE_NODE));
+        importNodes.stream().map(DependencyRelation::getTgtNode).forEach(x -> addtoWorklist(x, RESOLVE_NODE));
 
         // TODO:  have to retrigger resolving to completelty resolve the new import nodes; maybe there
         // is a nicer approach
@@ -310,7 +307,7 @@ public class ArtifactProcessor {
                 // must be stored to the db later
                 writeToDBList.add(mvnNode);
             } catch (IOException e) {
-                LOGGER.error("Failed to resolve node: {}", mvnNode.toString(), e);
+                LOGGER.error("Failed to resolve node: {}", mvnNode, e);
                 return;
             }
 
@@ -322,7 +319,7 @@ public class ArtifactProcessor {
     }
 
     @Nullable
-    public MvnArtifactNode process(CustomArtifactInfo mvenartifactinfo) {
+    public Collection<MvnArtifactNode> process(CustomArtifactInfo mvenartifactinfo) {
 
         LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
 
@@ -339,20 +336,17 @@ public class ArtifactProcessor {
 
         processResolveWorklist();
 
-        for (MvnArtifactNode node : writeToDBList) {
-            daoMvnArtifactNode.saveOrMerge(node);
-        }
 
         LOGGER.info("Done crawling Artifact: {}", mvenartifactinfo);
 
-        return mvnArtifactNode;
+        return writeToDBList;
     }
 
     /**
      * Extract the license and dependency information from the pom.xml file of that artifact and addes
      * them to the mavenArtifactMetadat
      *
-     * @param mvnArtifactNode
+     * @param mvnArtifactNode the maven artifact to resolve fully
      */
     public void addInfoFromPom(MvnArtifactNode mvnArtifactNode) throws IOException {
 
@@ -420,7 +414,7 @@ public class ArtifactProcessor {
                     Files.delete(pomLocation);
                 }
             } catch (IOException e) {
-
+                    //nothing to do
             }
         }
     }
