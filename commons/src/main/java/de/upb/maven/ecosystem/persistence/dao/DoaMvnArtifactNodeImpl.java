@@ -451,7 +451,37 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   @Override
   public Optional<MvnArtifactNode> getParent(MvnArtifactNode instance) {
-    throw new UnsupportedOperationException("getParent() not implemented");
+
+    HashMap<String, Object> parameters = new HashMap<>();
+
+    StringBuilder query = new StringBuilder();
+    query
+        .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)")
+        .append(" WHERE ")
+        .append(createMatchingCondition(instance, "src", "src.", parameters))
+        .append(" MATCH (parent)-[r:PARENT]->(src)")
+        .append(" RETURN parent");
+    try (Session session = driver.session()) {
+      final Value value =
+          session.readTransaction(
+              tx -> {
+                Result result = tx.run(query.toString(), parameters);
+                if (result == null) {
+                  return null;
+                }
+                if (result.hasNext()) {
+                  return result.single().get(0);
+                } else {
+                  return null;
+                }
+              });
+
+      if (value == null) {
+        return Optional.empty();
+      }
+
+      return Optional.of(createProxyNode(value));
+    }
   }
 
   @Override
@@ -527,15 +557,22 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     String artifactParameter = prefixParameter + "Artifact";
     String versionParameter = prefixParameter + "Version";
     String classifierParameter = prefixParameter + "Classifier";
+    String packagingParameter = prefixParameter + "Packaging";
 
     parameters.put(groupParameter, mvnArtifactNode.getGroup());
     parameters.put(artifactParameter, mvnArtifactNode.getArtifact());
     parameters.put(versionParameter, mvnArtifactNode.getVersion());
     parameters.put(classifierParameter, mvnArtifactNode.getClassifier());
+    parameters.put(packagingParameter, mvnArtifactNode.getPackaging());
 
     return String.format(
-        "%1$s.group = $%2$s AND %1$s.artifact = $%3$s AND %1$s.version = $%4$s AND %1$s.classifier = $%5$s",
-        label, groupParameter, artifactParameter, versionParameter, classifierParameter);
+        "%1$s.group = $%2$s AND %1$s.artifact = $%3$s AND %1$s.version = $%4$s AND %1$s.classifier = $%5$s AND %1$s.packaging = $%6$s",
+        label,
+        groupParameter,
+        artifactParameter,
+        versionParameter,
+        classifierParameter,
+        packagingParameter);
   }
 
   private String createMatchExpression(
@@ -543,6 +580,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       String artifact,
       String version,
       String classifier,
+      String packaging,
       String label,
       @Nullable String prefixParameter,
       HashMap<String, Object> parameters) {
@@ -555,15 +593,22 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     String artifactParameter = prefixParameter + "artifact";
     String versionParameter = prefixParameter + "version";
     String classifierParameter = prefixParameter + "classifier";
+    String packagingParameter = prefixParameter + "packaging";
 
     parameters.put(groupParameter, group);
     parameters.put(artifactParameter, artifact);
     parameters.put(versionParameter, version);
     parameters.put(classifierParameter, classifier);
+    parameters.put(packagingParameter, packaging);
 
     return String.format(
-        "MATCH (%s:MvnArtifact {group:$%s, artifact:$%s, version:$%s, classifier:$%s})",
-        label, groupParameter, artifactParameter, versionParameter, classifierParameter);
+        "MATCH (%s:MvnArtifact {group:$%s, artifact:$%s, version:$%s, classifier:$%s, packaging:$%s})",
+        label,
+        groupParameter,
+        artifactParameter,
+        versionParameter,
+        classifierParameter,
+        packagingParameter);
   }
 
   private String createMatchExpression(
@@ -576,13 +621,19 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         mvnArtifactNode.getArtifact(),
         mvnArtifactNode.getVersion(),
         mvnArtifactNode.getClassifier(),
+        mvnArtifactNode.getPackaging(),
         label,
         prefixParameter,
         parameters);
   }
 
   public boolean containsNodeWithVersionGQ(
-      String groupId, String artifactId, String version, String classifier, String targetVersion) {
+      String groupId,
+      String artifactId,
+      String version,
+      String classifier,
+      String packaging,
+      String targetVersion) {
 
     if (StringUtils.isBlank(classifier)) {
       // neo4j cannot deal with null values
@@ -592,7 +643,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     HashMap<String, Object> parameters = new HashMap<>();
     // match based on gav, classifier
     String query =
-        createMatchExpression(groupId, artifactId, version, classifier, "n", null, parameters)
+        createMatchExpression(
+                groupId, artifactId, version, classifier, packaging, "n", null, parameters)
             + " return n.crawlerVersion";
     String versionNumber;
     try (Session session = driver.session()) {
@@ -626,7 +678,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
         .append(" WHERE ")
         .append(createMatchingCondition(instance, "src", "src.", parameters))
-        .append(" MATCH (src)-[r:MANAGES|:IMPORTS]->(tgt)")
+        .append(" MATCH (src)-[r:MANAGES|IMPORTS]->(tgt)")
         .append(" RETURN r, tgt");
 
     try (Session session = driver.session()) {

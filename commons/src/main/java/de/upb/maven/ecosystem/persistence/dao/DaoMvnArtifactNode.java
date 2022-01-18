@@ -15,7 +15,12 @@ public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
       MvnArtifactNode instance, MvnArtifactNode dependency);
 
   boolean containsNodeWithVersionGQ(
-      String groupId, String artifactId, String version, String classifier, String targetVersion);
+      String groupId,
+      String artifactId,
+      String version,
+      String classifier,
+      String targetVersion,
+      String packaging);
 
   List<DependencyRelation> getDependencyManagement(MvnArtifactNode instance);
 

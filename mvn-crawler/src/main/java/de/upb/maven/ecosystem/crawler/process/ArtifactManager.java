@@ -4,15 +4,16 @@ import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactManager {
 
@@ -35,6 +36,7 @@ public class ArtifactManager {
             ai.getArtifactId(),
             ai.getArtifactVersion(),
             ai.getClassifier(),
+            ai.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
     if (existsInDb) {
       LOGGER.info(
@@ -62,6 +64,20 @@ public class ArtifactManager {
 
         for (MvnArtifactNode node : newResolvedNodes) {
           doaArtifactNode.saveOrMerge(node);
+          String log =
+              ai.getGroupId()
+                  + ":"
+                  + ai.getArtifactId()
+                  + ":"
+                  + ai.getArtifactVersion()
+                  + "-"
+                  + ai.getClassifier()
+                  + "\n";
+          Files.write(
+              Paths.get("done_artifacts.txt"),
+              log.getBytes(),
+              StandardOpenOption.CREATE,
+              StandardOpenOption.APPEND);
         }
       } else {
         LOGGER.warn("No nodes have been resolved");

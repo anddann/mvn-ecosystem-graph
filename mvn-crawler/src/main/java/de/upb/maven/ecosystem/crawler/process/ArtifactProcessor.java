@@ -9,6 +9,16 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -24,25 +34,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
   private static final int CONNECT_TIMEOUT = 5 * 60000;
   private static final int READ_TIMEOUT = 5 * 60000;
-
-  private final Path TEMP_LOCATION;
-
-  private final DaoMvnArtifactNode daoMvnArtifactNode;
-  private final String repoUrl;
+  private static final int RESOLVE_NODE = 0;
+  private static final int RESOLVE_PROPERTIES = 1;
+  private static final int RESOLVE_IMPORTS = 2;
 
   // use a worklist to iteratively resolve all required (parent-/import-) pom.xml files
   // worklist 1 - resolve node in FIFO order (starting with child)
@@ -50,15 +49,10 @@ public class ArtifactProcessor {
   // worklist 3 - resolve imports in dependency management
   // worklist 4 - (for dependencies --> that do not came out of the db --> resolve all their direct
   // dependencies)
-
-  private static final int RESOLVE_NODE = 0;
-
-  private static final int RESOLVE_PROPERTIES = 1;
-
-  private static final int RESOLVE_IMPORTS = 2;
-
   private static final int RESOLVE_DIRECT_DEPENDENCIES = 3;
-
+  private final Path TEMP_LOCATION;
+  private final DaoMvnArtifactNode daoMvnArtifactNode;
+  private final String repoUrl;
   private final Deque<MvnArtifactNode>[] worklist = new Deque[4];
 
   private final List<MvnArtifactNode> writeToDBList = new ArrayList<>();

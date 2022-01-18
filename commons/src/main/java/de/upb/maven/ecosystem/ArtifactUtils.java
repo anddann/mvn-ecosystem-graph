@@ -48,6 +48,7 @@ public class ArtifactUtils {
     customArtifactInfo.setClassifier(info.getClassifier());
     customArtifactInfo.setPackaging(info.getPackaging());
     customArtifactInfo.setRepoURL(info.getRepoURL());
+    customArtifactInfo.setFileExtension("pom");
     return constructURL(customArtifactInfo);
   }
 }

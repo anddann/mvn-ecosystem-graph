@@ -11,8 +11,9 @@ import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import java.io.IOException;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
@@ -24,6 +25,11 @@ public class Main extends AbstractCrawler {
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
+  public static void main(String[] args) throws Exception {
+    Main main = new Main();
+    main.run();
+  }
+
   @Override
   protected void preFlightCheck() {
     try {
@@ -32,11 +38,6 @@ public class Main extends AbstractCrawler {
       LOGGER.error("[Worker] Failed connecting to database", e);
       System.exit(-1);
     }
-  }
-
-  public static void main(String[] args) throws Exception {
-    Main main = new Main();
-    main.run();
   }
 
   @Override
