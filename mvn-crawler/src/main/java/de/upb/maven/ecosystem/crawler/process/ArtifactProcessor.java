@@ -281,7 +281,6 @@ public class ArtifactProcessor {
 
     private MvnArtifactNode resolveNode(MvnArtifactNode mvnNode) throws IOException {
         LOGGER.info("Resolve node: {}", mvnNode);
-
         // lookup in database if we have the node already
         // return if it already exists
         final Optional<MvnArtifactNode> optionalMvnArtifactNode = daoMvnArtifactNode.get(mvnNode);
@@ -294,13 +293,10 @@ public class ArtifactProcessor {
             mvnNode = optionalMvnArtifactNode.get();
         } else {
             // get the pom
-
             addInfoFromPom(mvnNode);
             mvnNode.setResolvingLevel(MvnArtifactNode.ResolvingLevel.FULL);
             // must be stored to the db later
             writeToDBList.add(mvnNode);
-
-
         }
         // put the parent on the worklist
         if (mvnNode.getParent().isPresent()) {
