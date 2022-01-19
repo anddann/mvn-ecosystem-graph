@@ -9,6 +9,16 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -24,15 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -248,9 +249,11 @@ public class ArtifactProcessor {
       // check for properties
       final Map<String, String> properties = mvnArtifactNode.getProperties();
 
-      for (Iterator<MvnArtifactNode> iterator = dependencyPropertiesToResolve.iterator();
-          iterator.hasNext(); ) {
-        MvnArtifactNode dep = iterator.next();
+      Deque<MvnArtifactNode> workList = new ArrayDeque<>();
+      workList.addAll(dependencyPropertiesToResolve);
+
+      while (!workList.isEmpty()) {
+        MvnArtifactNode dep = workList.poll();
         String version = dep.getVersion().substring(2, dep.getVersion().length() - 1);
 
         // special handling for the property ${project.version}
@@ -261,13 +264,23 @@ public class ArtifactProcessor {
         if (StringUtils.equals(version, "project.version")) {
           // use the lowest child version
           dep.setVersion(mvnArtifactNode.getVersion());
-          iterator.remove();
+          // fully resolved
+          dependencyPropertiesToResolve.remove(dep);
 
         } else {
           final String s = properties.get(version);
           if (s != null) {
             dep.setVersion(s);
-            iterator.remove();
+            // check if it another properties
+            if (StringUtils.startsWith(s, "$")) {
+              // do not remove
+              LOGGER.debug("Found recursive property");
+              //re-add to the queue
+              workList.add(dep);
+            } else {
+              // fully resolved
+              dependencyPropertiesToResolve.remove(dep);
+            }
           }
         }
       }
