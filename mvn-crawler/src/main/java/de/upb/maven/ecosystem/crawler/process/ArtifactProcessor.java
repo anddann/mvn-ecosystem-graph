@@ -247,7 +247,7 @@ public class ArtifactProcessor {
     MvnArtifactNode currentNode = mvnArtifactNode;
     while (currentNode != null) {
       // check for properties
-      final Map<String, String> properties = mvnArtifactNode.getProperties();
+      final Map<String, String> properties = currentNode.getProperties();
 
       Deque<MvnArtifactNode> workList = new ArrayDeque<>();
       workList.addAll(dependencyPropertiesToResolve);

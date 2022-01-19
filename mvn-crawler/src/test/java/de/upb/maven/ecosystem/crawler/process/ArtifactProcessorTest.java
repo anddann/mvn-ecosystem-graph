@@ -272,6 +272,46 @@ public class ArtifactProcessorTest {
   }
 
   @Test
+  public void versionBlankError() throws IOException {
+
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    ArtifactProcessor artifactProcessor =
+            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.duracloud");
+    artifactInfo.setArtifactId("duraboss");
+    artifactInfo.setArtifactVersion("3.5.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+  }
+
+  @Test
+  public void propertiesUnresolved() throws IOException {
+
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    ArtifactProcessor artifactProcessor =
+            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.eclipse.jetty.cdi");
+    artifactInfo.setArtifactId("cdi-core");
+    artifactInfo.setArtifactVersion("9.3.5.v20151012");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+  }
+
+  @Test
   public void testWithDBAccess() throws IOException {
     Driver driver = createDriver();
 
