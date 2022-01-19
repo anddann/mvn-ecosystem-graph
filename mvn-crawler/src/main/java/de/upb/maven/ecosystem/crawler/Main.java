@@ -11,8 +11,9 @@ import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import java.io.IOException;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);

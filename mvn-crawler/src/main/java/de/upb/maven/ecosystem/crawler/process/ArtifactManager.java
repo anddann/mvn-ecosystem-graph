@@ -1,22 +1,27 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.google.common.collect.Sets;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Set;
 
 public class ArtifactManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactManager.class);
+  private static Set<String> CLASSIFIER_TO_IGNORE =
+      Sets.newHashSet("test", "tests", "javadoc", "doc", "src", "source", "sources");
   private final DaoMvnArtifactNode doaArtifactNode;
 
   public ArtifactManager(DaoMvnArtifactNode doaArtifactNode) {
@@ -24,9 +29,27 @@ public class ArtifactManager {
     Objects.requireNonNull(doaArtifactNode);
   }
 
+  private boolean ignoreArtifact(CustomArtifactInfo ai) {
+    if (StringUtils.isNotBlank(ai.getClassifier())) {
+      return CLASSIFIER_TO_IGNORE.contains(ai.getClassifier());
+    }
+
+    return false;
+  }
+
   public void process(CustomArtifactInfo ai, int crawledArtifacts) throws IOException {
     if (StringUtils.isBlank(ai.getRepoURL())) {
       throw new IOException("No Base URL is given");
+    }
+
+    if (ignoreArtifact(ai)) {
+      LOGGER.info(
+          "Ignoring artifact {}:{}:{}-{}",
+          ai.getGroupId(),
+          ai.getArtifactId(),
+          ai.getArtifactVersion(),
+          ai.getClassifier());
+      return;
     }
 
     boolean existsInDb =
