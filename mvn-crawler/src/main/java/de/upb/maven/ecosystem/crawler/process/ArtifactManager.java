@@ -30,11 +30,14 @@ public class ArtifactManager {
   }
 
   private boolean ignoreArtifact(CustomArtifactInfo ai) {
-    if (StringUtils.isNotBlank(ai.getClassifier())) {
-      return CLASSIFIER_TO_IGNORE.contains(ai.getClassifier());
-    }
+    // FIXME -- I gues we should only handle artifacts witch classifier =null
+    return StringUtils.isNotBlank(ai.getClassifier());
 
-    return false;
+    //    if (StringUtils.isNotBlank(ai.getClassifier())) {
+    //      return CLASSIFIER_TO_IGNORE.contains(ai.getClassifier());
+    //    }
+
+    //  return false;
   }
 
   public void process(CustomArtifactInfo ai, int crawledArtifacts) throws IOException {
@@ -43,12 +46,27 @@ public class ArtifactManager {
     }
 
     if (ignoreArtifact(ai)) {
-      LOGGER.info(
+      LOGGER.debug(
           "Ignoring artifact {}:{}:{}-{}",
           ai.getGroupId(),
           ai.getArtifactId(),
           ai.getArtifactVersion(),
           ai.getClassifier());
+      String log =
+          ai.getGroupId()
+              + ":"
+              + ai.getArtifactId()
+              + ":"
+              + ai.getArtifactVersion()
+              + "-"
+              + ai.getClassifier()
+              + "\n";
+      Files.write(
+          Paths.get("ignored_artifacts.txt"),
+          log.getBytes(),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.APPEND);
+
       return;
     }
 
