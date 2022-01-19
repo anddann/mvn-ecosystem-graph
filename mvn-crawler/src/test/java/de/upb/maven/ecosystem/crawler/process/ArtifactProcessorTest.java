@@ -171,4 +171,126 @@ public class ArtifactProcessorTest {
     assertFalse(p4.getParent().isPresent());
     assertEquals(15, p4.getProperties().size());
   }
+
+  @Test
+  public void testRecurisiveReferences() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache.wicket");
+    artifactInfo.setArtifactId("wicket-objectsizeof-agent");
+    artifactInfo.setArtifactVersion("1.5.9");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(3, process.size());
+  }
+
+  @Test
+  public void testCassandraFeedback() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache.cassandra");
+    artifactInfo.setArtifactId("cassandra-clientutil");
+    artifactInfo.setArtifactVersion("1.2.0-beta2");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(2, process.size());
+  }
+
+  @Test
+  public void testCircularReferences() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache.cassandra");
+    artifactInfo.setArtifactId("cassandra-thrift");
+    artifactInfo.setArtifactVersion("1.2.0-beta2");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(2, process.size());
+  }
+
+  @Test
+  public void testWithDBAccess() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    {
+      // write the node with circular reference first into the DB
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.apache.cassandra");
+      artifactInfo.setArtifactId("cassandra-thrift");
+      artifactInfo.setArtifactVersion("1.2.0-beta2");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(2, process.size());
+
+      for (MvnArtifactNode node : process) {
+        doaMvnArtifactNodeImpl.saveOrMerge(node);
+      }
+    }
+
+    // resolve the next one
+    {
+      // resolve a node that references the recursive node
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.apache.cassandra");
+      artifactInfo.setArtifactId("cassandra-clientutil");
+      artifactInfo.setArtifactVersion("1.2.0-beta2");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(1, process.size());
+    }
+  }
 }

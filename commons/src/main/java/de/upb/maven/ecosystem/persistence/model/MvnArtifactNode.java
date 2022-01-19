@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -55,16 +57,21 @@ public class MvnArtifactNode {
   private Map<String, String> properties = new HashMap<>();
 
   // relationship type=PARENT
-  @JsonIgnore private Optional<MvnArtifactNode> parent = Optional.empty();
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private Optional<MvnArtifactNode> parent = Optional.empty();
 
   // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
   // resolving
   // relationship type=DEPENDENCY / DEPENDS_ON
-  // inherited to the children
-  @JsonIgnore private List<DependencyRelation> dependencies = new ArrayList<>();
+  // inherited to the children,
+  // exclude to avoid recursive calling in the case of circular dependencies
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private List<DependencyRelation> dependencies = new ArrayList<>();
 
   // relationship type=DEPENDENCY_MANAGEMENT / MANAGES
-  @JsonIgnore private List<DependencyRelation> dependencyManagement = new ArrayList<>();
+  // exclude to avoid recursive calling in the case of circular dependencies
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
   public void setParent(Optional<MvnArtifactNode> parent) {
     // quick sanity check

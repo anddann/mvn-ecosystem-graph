@@ -20,9 +20,10 @@ public class MvnArtifactNodeProxy extends MvnArtifactNode {
   @Override
   public List<DependencyRelation> getDependencies() {
     if (depsResolved == false) {
+      depsResolved = true;
+
       final List<DependencyRelation> dependencies = doaMvnArtifactNode.getDependencies(this);
       super.setDependencies(dependencies);
-      depsResolved = true;
     }
     return super.getDependencies();
   }
@@ -30,10 +31,11 @@ public class MvnArtifactNodeProxy extends MvnArtifactNode {
   @Override
   public List<DependencyRelation> getDependencyManagement() {
     if (depMgmtResolved == false) {
+      depMgmtResolved = true;
+
       final List<DependencyRelation> dependencies =
           doaMvnArtifactNode.getDependencyManagement(this);
       super.setDependencyManagement(dependencies);
-      depMgmtResolved = true;
     }
     return super.getDependencyManagement();
   }
