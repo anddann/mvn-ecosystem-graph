@@ -9,16 +9,6 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -34,6 +24,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -275,7 +274,7 @@ public class ArtifactProcessor {
             if (StringUtils.startsWith(s, "$")) {
               // do not remove
               LOGGER.debug("Found recursive property");
-              //re-add to the queue
+              // re-add to the queue
               workList.add(dep);
             } else {
               // fully resolved
