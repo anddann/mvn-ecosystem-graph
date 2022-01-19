@@ -291,6 +291,78 @@ public class ArtifactProcessorTest {
   }
 
   @Test
+  public void versionPropertiesError2() throws IOException {
+    // failed on database?
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache-extras.camel-extra");
+    artifactInfo.setArtifactId("camel-esper");
+    artifactInfo.setArtifactVersion("2.10.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  @Test
+  public void versionBlankError2() throws IOException {
+    Driver driver = createDriver();
+
+    //  add the parent before to the database, then the test will fail..
+    // if the parent is fetched from the database
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    {
+      // write the node with circular reference first into the DB
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.apache.syncope");
+      artifactInfo.setArtifactId("syncope");
+      artifactInfo.setArtifactVersion("1.0.3-incubating");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(2, process.size());
+
+      for (MvnArtifactNode node : process) {
+        doaMvnArtifactNodeImpl.saveOrMerge(node);
+      }
+    }
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache.syncope");
+    artifactInfo.setArtifactId("syncope-console");
+    artifactInfo.setArtifactVersion("1.0.3-incubating");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  @Test
   public void propertiesUnresolved() throws IOException {
 
     Driver driver = createDriver();

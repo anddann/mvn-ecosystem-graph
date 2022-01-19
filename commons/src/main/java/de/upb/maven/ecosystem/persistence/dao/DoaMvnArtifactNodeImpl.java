@@ -7,18 +7,6 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +19,19 @@ import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
@@ -209,16 +210,17 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
   public Optional<MvnArtifactNode> get(MvnArtifactNode instance) {
     //  give back a proxy element to resolve getParent and getDependency on demand ... also
 
-    // todo must I include the packaging?
     Map<String, Object> parameters = new HashMap<>();
     // match based on gav, classifier
     String query =
-        "MATCH (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier}) RETURN n";
+        "MATCH (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier, packaging:$packaging}) RETURN n";
 
     parameters.put("group", instance.getGroup());
     parameters.put("artifact", instance.getArtifact());
     parameters.put("version", instance.getVersion());
     parameters.put("classifier", instance.getClassifier());
+    parameters.put("packaging", instance.getPackaging());
+
     try (Session session = driver.session()) {
       final Record record =
           session.readTransaction(

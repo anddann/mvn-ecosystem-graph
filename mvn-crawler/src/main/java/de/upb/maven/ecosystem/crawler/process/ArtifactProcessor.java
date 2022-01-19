@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.crawler.PomFileUtil;
@@ -9,6 +10,16 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -24,15 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -100,8 +102,8 @@ public class ArtifactProcessor {
         MvnArtifactNode mvnNode = currWorklist.pop();
         switch (i) {
           case RESOLVE_NODE:
-            final MvnArtifactNode mvnArtifactNode = resolveNode(mvnNode);
-            addtoWorklist(mvnArtifactNode, RESOLVE_PROPERTIES);
+            resolveNode(mvnNode);
+            addtoWorklist(mvnNode, RESOLVE_PROPERTIES);
             break;
           case RESOLVE_PROPERTIES:
             resolvePropertiesOfNodes(mvnNode);
@@ -288,11 +290,48 @@ public class ArtifactProcessor {
     }
   }
 
-  private MvnArtifactNode resolveNode(MvnArtifactNode mvnNode) throws IOException {
+  private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
     LOGGER.info("Resolve node: {}", mvnNode);
-    // lookup in database if we have the node already
-    // return if it already exists
-    final Optional<MvnArtifactNode> optionalMvnArtifactNode = daoMvnArtifactNode.get(mvnNode);
+    // return if it already fully resolved
+    if (mvnNode.getResolvingLevel() == MvnArtifactNode.ResolvingLevel.FULL) {
+      return;
+    }
+
+    // get the pom
+    addInfoFromPom(mvnNode);
+    mvnNode.setResolvingLevel(MvnArtifactNode.ResolvingLevel.FULL);
+    // must be stored to the db later
+    writeToDBList.add(mvnNode);
+
+    // put the parent on the worklist
+    if (mvnNode.getParent().isPresent()) {
+      addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
+    }
+  }
+
+  private MvnArtifactNode makeNodeRef(
+      String groupId, String artifact, String version, String classifier, String packaging) {
+
+    // only here a call to new is allowed .. the others are look ups
+    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+    mvnArtifactNode.setGroup(groupId);
+    mvnArtifactNode.setArtifact(artifact);
+    mvnArtifactNode.setVersion(version);
+    mvnArtifactNode.setClassifier(classifier);
+    mvnArtifactNode.setPackaging(packaging);
+
+    // if not fulle resolved properties loopup is wasted
+    if (StringUtils.isBlank(groupId)
+        || StringUtils.isBlank(artifact)
+        || StringUtils.isBlank(version)
+        || StringUtils.startsWith(version, "$")) {
+      // not resolved just a dummy refernce that needs to be resolved later
+      return mvnArtifactNode;
+    }
+
+    //
+    final Optional<MvnArtifactNode> optionalMvnArtifactNode =
+        daoMvnArtifactNode.get(mvnArtifactNode);
     //
     // problem, when we have a "dangling" node in the db.
     // 1. we saw the node as a dependency and added it to the db
@@ -302,19 +341,14 @@ public class ArtifactProcessor {
     if (optionalMvnArtifactNode.isPresent()
         && optionalMvnArtifactNode.get().getResolvingLevel()
             == MvnArtifactNode.ResolvingLevel.FULL) {
-      mvnNode = optionalMvnArtifactNode.get();
+      // FIXME -- if we want to resolve a parent ... the refernce is obvoiusly not updated in the
+      // child but still pointing to the "old" unresolved node ... :(
+      // FIXME -- same goes obvoiulsy for import nodes... :(
+
+      return optionalMvnArtifactNode.get();
     } else {
-      // get the pom
-      addInfoFromPom(mvnNode);
-      mvnNode.setResolvingLevel(MvnArtifactNode.ResolvingLevel.FULL);
-      // must be stored to the db later
-      writeToDBList.add(mvnNode);
+      return mvnArtifactNode;
     }
-    // put the parent on the worklist
-    if (mvnNode.getParent().isPresent()) {
-      addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
-    }
-    return mvnNode;
   }
 
   @Nullable
@@ -323,13 +357,13 @@ public class ArtifactProcessor {
 
     LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
 
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setGroup(mvenartifactinfo.getGroupId());
-    mvnArtifactNode.setArtifact(mvenartifactinfo.getArtifactId());
-    mvnArtifactNode.setVersion(mvenartifactinfo.getArtifactVersion());
-
-    mvnArtifactNode.setClassifier(mvenartifactinfo.getClassifier());
-    mvnArtifactNode.setPackaging(mvenartifactinfo.getPackaging());
+    MvnArtifactNode mvnArtifactNode =
+        makeNodeRef(
+            mvenartifactinfo.getGroupId(),
+            mvenartifactinfo.getArtifactId(),
+            mvenartifactinfo.getArtifactVersion(),
+            mvenartifactinfo.getClassifier(),
+            mvenartifactinfo.getPackaging());
     mvnArtifactNode.setCrawlerVersion(Neo4JConnector.getCrawlerVersion());
 
     addtoWorklist(mvnArtifactNode, RESOLVE_NODE);
@@ -369,12 +403,13 @@ public class ArtifactProcessor {
 
         if (mavenProjectParent != null) {
           // add the parent
-          MvnArtifactNode parent = new MvnArtifactNode();
-
-          parent.setGroup(mavenProjectParent.getGroupId());
-          parent.setArtifact(mavenProjectParent.getArtifactId());
-          parent.setVersion(mavenProjectParent.getVersion());
-          parent.setPackaging("pom");
+          MvnArtifactNode parent =
+              makeNodeRef(
+                  mavenProjectParent.getGroupId(),
+                  mavenProjectParent.getArtifactId(),
+                  mavenProjectParent.getVersion(),
+                  "null",
+                  "pom");
           mvnArtifactNode.setParent(Optional.of(parent));
         }
 
@@ -415,14 +450,13 @@ public class ArtifactProcessor {
   }
 
   private DependencyRelation create(Dependency mavenDep, int position) {
-    MvnArtifactNode dependency = new MvnArtifactNode();
-
-    dependency.setGroup(mavenDep.getGroupId());
-    dependency.setArtifact(mavenDep.getArtifactId());
-    dependency.setVersion(mavenDep.getVersion());
-    dependency.setClassifier(mavenDep.getClassifier());
-    // should correspond BUT not a must have?
-    dependency.setPackaging(mavenDep.getType());
+    MvnArtifactNode dependency =
+        makeNodeRef(
+            mavenDep.getGroupId(),
+            mavenDep.getArtifactId(),
+            mavenDep.getVersion(),
+            mavenDep.getClassifier(),
+            mavenDep.getType());
 
     final String mavenDepScope = mavenDep.getScope();
     DependencyScope dependencyScope = getScope(mavenDepScope);
@@ -497,5 +531,121 @@ public class ArtifactProcessor {
   private String getFilename(String fileName) {
     int lastIndexOf = fileName.lastIndexOf("/");
     return lastIndexOf > 0 ? fileName.substring(lastIndexOf + 1) : fileName;
+  }
+
+  private class MvnArtifactDecoratorReference extends MvnArtifactNode {
+
+    private MvnArtifactNode wrappedObject;
+
+    // FIXME -- not nice however currently the easisies solution, I see
+    public MvnArtifactDecoratorReference(MvnArtifactNode wrappedObject) {
+      this.wrappedObject = wrappedObject;
+    }
+
+    public MvnArtifactNode.ResolvingLevel getResolvingLevel() {
+      return wrappedObject.getResolvingLevel();
+    }
+
+    public String getPackaging() {
+      return wrappedObject.getPackaging();
+    }
+
+    public String getCrawlerVersion() {
+      return wrappedObject.getCrawlerVersion();
+    }
+
+    @JsonIgnore
+    public void setDependencies(List<DependencyRelation> dependencies) {
+      wrappedObject.setDependencies(dependencies);
+    }
+
+    @JsonIgnore
+    public void setDependencyManagement(List<DependencyRelation> dependencyManagement) {
+      wrappedObject.setDependencyManagement(dependencyManagement);
+    }
+
+    public String getGroup() {
+      return wrappedObject.getGroup();
+    }
+
+    public String getArtifact() {
+      return wrappedObject.getArtifact();
+    }
+
+    public List<DependencyRelation> getDependencies() {
+      return wrappedObject.getDependencies();
+    }
+
+    public String getVersion() {
+      return wrappedObject.getVersion();
+    }
+
+    public void setScmURL(String scmURL) {
+      wrappedObject.setScmURL(scmURL);
+    }
+
+    public String getRepoURL() {
+      return wrappedObject.getRepoURL();
+    }
+
+    public String getScmURL() {
+      return wrappedObject.getScmURL();
+    }
+
+    public String getClassifier() {
+      return wrappedObject.getClassifier();
+    }
+
+    public void setProperties(Map<String, String> properties) {
+      wrappedObject.setProperties(properties);
+    }
+
+    public void setRepoURL(String repoURL) {
+      wrappedObject.setRepoURL(repoURL);
+    }
+
+    public Map<String, String> getProperties() {
+      return wrappedObject.getProperties();
+    }
+
+    public void setVersion(String version) {
+      wrappedObject.setVersion(version);
+    }
+
+    public void setGroup(String group) {
+      wrappedObject.setGroup(group);
+    }
+
+    public void setPackaging(String packaging) {
+      wrappedObject.setPackaging(packaging);
+    }
+
+    public Optional<MvnArtifactNode> getParent() {
+      return wrappedObject.getParent();
+    }
+
+    public void setCrawlerVersion(String crawlerVersion) {
+      wrappedObject.setCrawlerVersion(crawlerVersion);
+    }
+
+    public void setResolvingLevel(MvnArtifactNode.ResolvingLevel resolvingLevel) {
+      wrappedObject.setResolvingLevel(resolvingLevel);
+    }
+
+    public void setArtifact(String artifact) {
+      wrappedObject.setArtifact(artifact);
+    }
+
+    public List<DependencyRelation> getDependencyManagement() {
+      return wrappedObject.getDependencyManagement();
+    }
+
+    public void setParent(Optional<MvnArtifactNode> parent) {
+      wrappedObject.setParent(parent);
+    }
+
+    public void setClassifier(String classifier) {
+      wrappedObject.setClassifier(classifier);
+    }
   }
 }
