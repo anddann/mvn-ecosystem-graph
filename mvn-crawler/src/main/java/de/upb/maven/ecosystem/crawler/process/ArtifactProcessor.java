@@ -9,16 +9,6 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -36,6 +26,15 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -232,6 +231,9 @@ public class ArtifactProcessor {
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
 
   private String resolveProperty(String prop, MvnArtifactNode currentNode) {
+    if (StringUtils.isBlank(prop)) {
+      return prop;
+    }
 
     String newString = prop;
     final Matcher matcher = PROPERTY_PATTERN.matcher(prop);
@@ -279,13 +281,11 @@ public class ArtifactProcessor {
 
     while (!dependenciesToCheck.isEmpty()) {
       DependencyRelation dependencyRelation = dependenciesToCheck.poll();
-      if (StringUtils.startsWith(dependencyRelation.getTgtNode().getVersion(), "$")) {
+      if (StringUtils.contains(dependencyRelation.getTgtNode().getVersion(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
-      }
-      if (StringUtils.startsWith(dependencyRelation.getTgtNode().getGroup(), "$")) {
+      } else if (StringUtils.contains(dependencyRelation.getTgtNode().getGroup(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
-      }
-      if (StringUtils.startsWith(dependencyRelation.getTgtNode().getArtifact(), "$")) {
+      } else if (StringUtils.contains(dependencyRelation.getTgtNode().getArtifact(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
       }
     }
@@ -293,7 +293,6 @@ public class ArtifactProcessor {
     MvnArtifactNode currentNode = mvnArtifactNode;
     while (currentNode != null) {
       // check for properties
-      final Map<String, String> properties = currentNode.getProperties();
 
       Deque<MvnArtifactNode> workList = new ArrayDeque<>(dependencyPropertiesToResolve);
 
@@ -304,16 +303,15 @@ public class ArtifactProcessor {
         String resolvedGroup = resolveProperty(dep.getGroup(), currentNode);
         String resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode);
 
-        dep.setVersion(resolvedVersion);
-
-        dep.setGroup(resolvedGroup);
-
-        dep.setArtifact(resolvedArtifact);
-
+        // resolved reference, refernces another property, and the value has changed in the previous
+        // step
         boolean recursive =
-            StringUtils.startsWith(dep.getGroup(), "$")
-                || StringUtils.startsWith(dep.getArtifact(), "$")
-                || StringUtils.startsWith(dep.getVersion(), "$");
+            (!StringUtils.equals(resolvedGroup, dep.getGroup())
+                    && StringUtils.contains(dep.getGroup(), "$"))
+                || (!StringUtils.equals(resolvedArtifact, dep.getArtifact())
+                    && StringUtils.contains(dep.getArtifact(), "$"))
+                || (!StringUtils.equals(resolvedVersion, dep.getVersion())
+                    && StringUtils.contains(dep.getVersion(), "$"));
         if (recursive) {
           // do not remove
           LOGGER.debug("Found recursive property");
@@ -321,11 +319,17 @@ public class ArtifactProcessor {
           workList.add(dep);
         }
 
+        dep.setVersion(resolvedVersion);
+
+        dep.setGroup(resolvedGroup);
+
+        dep.setArtifact(resolvedArtifact);
+
         // check if the artifact is now fully resolved
         boolean fullyResolved =
-            !StringUtils.startsWith(dep.getGroup(), "$")
-                && !StringUtils.startsWith(dep.getArtifact(), "$")
-                && !StringUtils.startsWith(dep.getVersion(), "$");
+            !StringUtils.contains(dep.getGroup(), "$")
+                && !StringUtils.contains(dep.getArtifact(), "$")
+                && !StringUtils.contains(dep.getVersion(), "$");
         if (fullyResolved) {
           dependencyPropertiesToResolve.remove(dep);
         }
