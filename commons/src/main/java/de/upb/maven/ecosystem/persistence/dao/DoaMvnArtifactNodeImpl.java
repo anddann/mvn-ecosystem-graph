@@ -43,6 +43,34 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     this.driver = driver;
   }
 
+  private static void sanityCheckProperties(MvnArtifactNode mvnArtifactNode) {
+    if (StringUtils.isBlank(mvnArtifactNode.getGroup())
+        || StringUtils.startsWith(mvnArtifactNode.getGroup(), "$")) {
+      // the parent artifact may only have the packaging pom
+      logger.error("The group is invalid");
+      throw new IllegalArgumentException("The group is invalid");
+    }
+    if (StringUtils.isBlank(mvnArtifactNode.getArtifact())
+        || StringUtils.startsWith(mvnArtifactNode.getArtifact(), "$")) {
+      // the parent artifact may only have the packaging pom
+      logger.error("The artifact is invalid");
+      throw new IllegalArgumentException("The artifact is invalid");
+    }
+    if (StringUtils.isBlank(mvnArtifactNode.getVersion())
+        || StringUtils.startsWith(mvnArtifactNode.getVersion(), "$")) {
+      // the parent artifact may only have the packaging pom
+      logger.error("The version is invalid");
+      throw new IllegalArgumentException("The version is invalid");
+    }
+
+    if (StringUtils.isBlank(mvnArtifactNode.getClassifier())
+        || StringUtils.startsWith(mvnArtifactNode.getClassifier(), "$")) {
+      // the parent artifact may only have the packaging pom
+      logger.error("The classifier is invalid");
+      throw new IllegalArgumentException("The classifier is invalid");
+    }
+  }
+
   /**
    * sanity check of the data to write into the database
    *
@@ -147,23 +175,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             .map(DependencyRelation::getTgtNode)
             .collect(Collectors.toList()));
     for (MvnArtifactNode nodeToCheck : mvnArtifactNodes) {
-
-      if (StringUtils.isBlank(nodeToCheck.getGroup())) {
-        logger.error("Group is blank");
-        throw new IllegalArgumentException("Group is blank");
-      }
-      if (StringUtils.isBlank(nodeToCheck.getArtifact())) {
-        logger.error("Artifact is blank");
-        throw new IllegalArgumentException("Artifact is blank");
-      }
-      if (StringUtils.isBlank(nodeToCheck.getVersion())) {
-        logger.error("Version is blank");
-        throw new IllegalArgumentException("Version is blank");
-      }
-      if (StringUtils.startsWith(nodeToCheck.getVersion(), "$")) {
-        logger.error("Version is unresolved property");
-        throw new IllegalArgumentException("Version is unresolved property");
-      }
+      sanityCheckProperties(nodeToCheck);
     }
   }
 

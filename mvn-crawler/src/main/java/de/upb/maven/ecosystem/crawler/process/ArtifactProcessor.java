@@ -227,6 +227,61 @@ public class ArtifactProcessor {
     processResolveWorklist();
   }
 
+  private String resolveVersionProperty(MvnArtifactNode dep, MvnArtifactNode currentNode) {
+    final String versionProp = dep.getVersion();
+    if (!StringUtils.startsWith(versionProp, "$")) {
+      return null;
+    }
+    // special handling for the property ${project.version}
+    // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
+    // One factor to note is that these variables are processed after inheritance as outlined
+    // above. This means that if a parent project uses a variable, then its definition in the
+    // child, not the parent, will be the one eventually used.
+    String version = versionProp.substring(2, versionProp.length() - 1);
+    if (StringUtils.equals(version, "project.version")
+        || StringUtils.equals(version, "pom.version")) {
+      return currentNode.getVersion();
+    }
+
+    return currentNode.getProperties().get(version);
+  }
+
+  private String resolveArtifactProperty(MvnArtifactNode dep, MvnArtifactNode currentNode) {
+    final String artifactName = dep.getArtifact();
+    if (!StringUtils.startsWith(artifactName, "$")) {
+      return null;
+    }
+    // special handling for the property ${project.version}
+    // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
+    // One factor to note is that these variables are processed after inheritance as outlined
+    // above. This means that if a parent project uses a variable, then its definition in the
+    // child, not the parent, will be the one eventually used.
+    String artifact = artifactName.substring(2, artifactName.length() - 1);
+    if (StringUtils.equals(artifact, "project.name") || StringUtils.equals(artifact, "pom.name")) {
+      return currentNode.getArtifact();
+    }
+
+    return currentNode.getProperties().get(artifact);
+  }
+
+  private String resolveGroupProperty(MvnArtifactNode dep, MvnArtifactNode currentNode) {
+    final String groupName = dep.getGroup();
+    if (!StringUtils.startsWith(groupName, "$")) {
+      return null;
+    }
+    // special handling for the property ${project.version}
+    // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
+    // One factor to note is that these variables are processed after inheritance as outlined
+    // above. This means that if a parent project uses a variable, then its definition in the
+    // child, not the parent, will be the one eventually used.
+    String group = groupName.substring(2, groupName.length() - 1);
+    if (StringUtils.equals(group, "project.groupId") || StringUtils.equals(group, "pom.groupId")) {
+      return currentNode.getGroup();
+    }
+
+    return currentNode.getProperties().get(group);
+  }
+
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
     LOGGER.info("Resolve Properties: {}", mvnArtifactNode);
 
@@ -242,6 +297,12 @@ public class ArtifactProcessor {
       if (StringUtils.startsWith(dependencyRelation.getTgtNode().getVersion(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
       }
+      if (StringUtils.startsWith(dependencyRelation.getTgtNode().getGroup(), "$")) {
+        dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+      }
+      if (StringUtils.startsWith(dependencyRelation.getTgtNode().getArtifact(), "$")) {
+        dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+      }
     }
 
     MvnArtifactNode currentNode = mvnArtifactNode;
@@ -253,34 +314,39 @@ public class ArtifactProcessor {
 
       while (!workList.isEmpty()) {
         MvnArtifactNode dep = workList.poll();
-        String version = dep.getVersion().substring(2, dep.getVersion().length() - 1);
 
-        // special handling for the property ${project.version}
-        // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
-        // One factor to note is that these variables are processed after inheritance as outlined
-        // above. This means that if a parent project uses a variable, then its definition in the
-        // child, not the parent, will be the one eventually used.
-        if (StringUtils.equals(version, "project.version")) {
-          // use the lowest child version
-          dep.setVersion(mvnArtifactNode.getVersion());
-          // fully resolved
+        String resolvedVersion = resolveVersionProperty(dep, currentNode);
+        String resolvedGroup = resolveGroupProperty(dep, currentNode);
+        String resolvedArtifact = resolveArtifactProperty(dep, currentNode);
+
+        if (resolvedVersion != null) {
+          dep.setVersion(resolvedVersion);
+        }
+        if (resolvedGroup != null) {
+          dep.setGroup(resolvedVersion);
+        }
+
+        if (resolvedArtifact != null) {
+          dep.setArtifact(resolvedArtifact);
+        }
+        boolean recursive =
+            StringUtils.startsWith(dep.getGroup(), "$")
+                || StringUtils.startsWith(dep.getArtifact(), "$")
+                || StringUtils.startsWith(dep.getVersion(), "$");
+        if (recursive) {
+          // do not remove
+          LOGGER.debug("Found recursive property");
+          // re-add to the queue
+          workList.add(dep);
+        }
+
+        // check if the artifact is now fully resolved
+        boolean fullyResolved =
+            !StringUtils.startsWith(dep.getGroup(), "$")
+                && !StringUtils.startsWith(dep.getArtifact(), "$")
+                && !StringUtils.startsWith(dep.getVersion(), "$");
+        if (fullyResolved) {
           dependencyPropertiesToResolve.remove(dep);
-
-        } else {
-          final String s = properties.get(version);
-          if (s != null) {
-            dep.setVersion(s);
-            // check if it another properties
-            if (StringUtils.startsWith(s, "$")) {
-              // do not remove
-              LOGGER.debug("Found recursive property");
-              // re-add to the queue
-              workList.add(dep);
-            } else {
-              // fully resolved
-              dependencyPropertiesToResolve.remove(dep);
-            }
-          }
         }
       }
       // search in the parent
@@ -525,5 +591,4 @@ public class ArtifactProcessor {
         "[Stats] Downloading {} took {}", fileName.getFileName().toString(), stopwatch.elapsed());
     return fileName;
   }
-
 }

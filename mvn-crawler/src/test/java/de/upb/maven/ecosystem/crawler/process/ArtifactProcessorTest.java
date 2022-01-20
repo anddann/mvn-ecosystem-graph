@@ -1,18 +1,9 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import static org.junit.Assert.*;
-
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,6 +24,15 @@ import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest {
 
@@ -432,6 +432,36 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(1, process.size());
+    }
+  }
+
+  @Test
+  public void failedArtifact() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    {
+      // write the node with circular reference first into the DB
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.mobicents.protocols.ss7.mtp");
+      artifactInfo.setArtifactId("mtp");
+      artifactInfo.setArtifactVersion("2.0.0.BETA3");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(6, process.size());
+
+      for (MvnArtifactNode node : process) {
+        doaMvnArtifactNodeImpl.saveOrMerge(node);
+      }
     }
   }
 }
