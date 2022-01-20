@@ -1,6 +1,5 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.crawler.PomFileUtil;
@@ -250,8 +249,7 @@ public class ArtifactProcessor {
       // check for properties
       final Map<String, String> properties = currentNode.getProperties();
 
-      Deque<MvnArtifactNode> workList = new ArrayDeque<>();
-      workList.addAll(dependencyPropertiesToResolve);
+      Deque<MvnArtifactNode> workList = new ArrayDeque<>(dependencyPropertiesToResolve);
 
       while (!workList.isEmpty()) {
         MvnArtifactNode dep = workList.poll();
@@ -528,124 +526,4 @@ public class ArtifactProcessor {
     return fileName;
   }
 
-  private String getFilename(String fileName) {
-    int lastIndexOf = fileName.lastIndexOf("/");
-    return lastIndexOf > 0 ? fileName.substring(lastIndexOf + 1) : fileName;
-  }
-
-  private class MvnArtifactDecoratorReference extends MvnArtifactNode {
-
-    private MvnArtifactNode wrappedObject;
-
-    // FIXME -- not nice however currently the easisies solution, I see
-    public MvnArtifactDecoratorReference(MvnArtifactNode wrappedObject) {
-      this.wrappedObject = wrappedObject;
-    }
-
-    public MvnArtifactNode.ResolvingLevel getResolvingLevel() {
-      return wrappedObject.getResolvingLevel();
-    }
-
-    public String getPackaging() {
-      return wrappedObject.getPackaging();
-    }
-
-    public String getCrawlerVersion() {
-      return wrappedObject.getCrawlerVersion();
-    }
-
-    @JsonIgnore
-    public void setDependencies(List<DependencyRelation> dependencies) {
-      wrappedObject.setDependencies(dependencies);
-    }
-
-    @JsonIgnore
-    public void setDependencyManagement(List<DependencyRelation> dependencyManagement) {
-      wrappedObject.setDependencyManagement(dependencyManagement);
-    }
-
-    public String getGroup() {
-      return wrappedObject.getGroup();
-    }
-
-    public String getArtifact() {
-      return wrappedObject.getArtifact();
-    }
-
-    public List<DependencyRelation> getDependencies() {
-      return wrappedObject.getDependencies();
-    }
-
-    public String getVersion() {
-      return wrappedObject.getVersion();
-    }
-
-    public void setScmURL(String scmURL) {
-      wrappedObject.setScmURL(scmURL);
-    }
-
-    public String getRepoURL() {
-      return wrappedObject.getRepoURL();
-    }
-
-    public String getScmURL() {
-      return wrappedObject.getScmURL();
-    }
-
-    public String getClassifier() {
-      return wrappedObject.getClassifier();
-    }
-
-    public void setProperties(Map<String, String> properties) {
-      wrappedObject.setProperties(properties);
-    }
-
-    public void setRepoURL(String repoURL) {
-      wrappedObject.setRepoURL(repoURL);
-    }
-
-    public Map<String, String> getProperties() {
-      return wrappedObject.getProperties();
-    }
-
-    public void setVersion(String version) {
-      wrappedObject.setVersion(version);
-    }
-
-    public void setGroup(String group) {
-      wrappedObject.setGroup(group);
-    }
-
-    public void setPackaging(String packaging) {
-      wrappedObject.setPackaging(packaging);
-    }
-
-    public Optional<MvnArtifactNode> getParent() {
-      return wrappedObject.getParent();
-    }
-
-    public void setCrawlerVersion(String crawlerVersion) {
-      wrappedObject.setCrawlerVersion(crawlerVersion);
-    }
-
-    public void setResolvingLevel(MvnArtifactNode.ResolvingLevel resolvingLevel) {
-      wrappedObject.setResolvingLevel(resolvingLevel);
-    }
-
-    public void setArtifact(String artifact) {
-      wrappedObject.setArtifact(artifact);
-    }
-
-    public List<DependencyRelation> getDependencyManagement() {
-      return wrappedObject.getDependencyManagement();
-    }
-
-    public void setParent(Optional<MvnArtifactNode> parent) {
-      wrappedObject.setParent(parent);
-    }
-
-    public void setClassifier(String classifier) {
-      wrappedObject.setClassifier(classifier);
-    }
-  }
 }

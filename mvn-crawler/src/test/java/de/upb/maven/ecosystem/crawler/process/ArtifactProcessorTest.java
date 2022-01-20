@@ -9,6 +9,7 @@ import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class ArtifactProcessorTest {
     }
   }
 
-  private static GraphDatabaseService createDB() throws IOException {
+  private static GraphDatabaseService createDB() {
 
     logger.info("Creating dbms in {}", databasePath);
 
@@ -126,7 +127,7 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     assertEquals(5, process.size());
-    final List<MvnArtifactNode> collect = process.stream().collect(Collectors.toList());
+    final List<MvnArtifactNode> collect = new ArrayList<>(process);
 
     // TODO test properties
 
@@ -288,6 +289,8 @@ public class ArtifactProcessorTest {
     artifactInfo.setPackaging("jar");
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
   }
 
   @Test

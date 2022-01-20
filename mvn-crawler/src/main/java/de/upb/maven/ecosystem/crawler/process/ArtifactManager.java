@@ -1,26 +1,23 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import com.google.common.collect.Sets;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactManager.class);
-  private static Set<String> CLASSIFIER_TO_IGNORE =
-      Sets.newHashSet("test", "tests", "javadoc", "doc", "src", "source", "sources");
   private final DaoMvnArtifactNode doaArtifactNode;
 
   public ArtifactManager(DaoMvnArtifactNode doaArtifactNode) {
@@ -31,12 +28,6 @@ public class ArtifactManager {
   private boolean ignoreArtifact(CustomArtifactInfo ai) {
     // FIXME -- I gues we should only handle artifacts witch classifier =null
     return StringUtils.isNotBlank(ai.getClassifier());
-
-    //    if (StringUtils.isNotBlank(ai.getClassifier())) {
-    //      return CLASSIFIER_TO_IGNORE.contains(ai.getClassifier());
-    //    }
-
-    //  return false;
   }
 
   public void process(CustomArtifactInfo ai, int crawledArtifacts) throws IOException {
