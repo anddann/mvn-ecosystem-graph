@@ -1,17 +1,9 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import static org.junit.Assert.*;
-
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,6 +24,15 @@ import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest {
 
@@ -267,7 +268,7 @@ public class ArtifactProcessorTest {
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
-    assertEquals(67, process.size());
+    assertEquals(52, process.size());
   }
 
   @Test
@@ -431,6 +432,135 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(1, process.size());
+    }
+  }
+
+  @Test
+  public void testParentParent() throws IOException {
+    Driver driver = createDriver();
+    // Created duplicate parent edge
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    {
+      // write the node with circular reference first into the DB
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.fcrepo");
+      artifactInfo.setArtifactId("fcrepo4-oaiprovider");
+      artifactInfo.setArtifactVersion("4.4.0");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(6, process.size());
+
+      for (MvnArtifactNode node : process) {
+        doaMvnArtifactNodeImpl.saveOrMerge(node);
+      }
+    }
+
+    // resolve the next one
+    {
+      // resolve a node that references the recursive node
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.fcrepo");
+      artifactInfo.setArtifactId("fcrepo-webapp");
+      artifactInfo.setArtifactVersion("4.4.0");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("pom");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      assertEquals(2, process.size());
+    }
+  }
+
+  @Test
+  public void testNotSingleRecord() throws IOException {
+    Driver driver = createDriver();
+    // Created duplicate parent edge
+   // org.fcrepo:fcrepo:4.4.0
+
+    //org.fcrepo:fcrepo-integration-ldp:4.4.0
+    //org.fcrepo:fcrepo-http-commons:4.4.0
+    //org.fcrepo:fcrepo-http-api:4.4.0
+
+    //org.fcrepo:fcrepo-connector-file:4.4.0
+    //org.fcrepo:fcrepo-client-impl:4.4.0
+    //org.fcrepo:fcrepo-client:4.4.0
+    //org.fcrepo:fcrepo-build-tools:4.4.0
+    //
+    ArrayList<String> artifacts = new ArrayList<>();
+    artifacts.add("fcrepo-integration-ldp");
+
+    artifacts.add("fcrepo-integration-ldp");
+    artifacts.add("fcrepo-http-commons");
+    artifacts.add("fcrepo-http-api");
+    artifacts.add("fcrepo-client-impl");
+    artifacts.add("fcrepo-client");
+    artifacts.add("fcrepo-build-tools");
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+
+
+    {
+      // write the node with circular reference first into the DB
+      ArtifactProcessor artifactProcessor =
+              new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.fcrepo");//org.fcrepo:fcrepo-auth-roles-common:4.4.0
+
+
+        artifactInfo.setArtifactId("fcrepo-jcr-bom");
+
+      artifactInfo.setArtifactVersion("4.4.0");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("pom");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      // assertEquals(6, process.size());
+
+      for (MvnArtifactNode node : process) {
+        doaMvnArtifactNodeImpl.saveOrMerge(node);
+      }
+    }
+
+
+    // resolve the next one
+    {
+      // resolve a node that references the recursive node
+      ArtifactProcessor artifactProcessor =
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+      artifactInfo.setGroupId("org.fcrepo");//org.fcrepo:fcrepo-auth-roles-basic:4.4.0
+      artifactInfo.setArtifactId("fcrepo-auth-roles-basic");
+      artifactInfo.setArtifactVersion("4.4.0");
+      artifactInfo.setFileExtension("jar");
+      artifactInfo.setPackaging("jar");
+
+      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      assertNotNull(process);
+      assertFalse(process.isEmpty());
+      //  assertEquals(3, process.size());
     }
   }
 

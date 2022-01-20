@@ -58,6 +58,8 @@ public class ArtifactProcessor {
 
   private final List<MvnArtifactNode> writeToDBList = new ArrayList<>();
 
+  private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
+
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.daoMvnArtifactNode = doaArtifactNode;
@@ -377,7 +379,14 @@ public class ArtifactProcessor {
       // not resolved just a dummy refernce that needs to be resolved later
       return mvnArtifactNode;
     }
+    String identifier =
+        groupId + ":" + artifact + ":" + version + "-" + classifier + "-" + packaging;
 
+    if (nodesInScene.containsKey(identifier)) {
+      return nodesInScene.get(identifier);
+    }
+
+    MvnArtifactNode nodeToReturn;
     //
     final Optional<MvnArtifactNode> optionalMvnArtifactNode =
         daoMvnArtifactNode.get(mvnArtifactNode);
@@ -390,14 +399,16 @@ public class ArtifactProcessor {
     if (optionalMvnArtifactNode.isPresent()
         && optionalMvnArtifactNode.get().getResolvingLevel()
             == MvnArtifactNode.ResolvingLevel.FULL) {
-      // FIXME -- if we want to resolve a parent ... the refernce is obvoiusly not updated in the
+      //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
       // child but still pointing to the "old" unresolved node ... :(
-      // FIXME -- same goes obvoiulsy for import nodes... :(
+      // -- same goes obvoiulsy for import nodes... :(
 
-      return optionalMvnArtifactNode.get();
+      nodeToReturn = optionalMvnArtifactNode.get();
     } else {
-      return mvnArtifactNode;
+      nodeToReturn = mvnArtifactNode;
     }
+    nodesInScene.put(identifier, nodeToReturn);
+    return nodeToReturn;
   }
 
   @Nullable
