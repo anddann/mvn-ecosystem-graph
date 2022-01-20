@@ -7,19 +7,6 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Query;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +19,18 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Query;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
