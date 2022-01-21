@@ -29,6 +29,7 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
+import org.neo4j.driver.exceptions.ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,23 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   public DoaMvnArtifactNodeImpl(Driver driver) {
     this.driver = driver;
+    try {
+      this.createUniqueConstraint();
+    } catch (ClientException ex) {
+      //may fail on embedded database checks
+      logger.error("Failed create constraint", ex);
+    }
+  }
+
+  private void createUniqueConstraint() {
+    try (Session session = driver.session()) {
+      try (Transaction tx = session.beginTransaction()) {
+
+        tx.run(
+            "CREATE CONSTRAINT uni_mvnartifact_hashids IF NOT EXISTS FOR (node:MvnArtifact) REQUIRE node.hashId IS UNIQUE");
+        tx.commit();
+      }
+    }
   }
 
   private static void sanityCheckProperties(MvnArtifactNode mvnArtifactNode) {

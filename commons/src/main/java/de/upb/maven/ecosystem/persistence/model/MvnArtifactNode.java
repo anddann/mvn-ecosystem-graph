@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -27,6 +28,13 @@ public class MvnArtifactNode {
     DANGLING,
     FULL;
   }
+
+  public String getHashId() {
+    return DigestUtils.sha1Hex(
+        group + ":" + artifact + ":" + version + "-" + classifier + ":" + packaging);
+  }
+
+  private String hashId;
 
   private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
 
