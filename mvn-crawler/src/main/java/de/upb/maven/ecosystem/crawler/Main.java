@@ -9,15 +9,19 @@ import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
+import de.upb.maven.ecosystem.persistence.RedisWriter;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   private static final ObjectMapper mapper = new ObjectMapper();
+  private RedisWriter useRedis = null;
 
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);
@@ -33,6 +37,12 @@ public class Main extends AbstractCrawler {
   protected void preFlightCheck() {
     try {
       Neo4JConnector.getDriver();
+
+      if (StringUtils.isNotBlank(System.getenv("REDIS"))) {
+        LOGGER.info("use redis");
+        this.useRedis = RedisWriter.getInstance();
+      }
+
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed connecting to database", e);
       System.exit(-1);
@@ -62,5 +72,9 @@ public class Main extends AbstractCrawler {
   @Override
   protected void shutdownHook() {
     LOGGER.info("Shutdown");
+    if (StringUtils.isNotBlank(System.getenv("REDIS"))) {
+      LOGGER.info("use redis");
+      RedisWriter.getInstance().shutdownHook();
+    }
   }
 }

@@ -44,7 +44,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     try {
       this.createUniqueConstraint();
     } catch (ClientException ex) {
-      //may fail on embedded database checks
+      // may fail on embedded database checks
       logger.error("Failed create constraint", ex);
     }
   }

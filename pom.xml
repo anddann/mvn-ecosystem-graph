@@ -33,6 +33,7 @@
         <module>commons</module>
         <module>mvn-central-indexer</module>
         <module>mvn-crawler</module>
+        <module>redis-task</module>
     </modules>
 
 

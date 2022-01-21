@@ -16,12 +16,30 @@ services:
     networks:
       - crawler-net
 
+  redis:
+    image: redis:alpine
+    restart: always
+    deploy:
+      mode: global
+    networks:
+      - crawler-net
+
+  redis-task:
+    image: redis-task:0.5.0-SNAPSHOT
+    restart: always
+    deploy:
+      mode: global
+    env_file:
+      - production.env
+    networks:
+      - crawler-net
 
   maven-central-indexer:
     restart: always
     image: mvn-central-indexer:0.5.0-SNAPSHOT
     depends_on:
       - rabbitmq
+      - redis
     deploy:
       mode: global
       restart_policy:
@@ -45,7 +63,7 @@ services:
     restart: always
     image: mvn-crawler:0.5.0-SNAPSHOT
     deploy:
-      replicas: 3
+      replicas: 1
       mode: replicated
       restart_policy:
         condition: on-failure
@@ -54,6 +72,7 @@ services:
     depends_on:
       - maven-central-indexer
       - rabbitmq
+      - redis
     env_file:
       - production.env
     environment:

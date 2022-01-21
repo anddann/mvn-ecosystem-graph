@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DependencyRelation {
+public class DependencyRelation implements Serializable {
 
   // the default scope is compile
   private DependencyScope scope = DependencyScope.COMPILE;
