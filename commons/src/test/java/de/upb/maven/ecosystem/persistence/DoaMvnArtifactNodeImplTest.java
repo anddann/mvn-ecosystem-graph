@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.persistence;
 
 import static org.junit.Assert.*;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.MvnArtifactNodeProxy;
@@ -14,7 +15,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

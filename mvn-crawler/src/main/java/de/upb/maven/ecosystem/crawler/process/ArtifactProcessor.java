@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.crawler.PomFileUtil;
@@ -21,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -337,7 +337,7 @@ public class ArtifactProcessor {
         }
       }
       // search in the parent
-      currentNode = currentNode.getParent().orElse(null);
+      currentNode = currentNode.getParent().orNull();
     }
   }
 

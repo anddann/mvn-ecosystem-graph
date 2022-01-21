@@ -1,13 +1,14 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
+import com.google.common.base.Optional;
+import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.util.List;
-import java.util.Optional;
 
 public interface Dao<T> {
 
-  Optional<T> get(long id);
+  com.google.common.base.Optional<MvnArtifactNode> get(long id);
 
-  Optional<T> get(T instance);
+  Optional<MvnArtifactNode> get(T instance);
 
   List<T> getAll();
 

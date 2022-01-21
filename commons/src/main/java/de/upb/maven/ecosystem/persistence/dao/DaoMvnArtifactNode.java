@@ -1,15 +1,15 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
+import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.util.List;
-import java.util.Optional;
 
 public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
 
-  Optional<MvnArtifactNode> getParent(long id);
+  com.google.common.base.Optional<MvnArtifactNode> getParent(long id);
 
-  Optional<MvnArtifactNode> getParent(MvnArtifactNode instance);
+  com.google.common.base.Optional<MvnArtifactNode> getParent(MvnArtifactNode instance);
 
   Optional<DependencyRelation> getRelationship(
       MvnArtifactNode instance, MvnArtifactNode dependency);

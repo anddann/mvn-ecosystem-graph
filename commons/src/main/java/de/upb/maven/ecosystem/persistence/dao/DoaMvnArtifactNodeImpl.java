@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.persistence.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -267,7 +267,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
               });
 
       if (record == null) {
-        return Optional.empty();
+        return Optional.absent();
       }
 
       final Value n = record.get("n");
@@ -275,7 +275,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
         return Optional.of(createProxyNode(n));
       }
-      return Optional.empty();
+      return Optional.absent();
     }
   }
 
@@ -516,7 +516,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
               });
 
       if (value == null) {
-        return Optional.empty();
+        return Optional.absent();
       }
 
       return Optional.of(createProxyNode(value));
@@ -555,7 +555,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
               });
 
       if (value == null) {
-        return Optional.empty();
+        return Optional.absent();
       }
 
       return Optional.of(createDepRelation(value));

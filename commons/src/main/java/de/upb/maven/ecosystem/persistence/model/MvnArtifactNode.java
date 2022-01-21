@@ -3,13 +3,13 @@ package de.upb.maven.ecosystem.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -65,9 +65,9 @@ public class MvnArtifactNode implements Serializable {
   //  @JsonDeserialize(using = CustomNullDeserializer.class)
   private Map<String, String> properties = new HashMap<>();
 
-  // relationship type=PARENT
+  // relationship type=PARENT // use guava to serialize it for redis :(
   @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
-  private Optional<MvnArtifactNode> parent = Optional.empty();
+  private Optional<MvnArtifactNode> parent = Optional.absent();
 
   // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
   // resolving
