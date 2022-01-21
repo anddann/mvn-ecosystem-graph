@@ -9,6 +9,7 @@ import de.upb.maven.ecosystem.persistence.dao.MvnArtifactNodeProxy;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -237,6 +238,7 @@ public class DoaMvnArtifactNodeImplTest {
     assertNotNull(mvnArtifactNode1.get().getProperties());
 
     assertEquals(2, mvnArtifactNode1.get().getProperties().size());
+    RedisSerializerUtil.serialize(mvnArtifactNode);
   }
 
   @Test
@@ -279,6 +281,8 @@ public class DoaMvnArtifactNodeImplTest {
     assertNotNull(mvnArtifactNode1.get());
     assertNotNull(mvnArtifactNode1.get().getExclusions());
     assertEquals(2, mvnArtifactNode1.get().getExclusions().size());
+
+    RedisSerializerUtil.serialize(mvnArtifactNode);
   }
 
   @Test

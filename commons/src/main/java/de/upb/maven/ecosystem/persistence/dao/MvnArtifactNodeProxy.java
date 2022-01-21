@@ -11,11 +11,11 @@ public class MvnArtifactNodeProxy extends MvnArtifactNode {
     this.doaMvnArtifactNode = doaMvnArtifactNode;
   }
 
-  private DoaMvnArtifactNodeImpl doaMvnArtifactNode;
+  private transient DoaMvnArtifactNodeImpl doaMvnArtifactNode;
 
-  private boolean depsResolved = false;
-  private boolean depMgmtResolved = false;
-  private boolean parentRes = false;
+  private transient boolean depsResolved = false;
+  private transient boolean depMgmtResolved = false;
+  private transient boolean parentRes = false;
 
   @Override
   public List<DependencyRelation> getDependencies() {

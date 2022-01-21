@@ -1,10 +1,10 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.RedisWriter;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;

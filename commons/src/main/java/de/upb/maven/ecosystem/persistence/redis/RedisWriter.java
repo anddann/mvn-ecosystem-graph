@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.persistence;
+package de.upb.maven.ecosystem.persistence.redis;
 
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.nio.charset.StandardCharsets;

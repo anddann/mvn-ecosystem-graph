@@ -1,8 +1,8 @@
 package de.upb.maven.ecosystem.redis;
 
-import de.upb.maven.ecosystem.persistence.RedisSerializerUtil;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;

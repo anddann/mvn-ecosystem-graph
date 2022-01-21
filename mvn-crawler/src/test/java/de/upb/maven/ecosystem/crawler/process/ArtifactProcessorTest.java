@@ -6,6 +6,7 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -461,6 +462,7 @@ public class ArtifactProcessorTest {
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
+        RedisSerializerUtil.serialize(node);
       }
     }
 
@@ -556,6 +558,9 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       //  assertEquals(3, process.size());
+      for (MvnArtifactNode node : process) {
+        RedisSerializerUtil.serialize(node);
+      }
     }
   }
 

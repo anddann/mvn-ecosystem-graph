@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.persistence;
+package de.upb.maven.ecosystem.persistence.redis;
 
 import com.google.common.base.Strings;
 import java.io.Serializable;
