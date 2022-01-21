@@ -3,11 +3,6 @@ package de.upb.maven.ecosystem.redis;
 import de.upb.maven.ecosystem.persistence.RedisSerializerUtil;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
@@ -15,6 +10,10 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class Redis2Neo4JDB {
 
