@@ -1,9 +1,17 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import static org.junit.Assert.*;
+
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,15 +32,6 @@ import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest {
 
@@ -490,16 +489,16 @@ public class ArtifactProcessorTest {
   public void testNotSingleRecord() throws IOException {
     Driver driver = createDriver();
     // Created duplicate parent edge
-   // org.fcrepo:fcrepo:4.4.0
+    // org.fcrepo:fcrepo:4.4.0
 
-    //org.fcrepo:fcrepo-integration-ldp:4.4.0
-    //org.fcrepo:fcrepo-http-commons:4.4.0
-    //org.fcrepo:fcrepo-http-api:4.4.0
+    // org.fcrepo:fcrepo-integration-ldp:4.4.0
+    // org.fcrepo:fcrepo-http-commons:4.4.0
+    // org.fcrepo:fcrepo-http-api:4.4.0
 
-    //org.fcrepo:fcrepo-connector-file:4.4.0
-    //org.fcrepo:fcrepo-client-impl:4.4.0
-    //org.fcrepo:fcrepo-client:4.4.0
-    //org.fcrepo:fcrepo-build-tools:4.4.0
+    // org.fcrepo:fcrepo-connector-file:4.4.0
+    // org.fcrepo:fcrepo-client-impl:4.4.0
+    // org.fcrepo:fcrepo-client:4.4.0
+    // org.fcrepo:fcrepo-build-tools:4.4.0
     //
     ArrayList<String> artifacts = new ArrayList<>();
     artifacts.add("fcrepo-integration-ldp");
@@ -513,19 +512,16 @@ public class ArtifactProcessorTest {
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
-
-
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-              new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-      artifactInfo.setGroupId("org.fcrepo");//org.fcrepo:fcrepo-auth-roles-common:4.4.0
+      artifactInfo.setGroupId("org.fcrepo"); // org.fcrepo:fcrepo-auth-roles-common:4.4.0
 
-
-        artifactInfo.setArtifactId("fcrepo-jcr-bom");
+      artifactInfo.setArtifactId("fcrepo-jcr-bom");
 
       artifactInfo.setArtifactVersion("4.4.0");
       artifactInfo.setFileExtension("jar");
@@ -542,7 +538,6 @@ public class ArtifactProcessorTest {
       }
     }
 
-
     // resolve the next one
     {
       // resolve a node that references the recursive node
@@ -551,7 +546,7 @@ public class ArtifactProcessorTest {
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-      artifactInfo.setGroupId("org.fcrepo");//org.fcrepo:fcrepo-auth-roles-basic:4.4.0
+      artifactInfo.setGroupId("org.fcrepo"); // org.fcrepo:fcrepo-auth-roles-basic:4.4.0
       artifactInfo.setArtifactId("fcrepo-auth-roles-basic");
       artifactInfo.setArtifactVersion("4.4.0");
       artifactInfo.setFileExtension("jar");

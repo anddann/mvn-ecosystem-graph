@@ -7,19 +7,6 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Query;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +19,18 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Query;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
@@ -345,9 +344,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters));
 
     if (dependencyRelation.getScope() == DependencyScope.IMPORT) {
-      query.append(" MERGE (src)-[r:IMPORTS]->(tgt)").append( " ON CREATE SET r = $props");
+      query.append(" MERGE (src)-[r:IMPORTS]->(tgt)").append(" ON CREATE SET r = $props");
     } else {
-      query.append(" MERGE (src)-[r:MANAGES]->(tgt)").append( " ON CREATE SET r = $props");
+      query.append(" MERGE (src)-[r:MANAGES]->(tgt)").append(" ON CREATE SET r = $props");
     }
 
     Map<String, Object> properties = createProperties(dependencyRelation);
@@ -369,7 +368,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         .append(createMatchingCondition(srcNode, "src", "src.", parameters))
         .append(" AND ")
         .append(createMatchingCondition(dependencyRelation.getTgtNode(), "tgt", "tgt.", parameters))
-        .append(" MERGE (src)-[r:DEPENDS_ON]->(tgt)").append(" ON CREATE SET r = $props");
+        .append(" MERGE (src)-[r:DEPENDS_ON]->(tgt)")
+        .append(" ON CREATE SET r = $props");
 
     Map<String, Object> properties = createProperties(dependencyRelation);
 
@@ -397,7 +397,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
   public void saveOrMerge(MvnArtifactNode instance) {
 
     // do not re-run for fully resolved proxy nodes
-    if(instance instanceof MvnArtifactNodeProxy && instance.getResolvingLevel()== MvnArtifactNode.ResolvingLevel.FULL) {
+    if (instance instanceof MvnArtifactNodeProxy
+        && instance.getResolvingLevel() == MvnArtifactNode.ResolvingLevel.FULL) {
       return;
     }
 
