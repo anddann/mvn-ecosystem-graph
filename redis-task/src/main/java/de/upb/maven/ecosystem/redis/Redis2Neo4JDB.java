@@ -105,7 +105,7 @@ public class Redis2Neo4JDB {
 
     boolean lockAcquired = accquierelock();
     if (!lockAcquired) {
-      LOGGER.info("Failed to accquiere lock");
+      LOGGER.info("Failed to acquire lock");
       return;
     }
     LOGGER.info("Acquired Log");
@@ -144,7 +144,7 @@ public class Redis2Neo4JDB {
 
         byte[] value = jedis.get(key.getBytes(StandardCharsets.UTF_8));
         if (value == null || value.length == 0) {
-          LOGGER.warn("Value from Cache is blank");
+          LOGGER.error("Value from Cache is blank");
           continue;
         }
 
