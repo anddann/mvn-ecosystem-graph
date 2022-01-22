@@ -143,7 +143,7 @@ public class Redis2Neo4JDB {
       for (String key : keys) {
 
         byte[] value = jedis.get(key.getBytes(StandardCharsets.UTF_8));
-        if (value.length == 0) {
+        if (value == null || value.length == 0) {
           LOGGER.warn("Value from Cache is blank");
           continue;
         }
