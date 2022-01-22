@@ -13,10 +13,6 @@
     <artifactId>redis-task</artifactId>
 
 
-    <properties>
-        <docker.image.prefix>${artifactId}</docker.image.prefix>
-        <dockerfile.version>1.4.13</dockerfile.version>
-    </properties>
 
 
     <build>
@@ -106,7 +102,7 @@
                 </executions>
                 <configuration>
                     <tag>${project.version}</tag>
-                    <repository>${docker.image.prefix}</repository>
+                    <repository>${docker.image.prefix}${artifactId}</repository>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>

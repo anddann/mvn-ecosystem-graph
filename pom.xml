@@ -27,6 +27,8 @@
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <skipFormatPlugin>true</skipFormatPlugin>
         <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
+        <docker.image.prefix>ghcr.io/anddann/</docker.image.prefix>
+        <dockerfile.version>1.4.13</dockerfile.version>
     </properties>
 
     <modules>

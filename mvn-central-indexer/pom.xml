@@ -40,9 +40,6 @@
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dockerfile.version>1.4.13</dockerfile.version>
-        <!--         <docker.image.prefix>registry.gitlab.com/repoName</docker.image.prefix> -->
-        <docker.image.prefix>${artifactId}</docker.image.prefix>
         <aetherVersion>1.1.0</aetherVersion>
         <maven.version>3.3.9</maven.version>
         <junit.version>4.13</junit.version>
@@ -143,7 +140,7 @@
                 </executions>
                 <configuration>
                     <tag>${project.version}</tag>
-                    <repository>${docker.image.prefix}</repository>
+                    <repository>${docker.image.prefix}${artifactId}</repository>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
