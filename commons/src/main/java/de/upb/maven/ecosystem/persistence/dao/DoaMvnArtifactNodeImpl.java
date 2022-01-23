@@ -20,6 +20,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.neo4j.driver.Driver;
@@ -684,10 +685,10 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     String query =
         createMatchExpression(
                 groupId, artifactId, version, classifier, packaging, "n", null, parameters)
-            + " return n.crawlerVersion";
-    String versionNumber;
+            + " return n.crawlerVersion, n.resolvingLevel";
+    Pair<String, String> versionNumberAndResolvingLevel;
     try (Session session = driver.session()) {
-      versionNumber =
+      versionNumberAndResolvingLevel =
           session.writeTransaction(
               tx -> {
                 Result result = tx.run(query, parameters);
@@ -696,16 +697,22 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 }
 
                 if (result.hasNext()) {
-                  return result.single().get(0).asString();
+                  final Record single = result.single();
+                  return Pair.of(single.get(0).asString(), single.get(1).asString());
                 } else {
-                  return "";
+                  return null;
                 }
               });
     }
-    if (StringUtils.isBlank(versionNumber)) {
+    String versionNumber = versionNumberAndResolvingLevel.getLeft();
+    String resolvingLevel = versionNumberAndResolvingLevel.getRight();
+    if (StringUtils.isBlank(versionNumber) || StringUtils.isBlank(resolvingLevel)) {
       return false;
     }
-    return StringUtils.compare(versionNumber, targetVersion) >= 0;
+    final boolean upToDate = StringUtils.compare(versionNumber, targetVersion) >= 0;
+    final boolean fullResolved =
+        StringUtils.equals(MvnArtifactNode.ResolvingLevel.FULL.toString(), resolvingLevel);
+    return upToDate & fullResolved;
   }
 
   @Override

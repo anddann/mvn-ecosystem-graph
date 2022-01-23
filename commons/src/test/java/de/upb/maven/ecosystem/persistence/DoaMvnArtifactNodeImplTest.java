@@ -348,6 +348,7 @@ public class DoaMvnArtifactNodeImplTest {
     mvnArtifactNode.setArtifact("a");
     mvnArtifactNode.setGroup("g");
     mvnArtifactNode.setVersion("1.0");
+    mvnArtifactNode.setResolvingLevel(MvnArtifactNode.ResolvingLevel.FULL);
 
     Driver driver = createDriver();
 
