@@ -51,4 +51,9 @@ public class ArtifactUtils {
     customArtifactInfo.setFileExtension("pom");
     return constructURL(customArtifactInfo);
   }
+
+  public static boolean ignoreArtifact(CustomArtifactInfo ai) {
+    // FIXME -- I gues we should only handle artifacts witch classifier =null
+    return StringUtils.isNotBlank(ai.getClassifier());
+  }
 }

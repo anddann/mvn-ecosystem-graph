@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
@@ -30,17 +31,12 @@ public class ArtifactManager {
     }
   }
 
-  private boolean ignoreArtifact(CustomArtifactInfo ai) {
-    // FIXME -- I gues we should only handle artifacts witch classifier =null
-    return StringUtils.isNotBlank(ai.getClassifier());
-  }
-
   public void process(CustomArtifactInfo ai, int crawledArtifacts) throws IOException {
     if (StringUtils.isBlank(ai.getRepoURL())) {
       throw new IOException("No Base URL is given");
     }
 
-    if (ignoreArtifact(ai)) {
+    if (ArtifactUtils.ignoreArtifact(ai)) {
       LOGGER.debug(
           "Ignoring artifact {}:{}:{}-{}",
           ai.getGroupId(),

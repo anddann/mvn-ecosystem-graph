@@ -226,6 +226,15 @@ public class MavenIndexProducer {
             customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
             customArtifactInfo.setPackaging(ai.getPackaging());
 
+            if (ArtifactUtils.ignoreArtifact(customArtifactInfo)) {
+              LOGGER.info(
+                  "Skipping {}:{}:{}-{}",
+                  customArtifactInfo.getGroupId(),
+                  customArtifactInfo.getArtifactId(),
+                  customArtifactInfo.getArtifactVersion(),
+                  customArtifactInfo.getClassifier());
+            }
+
             // Converting the Object to JSONString
             String jsonString = mapper.writeValueAsString(customArtifactInfo);
 
