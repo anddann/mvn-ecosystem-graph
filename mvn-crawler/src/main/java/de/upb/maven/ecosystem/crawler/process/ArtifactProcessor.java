@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -232,43 +233,62 @@ public class ArtifactProcessor {
 
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
 
-  private String resolveProperty(String prop, MvnArtifactNode currentNode) {
+  private Pair<String, Boolean> resolveProperty(String prop, final MvnArtifactNode currentNode) {
     if (StringUtils.isBlank(prop)) {
-      return prop;
+      return Pair.of(prop, false);
     }
-
+    boolean gotFromParent = false;
     String newString = prop;
     final Matcher matcher = PROPERTY_PATTERN.matcher(prop);
-    // special handling for the property ${project.version}
+    // special handling for the property ${project.version}, ...
     // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
     // One factor to note is that these variables are processed after inheritance as outlined
     // above. This means that if a parent project uses a variable, then its definition in the
     // child, not the parent, will be the one eventually used.
 
+    // add handling for parent properties... of the form ${parent.project.version}
+    MvnArtifactNode nodePropertiesToUse = currentNode;
+
     while (matcher.find()) {
 
       final String group = matcher.group();
       String porName = group.substring(2, group.length() - 1);
+
+      if (StringUtils.startsWith(porName, "project.parent.")) {
+        // use the parent for resolving
+        porName = porName.replaceFirst("parent\\.", "");
+
+        final Optional<MvnArtifactNode> parent = currentNode.getParent();
+        if (!parent.isPresent()) {
+          throw new IllegalStateException(
+              "Parent Properties request, but parent not present. Invalid State");
+        }
+        nodePropertiesToUse = parent.get();
+        gotFromParent = true;
+      }
       if (StringUtils.equals(porName, "project.groupId")
           || StringUtils.equals(porName, "pom.groupId")) {
-        newString = newString.replace(group, currentNode.getGroup());
+        newString = newString.replace(group, nodePropertiesToUse.getGroup());
 
       } else if (StringUtils.equals(porName, "project.name")
           || StringUtils.equals(porName, "pom.name")) {
-        newString = newString.replace(group, currentNode.getArtifact());
+        newString = newString.replace(group, nodePropertiesToUse.getArtifact());
 
       } else if (StringUtils.equals(porName, "project.version")
-          || StringUtils.equals(porName, "pom.version")) {
-        newString = newString.replace(group, currentNode.getVersion());
+          || StringUtils.equals(porName, "pom.version")
+          || StringUtils.equals(porName, "version")) {
+        newString = newString.replace(group, nodePropertiesToUse.getVersion());
       } else {
-        final String s = currentNode.getProperties().get(porName);
+        final String s = nodePropertiesToUse.getProperties().get(porName);
         if (s != null) {
-
           newString = newString.replace(group, s);
         }
       }
+
+      // reset to the original node
+      nodePropertiesToUse = currentNode;
     }
-    return newString;
+    return Pair.of(newString, gotFromParent);
   }
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
@@ -301,19 +321,23 @@ public class ArtifactProcessor {
       while (!workList.isEmpty()) {
         MvnArtifactNode dep = workList.poll();
 
-        String resolvedVersion = resolveProperty(dep.getVersion(), currentNode);
-        String resolvedGroup = resolveProperty(dep.getGroup(), currentNode);
-        String resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode);
+        Pair<String, Boolean> resolvedVersion = resolveProperty(dep.getVersion(), currentNode);
+        Pair<String, Boolean> resolvedGroup = resolveProperty(dep.getGroup(), currentNode);
+        Pair<String, Boolean> resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode);
 
-        // resolved reference, refernces another property, and the value has changed in the previous
+        // resolved reference, references another property, and the value has changed in the
+        // previous
         // step
         boolean recursive =
-            (!StringUtils.equals(resolvedGroup, dep.getGroup())
-                    && StringUtils.contains(dep.getGroup(), "$"))
-                || (!StringUtils.equals(resolvedArtifact, dep.getArtifact())
-                    && StringUtils.contains(dep.getArtifact(), "$"))
-                || (!StringUtils.equals(resolvedVersion, dep.getVersion())
-                    && StringUtils.contains(dep.getVersion(), "$"));
+            (!StringUtils.equals(resolvedGroup.getLeft(), dep.getGroup())
+                    && StringUtils.contains(dep.getGroup(), "$")
+                    && !resolvedGroup.getRight())
+                || (!StringUtils.equals(resolvedArtifact.getLeft(), dep.getArtifact())
+                    && StringUtils.contains(dep.getArtifact(), "$")
+                    && !resolvedArtifact.getRight())
+                || (!StringUtils.equals(resolvedVersion.getLeft(), dep.getVersion())
+                    && StringUtils.contains(dep.getVersion(), "$")
+                    && !resolvedVersion.getRight());
         if (recursive) {
           // do not remove
           LOGGER.debug("Found recursive property");
@@ -321,11 +345,9 @@ public class ArtifactProcessor {
           workList.add(dep);
         }
 
-        dep.setVersion(resolvedVersion);
-
-        dep.setGroup(resolvedGroup);
-
-        dep.setArtifact(resolvedArtifact);
+        dep.setGroup(resolvedGroup.getLeft());
+        dep.setArtifact(resolvedArtifact.getLeft());
+        dep.setVersion(resolvedVersion.getLeft());
 
         // check if the artifact is now fully resolved
         boolean fullyResolved =

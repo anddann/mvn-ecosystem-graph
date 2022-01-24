@@ -13,9 +13,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -592,5 +594,96 @@ public class ArtifactProcessorTest {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
     }
+  }
+
+  private String[] splitString(String logOutput) {
+    // get rid of everyting after
+    final String gav = StringUtils.substring(logOutput, 0, logOutput.indexOf("-null --"));
+    return gav.split(":");
+  }
+
+  @Test
+  // project.parent property
+  public void testPropertiesNotResolved() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    // logoutput
+    // org.ops4j.pax.web.samples:authentication:2.1.2-null -- Properties not resolved. Invalid State
+    String[] gav =
+        splitString(
+            "org.ops4j.pax.web.samples:authentication:2.1.2-null -- Properties not resolved. Invalid State");
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId(gav[0]);
+    artifactInfo.setArtifactId(gav[1]);
+    artifactInfo.setArtifactVersion(gav[2]);
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+  }
+
+  @Test
+  @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
+  public void testPropertiesNotResolved2() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    // logoutput
+
+    String[] gav =
+        splitString(
+            "org.sakaiproject.delegatedaccess:delegatedaccess-pack:2.1-null -- Properties not resolved. Invalid State");
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId(gav[0]);
+    artifactInfo.setArtifactId(gav[1]);
+    artifactInfo.setArtifactVersion(gav[2]);
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+  }
+
+  @Test
+  public void testPropertiesNotResolved3() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    // logoutput
+
+    String[] gav =
+        splitString("net.vvakame:blazdb-sqlite:0.2-null -- Properties not resolved. Invalid State");
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId(gav[0]);
+    artifactInfo.setArtifactId(gav[1]);
+    artifactInfo.setArtifactVersion(gav[2]);
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
   }
 }
