@@ -148,7 +148,17 @@ public class ArtifactProcessor {
     if (!dependencyPropertiesToResolve.isEmpty()) {
       // we still have unresolved properties?
       LOGGER.error("we still have unresolved properties?");
-      throw new IllegalStateException("Properties not resolved. Invalid State");
+      String outout = "";
+      for (MvnArtifactNode missingNodes : dependencyPropertiesToResolve) {
+        outout +=
+            missingNodes.getGroup()
+                + ":"
+                + missingNodes.getArtifact()
+                + ":"
+                + missingNodes.getVersion()
+                + "\n";
+      }
+      throw new IllegalStateException("Invalid State. Unresolved Property: " + outout);
     }
 
     // get the dependencyMgt Nodes to check
@@ -254,9 +264,10 @@ public class ArtifactProcessor {
       final String group = matcher.group();
       String porName = group.substring(2, group.length() - 1);
 
-      if (StringUtils.startsWith(porName, "project.parent.")) {
+      if (StringUtils.startsWith(porName, "project.parent.")
+          || StringUtils.startsWith(porName, "parent.")) {
         // use the parent for resolving
-        porName = porName.replaceFirst("parent\\.", "");
+        porName = porName.replaceFirst(".*parent\\.", "");
 
         final Optional<MvnArtifactNode> parent = currentNode.getParent();
         if (!parent.isPresent()) {
@@ -267,11 +278,13 @@ public class ArtifactProcessor {
         gotFromParent = true;
       }
       if (StringUtils.equals(porName, "project.groupId")
-          || StringUtils.equals(porName, "pom.groupId")) {
+          || StringUtils.equals(porName, "pom.groupId")
+          || StringUtils.equals(porName, "groupId")) {
         newString = newString.replace(group, nodePropertiesToUse.getGroup());
 
       } else if (StringUtils.equals(porName, "project.name")
-          || StringUtils.equals(porName, "pom.name")) {
+          || StringUtils.equals(porName, "pom.name")
+          || StringUtils.equals(porName, "artifactId")) {
         newString = newString.replace(group, nodePropertiesToUse.getArtifact());
 
       } else if (StringUtils.equals(porName, "project.version")

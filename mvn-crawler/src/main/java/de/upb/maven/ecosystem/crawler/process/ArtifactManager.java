@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ public class ArtifactManager {
       return;
     }
 
-    // TODO -- which classifier we can skip?
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
     LOGGER.info(
         "Processing Artifact#{} at {}:{}:{}",
@@ -99,20 +101,6 @@ public class ArtifactManager {
           } else {
             doaArtifactNode.saveOrMerge(node);
           }
-          String log =
-              ai.getGroupId()
-                  + ":"
-                  + ai.getArtifactId()
-                  + ":"
-                  + ai.getArtifactVersion()
-                  + "-"
-                  + ai.getClassifier()
-                  + "\n";
-          Files.write(
-              Paths.get("done_artifacts.txt"),
-              log.getBytes(),
-              StandardOpenOption.CREATE,
-              StandardOpenOption.APPEND);
         }
       } else {
         LOGGER.warn("No nodes have been resolved");
@@ -150,6 +138,6 @@ public class ArtifactManager {
       }
     }
 
-    LOGGER.info("Done with: " + crawledArtifacts);
+    LOGGER.info("[Stats] Artifact took: {}", stopwatch.elapsed(TimeUnit.SECONDS));
   }
 }

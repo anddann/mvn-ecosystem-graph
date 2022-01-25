@@ -8,8 +8,10 @@ import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -629,6 +631,60 @@ public class ArtifactProcessorTest {
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
+  }
+
+  @Test
+  @Ignore
+  public void testFailedArtifactsFromFile() throws IOException {
+    Driver driver = createDriver();
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    Path path = Paths.get("../logs_2022_01_21/failed_artifacts_new.txt");
+    //    ArrayList<String> newFileLines = new ArrayList<>();
+    //    HashSet<String> seenGroups = new HashSet<>();
+
+    try {
+      List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+      for (String failedGav : lines) {
+
+        String[] gav = splitString(failedGav);
+        if (gav.length != 3) {
+          System.out.println("not long enough");
+          continue;
+        }
+
+        ArtifactProcessor artifactProcessor =
+            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+        CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+        artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+        artifactInfo.setGroupId(gav[0]);
+        artifactInfo.setArtifactId(gav[1]);
+        artifactInfo.setArtifactVersion(gav[2]);
+        artifactInfo.setFileExtension("jar");
+        artifactInfo.setPackaging("jar");
+
+        //        if (seenGroups.contains(gav[0])) {
+        //          continue;
+        //        }
+        //        seenGroups.add(gav[0]);
+
+        try {
+
+          final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+        } catch (Exception ex) {
+          System.out.println(ex.getMessage());
+          System.out.println("Failed: " + gav[0] + ":" + gav[1]);
+          //          newFileLines.add(failedGav);
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    //    Files.write(
+    //        Paths.get("../logs_2022_01_21/failed_artifacts_new.txt"),
+    //        newFileLines,
+    //        Charset.defaultCharset());
   }
 
   @Test

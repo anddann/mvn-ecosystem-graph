@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.indexer.producer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import com.rabbitmq.client.AMQP;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.RabbitMQCollective;
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -211,8 +213,6 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
-            LOGGER.info("Checking Artifact#{}", crawledArtifacts);
-
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
             customArtifactInfo.setArtifactId(ai.getArtifactId());
@@ -234,12 +234,15 @@ public class MavenIndexProducer {
                   customArtifactInfo.getArtifactVersion(),
                   customArtifactInfo.getClassifier());
             }
+            LOGGER.info("Checking Artifact#{}", crawledArtifacts);
 
             // Converting the Object to JSONString
             String jsonString = mapper.writeValueAsString(customArtifactInfo);
 
             // check if artifact up-to-date
             final URL url = ArtifactUtils.constructURL(customArtifactInfo);
+            Stopwatch stopwatch = Stopwatch.createStarted();
+
             final boolean l =
                 doaMvnArtifactNode.containsNodeWithVersionGQ(
                     ai.getGroupId(),
@@ -252,6 +255,8 @@ public class MavenIndexProducer {
               LOGGER.info("Artifact up-to-date: " + url);
               continue;
             }
+            LOGGER.info(
+                "Checking DB for  artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             LOGGER.info("Queueing Artifact#{}", crawledArtifacts);
 
