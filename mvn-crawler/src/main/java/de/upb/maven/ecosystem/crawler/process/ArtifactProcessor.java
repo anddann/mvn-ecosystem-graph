@@ -10,16 +10,6 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -37,6 +27,16 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.model.Profile;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -507,16 +507,36 @@ public class ArtifactProcessor {
         mvnArtifactNode.setProperties(newPros);
         // find the dependencies, and add them
         if (model.getDependencies() != null) {
-          for (int i = 0; i < model.getDependencies().size(); i++) {
-            Dependency mavenDep = model.getDependencies().get(i);
-            mvnArtifactNode.getDependencies().add(create(mavenDep, i));
-          }
+          final List<DependencyRelation> dependencyRelations =
+              createDependencyRelations(model.getDependencies());
+          mvnArtifactNode.getDependencies().addAll(dependencyRelations);
         }
         if (model.getDependencyManagement() != null
             && model.getDependencyManagement().getDependencies() != null) {
-          for (int i = 0; i < model.getDependencyManagement().getDependencies().size(); i++) {
-            Dependency mavenDep = model.getDependencyManagement().getDependencies().get(i);
-            mvnArtifactNode.getDependencyManagement().add(create(mavenDep, i));
+          final List<DependencyRelation> dependencyRelations =
+              createDependencyRelations(model.getDependencyManagement().getDependencies());
+          mvnArtifactNode.getDependencyManagement().addAll(dependencyRelations);
+        }
+
+        // add for each profile a node
+        // TODO - better profile handling
+        if (model.getProfiles() != null) {
+          for (Profile profile : model.getProfiles()) {
+
+            if (profile.getDependencies() != null && profile.getDependencies() != null) {
+              final List<DependencyRelation> dependencyRelations =
+                  createDependencyRelations(profile.getDependencies());
+              dependencyRelations.forEach(x -> x.setProfile(profile.getId()));
+              mvnArtifactNode.getDependencies().addAll(dependencyRelations);
+            }
+
+            if (profile.getDependencyManagement() != null
+                && profile.getDependencyManagement().getDependencies() != null) {
+              final List<DependencyRelation> dependencyRelations =
+                  createDependencyRelations(profile.getDependencyManagement().getDependencies());
+              dependencyRelations.forEach(x -> x.setProfile(profile.getId()));
+              mvnArtifactNode.getDependencyManagement().addAll(dependencyRelations);
+            }
           }
         }
       }
@@ -533,6 +553,15 @@ public class ArtifactProcessor {
         // nothing to do
       }
     }
+  }
+
+  private List<DependencyRelation> createDependencyRelations(List<Dependency> dependencies) {
+    ArrayList<DependencyRelation> dependencyRelations = new ArrayList<>();
+    for (int i = 0; i < dependencies.size(); i++) {
+      Dependency mavenDep = dependencies.get(i);
+      dependencyRelations.add(create(mavenDep, i));
+    }
+    return dependencyRelations;
   }
 
   private DependencyRelation create(Dependency mavenDep, int position) {
