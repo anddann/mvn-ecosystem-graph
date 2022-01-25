@@ -187,6 +187,8 @@ public class ArtifactProcessor {
               .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
               .collect(Collectors.toList());
       for (DependencyRelation dependencyRelation : dependencyMgmNode) {
+        //TODO --> some dependency mgmt relations may stem from profile, thus, we may need to copy the depencny and add profle info to the relation (like in resolveProperties :)
+
         final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
 
         // check if we found our managed dependency
@@ -484,7 +486,7 @@ public class ArtifactProcessor {
     mvnArtifactNode.setClassifier(classifier);
     mvnArtifactNode.setPackaging(packaging);
 
-    // if not fulle resolved properties loopup is wasted
+    // if not fully resolved properties loopup is wasted
     if (StringUtils.isBlank(groupId)
         || StringUtils.isBlank(artifact)
         || StringUtils.isBlank(version)
