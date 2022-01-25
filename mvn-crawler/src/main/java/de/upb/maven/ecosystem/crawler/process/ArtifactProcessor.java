@@ -11,6 +11,7 @@ import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +28,7 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +64,7 @@ public class ArtifactProcessor {
 
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
 
-  private final HashMap<MvnArtifactNode, Model> nodeToModel = new HashMap<>();
+  private final HashMap<String, Model> nodeToModel = new HashMap<>();
 
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
@@ -247,14 +249,17 @@ public class ArtifactProcessor {
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
 
   private String resolveProperty(
-      String prop, final MvnArtifactNode currentNode, HashSet<String> alreadyTriedProp) {
+      String prop,
+      final MvnArtifactNode currentNode,
+      Map<String, String> mavenpropertiestocheck,
+      HashSet<String> resolvedProperties) {
     if (StringUtils.isBlank(prop)) {
       return prop;
     }
-    if (alreadyTriedProp.contains(prop)) {
+    if (resolvedProperties.contains(prop)) {
       return prop;
     }
-    alreadyTriedProp.add(prop);
+    resolvedProperties.add(prop);
 
     String newString = prop;
     final Matcher matcher = PROPERTY_PATTERN.matcher(prop);
@@ -299,7 +304,7 @@ public class ArtifactProcessor {
           || StringUtils.equals(porName, "version")) {
         newString = newString.replace(group, nodePropertiesToUse.getVersion());
       } else {
-        final String s = nodePropertiesToUse.getProperties().get(porName);
+        final String s = mavenpropertiestocheck.get(porName);
         if (s != null) {
           newString = newString.replace(group, s);
         }
@@ -309,7 +314,7 @@ public class ArtifactProcessor {
       nodePropertiesToUse = currentNode;
     }
     // re-trigger to resolve recursive-properties
-    return resolveProperty(newString, currentNode, alreadyTriedProp);
+    return resolveProperty(newString, currentNode, mavenpropertiestocheck, resolvedProperties);
   }
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
@@ -319,17 +324,17 @@ public class ArtifactProcessor {
     dependenciesToCheck.addAll(mvnArtifactNode.getDependencies());
     dependenciesToCheck.addAll(mvnArtifactNode.getDependencyManagement());
 
-    Queue<MvnArtifactNode> dependencyPropertiesToResolve = new ArrayDeque<>();
+    Queue<DependencyRelation> dependencyPropertiesToResolve = new ArrayDeque<>();
     // also resolve the own version properties?
 
     while (!dependenciesToCheck.isEmpty()) {
       DependencyRelation dependencyRelation = dependenciesToCheck.poll();
       if (StringUtils.contains(dependencyRelation.getTgtNode().getVersion(), "$")) {
-        dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+        dependencyPropertiesToResolve.add(dependencyRelation);
       } else if (StringUtils.contains(dependencyRelation.getTgtNode().getGroup(), "$")) {
-        dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+        dependencyPropertiesToResolve.add(dependencyRelation);
       } else if (StringUtils.contains(dependencyRelation.getTgtNode().getArtifact(), "$")) {
-        dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
+        dependencyPropertiesToResolve.add(dependencyRelation);
       }
     }
 
@@ -337,31 +342,95 @@ public class ArtifactProcessor {
     while (currentNode != null) {
       // check for properties
 
-      Deque<MvnArtifactNode> workList = new ArrayDeque<>(dependencyPropertiesToResolve);
+      Deque<DependencyRelation> workList = new ArrayDeque<>(dependencyPropertiesToResolve);
 
       while (!workList.isEmpty()) {
-        MvnArtifactNode dep = workList.poll();
+        final DependencyRelation poll = workList.poll();
+        MvnArtifactNode dep = poll.getTgtNode();
 
-        String resolvedVersion = resolveProperty(dep.getVersion(), currentNode, new HashSet<>());
-        String resolvedGroup = resolveProperty(dep.getGroup(), currentNode, new HashSet<>());
-        String resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode, new HashSet<>());
+        String resolvedVersion =
+            resolveProperty(
+                dep.getVersion(), currentNode, currentNode.getProperties(), new HashSet<>());
+        String resolvedGroup =
+            resolveProperty(
+                dep.getGroup(), currentNode, currentNode.getProperties(), new HashSet<>());
+        String resolvedArtifact =
+            resolveProperty(
+                dep.getArtifact(), currentNode, currentNode.getProperties(), new HashSet<>());
 
         dep.setGroup(resolvedGroup);
         dep.setArtifact(resolvedArtifact);
         dep.setVersion(resolvedVersion);
 
         // check if the artifact is now fully resolved
-        boolean fullyResolved =
-            !StringUtils.contains(dep.getGroup(), "$")
-                && !StringUtils.contains(dep.getArtifact(), "$")
-                && !StringUtils.contains(dep.getVersion(), "$");
+        boolean fullyResolved = isFullyResolved(dep);
         if (fullyResolved) {
           dependencyPropertiesToResolve.remove(dep);
+        } else {
+
+          // else we have to check if it defined in a profile
+          final Model model = this.nodeToModel.get(genId(currentNode));
+          boolean isDirectDependency = mvnArtifactNode.getDependencies().contains(dep);
+
+          for (Profile profile : model.getProfiles()) {
+            String profileName = profile.getId();
+            try {
+              // copy for each profile
+
+              final DependencyRelation profileDepRelation = new DependencyRelation();
+              final MvnArtifactNode newMvnNode = new MvnArtifactNode();
+              // copy the relation and the target node, since we may have different ones for each
+              // profile
+              BeanUtils.copyProperties(newMvnNode, dep);
+              BeanUtils.copyProperties(profileDepRelation, poll);
+              profileDepRelation.setTgtNode(newMvnNode);
+
+              profileDepRelation.setProfile(profileName);
+              final MvnArtifactNode profileDep = profileDepRelation.getTgtNode();
+
+              HashMap<String, String> newPros = new HashMap<>();
+              for (Map.Entry<Object, Object> entry : profile.getProperties().entrySet()) {
+                newPros.put(entry.getKey().toString(), entry.getValue().toString());
+              }
+
+              resolvedVersion =
+                  resolveProperty(profileDep.getVersion(), currentNode, newPros, new HashSet<>());
+              resolvedGroup =
+                  resolveProperty(profileDep.getGroup(), currentNode, newPros, new HashSet<>());
+              resolvedArtifact =
+                  resolveProperty(profileDep.getArtifact(), currentNode, newPros, new HashSet<>());
+
+              profileDep.setGroup(resolvedGroup);
+              profileDep.setArtifact(resolvedArtifact);
+              profileDep.setVersion(resolvedVersion);
+
+              if (fullyResolved) {
+
+                dependencyPropertiesToResolve.remove(dep);
+                if (isDirectDependency) {
+                  mvnArtifactNode.getDependencies().add(profileDepRelation);
+
+                } else {
+                  mvnArtifactNode.getDependencyManagement().add(profileDepRelation);
+                }
+              }
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+              LOGGER.error("Cloning went wrong");
+            }
+          }
         }
       }
       // search in the parent
       currentNode = currentNode.getParent().orNull();
     }
+  }
+
+  private boolean isFullyResolved(MvnArtifactNode dep) {
+    boolean fullyResolved =
+        !StringUtils.contains(dep.getGroup(), "$")
+            && !StringUtils.contains(dep.getArtifact(), "$")
+            && !StringUtils.contains(dep.getVersion(), "$");
+    return fullyResolved;
   }
 
   private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
@@ -383,6 +452,27 @@ public class ArtifactProcessor {
     }
   }
 
+  private String genId(MvnArtifactNode node) {
+    String identifier =
+        node.getGroup()
+            + ":"
+            + node.getArtifact()
+            + ":"
+            + node.getVersion()
+            + "-"
+            + node.getClassifier()
+            + "-"
+            + node.getPackaging();
+    return identifier;
+  }
+
+  private String genId(
+      String groupId, String artifact, String version, String classifier, String packaging) {
+    String identifier =
+        groupId + ":" + artifact + ":" + version + "-" + classifier + "-" + packaging;
+    return identifier;
+  }
+
   private MvnArtifactNode makeNodeRef(
       String groupId, String artifact, String version, String classifier, String packaging) {
 
@@ -402,8 +492,7 @@ public class ArtifactProcessor {
       // not resolved just a dummy refernce that needs to be resolved later
       return mvnArtifactNode;
     }
-    String identifier =
-        groupId + ":" + artifact + ":" + version + "-" + classifier + "-" + packaging;
+    String identifier = genId(groupId, artifact, version, classifier, packaging);
 
     if (nodesInScene.containsKey(identifier)) {
       return nodesInScene.get(identifier);
@@ -483,7 +572,7 @@ public class ArtifactProcessor {
       if (mavenProject != null && mavenProject.getModel() != null) {
         final Model model = mavenProject.getModel();
         // add to the hashset - to get profile information later (easily)
-        nodeToModel.put(mvnArtifactNode, model);
+        nodeToModel.put(genId(mvnArtifactNode), model);
 
         final Parent mavenProjectParent = model.getParent();
 

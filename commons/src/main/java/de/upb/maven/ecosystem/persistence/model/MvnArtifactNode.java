@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import java.io.Serializable;
@@ -30,12 +31,12 @@ public class MvnArtifactNode implements Serializable {
     FULL;
   }
 
+  // only used as an identifier for neo4j
+  @JsonProperty("hashId")
   public String getHashId() {
     return DigestUtils.sha1Hex(
         group + ":" + artifact + ":" + version + "-" + classifier + ":" + packaging);
   }
-
-  private String hashId;
 
   private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
 
