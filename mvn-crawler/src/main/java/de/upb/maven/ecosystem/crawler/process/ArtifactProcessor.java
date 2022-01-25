@@ -10,6 +10,16 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -19,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,16 +37,6 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -60,6 +61,8 @@ public class ArtifactProcessor {
   private final List<MvnArtifactNode> writeToDBList = new ArrayList<>();
 
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
+
+  private final HashMap<MvnArtifactNode, Model> nodeToModel = new HashMap<>();
 
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
@@ -243,11 +246,16 @@ public class ArtifactProcessor {
 
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
 
-  private Pair<String, Boolean> resolveProperty(String prop, final MvnArtifactNode currentNode) {
+  private String resolveProperty(
+      String prop, final MvnArtifactNode currentNode, HashSet<String> alreadyTriedProp) {
     if (StringUtils.isBlank(prop)) {
-      return Pair.of(prop, false);
+      return prop;
     }
-    boolean gotFromParent = false;
+    if (alreadyTriedProp.contains(prop)) {
+      return prop;
+    }
+    alreadyTriedProp.add(prop);
+
     String newString = prop;
     final Matcher matcher = PROPERTY_PATTERN.matcher(prop);
     // special handling for the property ${project.version}, ...
@@ -275,7 +283,6 @@ public class ArtifactProcessor {
               "Parent Properties request, but parent not present. Invalid State");
         }
         nodePropertiesToUse = parent.get();
-        gotFromParent = true;
       }
       if (StringUtils.equals(porName, "project.groupId")
           || StringUtils.equals(porName, "pom.groupId")
@@ -301,7 +308,8 @@ public class ArtifactProcessor {
       // reset to the original node
       nodePropertiesToUse = currentNode;
     }
-    return Pair.of(newString, gotFromParent);
+    // re-trigger to resolve recursive-properties
+    return resolveProperty(newString, currentNode, alreadyTriedProp);
   }
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
@@ -334,33 +342,13 @@ public class ArtifactProcessor {
       while (!workList.isEmpty()) {
         MvnArtifactNode dep = workList.poll();
 
-        Pair<String, Boolean> resolvedVersion = resolveProperty(dep.getVersion(), currentNode);
-        Pair<String, Boolean> resolvedGroup = resolveProperty(dep.getGroup(), currentNode);
-        Pair<String, Boolean> resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode);
+        String resolvedVersion = resolveProperty(dep.getVersion(), currentNode, new HashSet<>());
+        String resolvedGroup = resolveProperty(dep.getGroup(), currentNode, new HashSet<>());
+        String resolvedArtifact = resolveProperty(dep.getArtifact(), currentNode, new HashSet<>());
 
-        // resolved reference, references another property, and the value has changed in the
-        // previous
-        // step
-        boolean recursive =
-            (!StringUtils.equals(resolvedGroup.getLeft(), dep.getGroup())
-                    && StringUtils.contains(dep.getGroup(), "$")
-                    && !resolvedGroup.getRight())
-                || (!StringUtils.equals(resolvedArtifact.getLeft(), dep.getArtifact())
-                    && StringUtils.contains(dep.getArtifact(), "$")
-                    && !resolvedArtifact.getRight())
-                || (!StringUtils.equals(resolvedVersion.getLeft(), dep.getVersion())
-                    && StringUtils.contains(dep.getVersion(), "$")
-                    && !resolvedVersion.getRight());
-        if (recursive) {
-          // do not remove
-          LOGGER.debug("Found recursive property");
-          // re-add to the queue
-          workList.add(dep);
-        }
-
-        dep.setGroup(resolvedGroup.getLeft());
-        dep.setArtifact(resolvedArtifact.getLeft());
-        dep.setVersion(resolvedVersion.getLeft());
+        dep.setGroup(resolvedGroup);
+        dep.setArtifact(resolvedArtifact);
+        dep.setVersion(resolvedVersion);
 
         // check if the artifact is now fully resolved
         boolean fullyResolved =
@@ -494,6 +482,9 @@ public class ArtifactProcessor {
 
       if (mavenProject != null && mavenProject.getModel() != null) {
         final Model model = mavenProject.getModel();
+        // add to the hashset - to get profile information later (easily)
+        nodeToModel.put(mvnArtifactNode, model);
+
         final Parent mavenProjectParent = model.getParent();
 
         if (mavenProjectParent != null) {

@@ -233,6 +233,7 @@ public class MavenIndexProducer {
                   customArtifactInfo.getArtifactId(),
                   customArtifactInfo.getArtifactVersion(),
                   customArtifactInfo.getClassifier());
+              continue;
             }
             LOGGER.info("Checking Artifact#{}", crawledArtifacts);
 
@@ -256,7 +257,7 @@ public class MavenIndexProducer {
               continue;
             }
             LOGGER.info(
-                "Checking DB for  artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                "Checking DB for  artifact took: {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             LOGGER.info("Queueing Artifact#{}", crawledArtifacts);
 

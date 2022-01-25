@@ -639,8 +639,8 @@ public class ArtifactProcessorTest {
     Driver driver = createDriver();
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
     Path path = Paths.get("../logs_2022_01_21/failed_artifacts_new.txt");
-    //    ArrayList<String> newFileLines = new ArrayList<>();
-    //    HashSet<String> seenGroups = new HashSet<>();
+    //        ArrayList<String> newFileLines = new ArrayList<>();
+    //        HashSet<String> seenGroups = new HashSet<>();
 
     try {
       List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -663,28 +663,28 @@ public class ArtifactProcessorTest {
         artifactInfo.setFileExtension("jar");
         artifactInfo.setPackaging("jar");
 
-        //        if (seenGroups.contains(gav[0])) {
-        //          continue;
-        //        }
-        //        seenGroups.add(gav[0]);
+        //                if (seenGroups.contains(gav[0])) {
+        //                  continue;
+        //                }
+        //                seenGroups.add(gav[0]);
 
         try {
 
           final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
         } catch (Exception ex) {
           System.out.println(ex.getMessage());
-          System.out.println("Failed: " + gav[0] + ":" + gav[1]);
-          //          newFileLines.add(failedGav);
+          //          System.out.println("Failed: " + gav[0] + ":" + gav[1]);
+          //                    newFileLines.add(failedGav);
         }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    //    Files.write(
-    //        Paths.get("../logs_2022_01_21/failed_artifacts_new.txt"),
-    //        newFileLines,
-    //        Charset.defaultCharset());
+    //        Files.write(
+    //            Paths.get("../logs_2022_01_21/failed_artifacts_new.txt"),
+    //            newFileLines,
+    //            Charset.defaultCharset());
   }
 
   @Test

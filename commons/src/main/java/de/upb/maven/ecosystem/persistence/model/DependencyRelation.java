@@ -24,6 +24,10 @@ public class DependencyRelation implements Serializable {
   private DependencyScope scope = DependencyScope.COMPILE;
   private boolean optional;
 
+  // The profile namer under which this dependency is included, by default ="". Thus, the dependency
+  // is always included
+  private String profile = "";
+
   // This defaults to jar.
   // While it usually represents the extension on the filename of the dependency, that is not always
   // the case: a type can be mapped to a different extension and a classifier. The type often

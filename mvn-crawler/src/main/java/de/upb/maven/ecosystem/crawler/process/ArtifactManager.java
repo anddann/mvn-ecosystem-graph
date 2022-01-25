@@ -39,7 +39,7 @@ public class ArtifactManager {
     }
 
     if (ArtifactUtils.ignoreArtifact(ai)) {
-      LOGGER.debug(
+      LOGGER.info(
           "Ignoring artifact {}:{}:{}-{}",
           ai.getGroupId(),
           ai.getArtifactId(),
@@ -62,7 +62,7 @@ public class ArtifactManager {
 
       return;
     }
-
+    // the prodcuer should checks if the artifact is in the db
     boolean existsInDb =
         this.doaArtifactNode.containsNodeWithVersionGQ(
             ai.getGroupId(),
