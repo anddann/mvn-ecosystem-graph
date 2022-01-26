@@ -1,5 +1,7 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -141,39 +143,62 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         throw new IllegalArgumentException("The import dependency has not packaging: pom");
       }
     }
+    {
+      // check position of dependencies
+      final Map<Integer, List<DependencyRelation>> collect =
+          mvnArtifactNode.getDependencies().stream()
+              .collect(groupingBy(DependencyRelation::getPosition));
+      HashSet<Integer> seenPos = new HashSet<>();
+      for (Map.Entry<Integer, List<DependencyRelation>> entry : collect.entrySet()) {
 
-    final Set<Integer> posDeps =
-        mvnArtifactNode.getDependencies().stream()
-            .map(DependencyRelation::getPosition)
-            .collect(Collectors.toSet());
-    for (int i = 0; i < mvnArtifactNode.getDependencies().size(); i++) {
-      final boolean remove = posDeps.remove(i);
-      if (!remove) {
-        logger.error("Position of dependency is incorrect");
-        throw new IllegalArgumentException("Position of dependency is incorrect");
+        if (!seenPos.add(entry.getKey())) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
+        // if multiple with same position different profiles
+        final long count = entry.getValue().stream().map(x -> x.getProfile()).count();
+        if (count != entry.getValue().size()) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
+      }
+      // check if the numbers are consecutive
+
+      for (int i = 0; i < seenPos.size(); i++) {
+        final boolean contains = seenPos.contains(i);
+        if (!contains) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
       }
     }
+    {
+      // check position of dependencies mgmg
+      final Map<Integer, List<DependencyRelation>> collect =
+          mvnArtifactNode.getDependencyManagement().stream()
+              .collect(groupingBy(DependencyRelation::getPosition));
+      HashSet<Integer> seenPos = new HashSet<>();
+      for (Map.Entry<Integer, List<DependencyRelation>> entry : collect.entrySet()) {
 
-    if (!posDeps.isEmpty()) {
-      logger.error("Position of dependency is incorrect");
-      throw new IllegalArgumentException("Position of dependency is incorrect");
-    }
-
-    final Set<Integer> posMgmt =
-        mvnArtifactNode.getDependencyManagement().stream()
-            .map(DependencyRelation::getPosition)
-            .collect(Collectors.toSet());
-    for (int i = 0; i < mvnArtifactNode.getDependencyManagement().size(); i++) {
-      final boolean remove = posMgmt.remove(i);
-      if (!remove) {
-        logger.error("Position of dependency Management is incorrect");
-        throw new IllegalArgumentException("Position of dependency Management is incorrect");
+        if (!seenPos.add(entry.getKey())) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
+        // if multiple with same position different profiles
+        final long count = entry.getValue().stream().map(x -> x.getProfile()).count();
+        if (count != entry.getValue().size()) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
       }
-    }
-
-    if (!posMgmt.isEmpty()) {
-      logger.error("Position of dependency Management is incorrect");
-      throw new IllegalArgumentException("Position of dependency Management is incorrect");
+      // check if the numbers are consecutive
+      for (int i = 0; i < seenPos.size(); i++) {
+        final boolean contains = seenPos.contains(i);
+        if (!contains) {
+          logger.error("Position of dependency is incorrect");
+          throw new IllegalArgumentException("Position of dependency is incorrect");
+        }
+      }
     }
 
     if (StringUtils.isBlank(mvnArtifactNode.getPackaging())) {
@@ -319,7 +344,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
   }
 
-  // TODO: refine dependency relations?
   // While it usually represents the extension on the filename of the dependency, that is not always
   // the case: a type can be mapped to a different extension and a classifier. The type often
   // corresponds to the packaging used, though this is also not always the case.

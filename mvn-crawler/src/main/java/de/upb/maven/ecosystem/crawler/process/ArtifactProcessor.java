@@ -129,6 +129,16 @@ public class ArtifactProcessor {
     }
   }
 
+  private DependencyRelation createCopy(DependencyRelation srcDepRelation)
+      throws InvocationTargetException, IllegalAccessException {
+    final DependencyRelation newRelation = new DependencyRelation();
+    final MvnArtifactNode newMvnNode = new MvnArtifactNode();
+    BeanUtils.copyProperties(newMvnNode, srcDepRelation.getTgtNode());
+    BeanUtils.copyProperties(newRelation, srcDepRelation);
+    newRelation.setTgtNode(newMvnNode);
+    return newRelation;
+  }
+
   private void resolveDirectDependencies(MvnArtifactNode mvnArtifactNode) {
 
     // resolve all direct dependencies using the parent and dependency management edges
@@ -138,12 +148,12 @@ public class ArtifactProcessor {
     dependenciesToCheck.addAll(mvnArtifactNode.getDependencyManagement());
 
     Queue<MvnArtifactNode> dependencyPropertiesToResolve = new ArrayDeque<>();
-    Queue<MvnArtifactNode> dependencyWithoutVersion = new ArrayDeque<>();
+    Queue<DependencyRelation> dependencyWithoutVersion = new ArrayDeque<>();
 
     while (!dependenciesToCheck.isEmpty()) {
       DependencyRelation dependencyRelation = dependenciesToCheck.poll();
       if (StringUtils.isBlank(dependencyRelation.getTgtNode().getVersion())) {
-        dependencyWithoutVersion.add(dependencyRelation.getTgtNode());
+        dependencyWithoutVersion.add(dependencyRelation);
       } else if (StringUtils.startsWith(dependencyRelation.getTgtNode().getVersion(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation.getTgtNode());
       }
@@ -186,22 +196,68 @@ public class ArtifactProcessor {
               .filter(x -> x.getScope() != DependencyScope.IMPORT)
               .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
               .collect(Collectors.toList());
-      for (DependencyRelation dependencyRelation : dependencyMgmNode) {
-        //TODO --> some dependency mgmt relations may stem from profile, thus, we may need to copy the depencny and add profle info to the relation (like in resolveProperties :)
 
-        final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
+      HashMap<DependencyRelation, Deque<DependencyRelation>> depWithOutVersionDependencyMgmtEdge =
+          new HashMap<>();
+      // find the dependency mgmt nodes that specify the version
+      for (Iterator<DependencyRelation> iteratorDep = dependencyWithoutVersion.iterator();
+          iteratorDep.hasNext(); ) {
+        final DependencyRelation nextDep = iteratorDep.next();
 
-        // check if we found our managed dependency
-        for (Iterator<MvnArtifactNode> iterator = dependencyWithoutVersion.iterator();
-            iterator.hasNext(); ) {
-          MvnArtifactNode dep = iterator.next();
-          if (StringUtils.equals(tgtNode.getGroup(), dep.getGroup())
-              && StringUtils.equals(tgtNode.getArtifact(), dep.getArtifact())) {
-            dep.setVersion(tgtNode.getVersion());
-            iterator.remove();
+        for (Iterator<DependencyRelation> iteratorDepMgmt = dependencyMgmNode.iterator();
+            iteratorDepMgmt.hasNext(); ) {
+
+          final DependencyRelation nextDepMgmt = iteratorDepMgmt.next();
+          if (StringUtils.equals(
+                  nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
+              && StringUtils.equals(
+                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())) {
+            final Deque<DependencyRelation> orDefault =
+                depWithOutVersionDependencyMgmtEdge.computeIfAbsent(
+                    nextDep, x -> new ArrayDeque<>());
+            orDefault.push(nextDepMgmt);
+            // we found a depmgmt node
+            iteratorDepMgmt.remove();
           }
         }
       }
+
+      ArrayList<DependencyRelation> newProfileDependencies = new ArrayList<>();
+
+      // up-date dependencies and copy if needed
+      for (Map.Entry<DependencyRelation, Deque<DependencyRelation>> entry :
+          depWithOutVersionDependencyMgmtEdge.entrySet()) {
+        DependencyRelation dependencyRelationWithOutVersion = entry.getKey();
+        final Deque<DependencyRelation> depMgmtList = entry.getValue();
+
+        // if we have multiple edges found // we need to duplicate it
+        final Deque<DependencyRelation> relationsToRefile = new ArrayDeque<>();
+        relationsToRefile.add(dependencyRelationWithOutVersion);
+
+        while (relationsToRefile.size() < depMgmtList.size()) {
+          // create new relatios if required
+          // create a copy
+          try {
+            final DependencyRelation copy = createCopy(dependencyRelationWithOutVersion);
+            newProfileDependencies.add(copy);
+            relationsToRefile.add(copy);
+          } catch (InvocationTargetException | IllegalAccessException e) {
+            LOGGER.error("Create copy failed");
+          }
+        }
+
+        while (!depMgmtList.isEmpty() && !relationsToRefile.isEmpty()) {
+          DependencyRelation mgmtNode = depMgmtList.poll();
+          final DependencyRelation relationToResolve = relationsToRefile.poll();
+
+          relationToResolve.getTgtNode().setVersion(mgmtNode.getTgtNode().getVersion());
+          // set the profile
+          relationToResolve.setProfile(mgmtNode.getProfile());
+        }
+      }
+
+      // add the new found deps
+      mvnArtifactNode.getDependencies().addAll(newProfileDependencies);
 
       // TODO -- Check what is resolved first (recursive imports or parent?)
       // search in the parent for dependency mgmt
@@ -365,8 +421,8 @@ public class ArtifactProcessor {
         dep.setVersion(resolvedVersion);
 
         // check if the artifact is now fully resolved
-        boolean fullyResolved = isFullyResolved(dep);
-        if (fullyResolved) {
+
+        if (isFullyResolved(dep)) {
           dependencyPropertiesToResolve.remove(dep);
         } else {
 
@@ -378,22 +434,17 @@ public class ArtifactProcessor {
             String profileName = profile.getId();
             try {
               // copy for each profile
-
-              final DependencyRelation profileDepRelation = new DependencyRelation();
-              final MvnArtifactNode newMvnNode = new MvnArtifactNode();
-              // copy the relation and the target node, since we may have different ones for each
-              // profile
-              BeanUtils.copyProperties(newMvnNode, dep);
-              BeanUtils.copyProperties(profileDepRelation, poll);
-              profileDepRelation.setTgtNode(newMvnNode);
-
+              final DependencyRelation profileDepRelation = createCopy(poll);
               profileDepRelation.setProfile(profileName);
+
               final MvnArtifactNode profileDep = profileDepRelation.getTgtNode();
 
               HashMap<String, String> newPros = new HashMap<>();
               for (Map.Entry<Object, Object> entry : profile.getProperties().entrySet()) {
                 newPros.put(entry.getKey().toString(), entry.getValue().toString());
               }
+              // also add the original properties
+              newPros.putAll(currentNode.getProperties());
 
               resolvedVersion =
                   resolveProperty(profileDep.getVersion(), currentNode, newPros, new HashSet<>());
@@ -406,9 +457,13 @@ public class ArtifactProcessor {
               profileDep.setArtifact(resolvedArtifact);
               profileDep.setVersion(resolvedVersion);
 
-              if (fullyResolved) {
+              if (isFullyResolved(profileDep)) {
 
-                dependencyPropertiesToResolve.remove(dep);
+                dependencyPropertiesToResolve.remove(poll);
+                // remove the old one from dependencies
+                mvnArtifactNode.getDependencies().remove(poll);
+                mvnArtifactNode.getDependencyManagement().remove(poll);
+
                 if (isDirectDependency) {
                   mvnArtifactNode.getDependencies().add(profileDepRelation);
 

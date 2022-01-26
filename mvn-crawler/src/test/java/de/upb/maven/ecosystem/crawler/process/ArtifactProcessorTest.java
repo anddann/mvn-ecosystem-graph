@@ -742,4 +742,33 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
   }
+
+  @Test
+  public void testProfileProperties() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    // logoutput
+
+    String[] gav =
+        splitString(
+            "de.hilling.junit.cdi:cdi-test-jee:0.10.2-null -- Invalid State. Unresolved Property: javax.enterprise:cdi-api:${cdi-api.version}\n");
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId(gav[0]);
+    artifactInfo.setArtifactId(gav[1]);
+    artifactInfo.setArtifactVersion(gav[2]);
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    // TODO add more semantic checks
+    assertFalse(process.isEmpty());
+  }
 }

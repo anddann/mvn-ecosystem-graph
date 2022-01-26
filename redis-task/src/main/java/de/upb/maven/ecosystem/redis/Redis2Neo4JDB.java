@@ -154,7 +154,6 @@ public class Redis2Neo4JDB {
 
         insertIntoPostgresDB(mavenArtifactMetadata);
 
-        // FIXME: why not delete key here but in clear buffer?
         jedis.del(key);
       }
     }

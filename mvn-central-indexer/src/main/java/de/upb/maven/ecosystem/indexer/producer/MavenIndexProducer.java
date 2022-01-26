@@ -272,7 +272,7 @@ public class MavenIndexProducer {
     }
   }
 
-  // FIXME: sieht so aus, als ob je nach index, die file extension nicht immer stimmt
+  // sieht so aus, als ob je nach index, die file extension nicht immer stimmt
   // z.b. im clojar index haben die  extension pom|jar|...., deswegen nur 80 artifacts
   @Nullable
   private String getFileExtToUse(ArtifactInfo artifactInfo) {
