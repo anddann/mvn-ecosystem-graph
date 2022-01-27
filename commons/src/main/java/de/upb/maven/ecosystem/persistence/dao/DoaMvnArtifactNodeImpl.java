@@ -63,30 +63,50 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
   }
 
+  private static String getGav(MvnArtifactNode node) {
+    return node.getGroup()
+        + ":"
+        + node.getArtifact()
+        + ":"
+        + node.getVersion()
+        + "-"
+        + node.getClassifier();
+  }
+
   private static void sanityCheckProperties(MvnArtifactNode mvnArtifactNode) {
     if (StringUtils.isBlank(mvnArtifactNode.getGroup())
         || StringUtils.startsWith(mvnArtifactNode.getGroup(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error("The group is invalid");
+      logger.error(
+          "The group is invalid: {} -- {}", getGav(mvnArtifactNode), mvnArtifactNode.getGroup());
       throw new IllegalArgumentException("The group is invalid");
     }
     if (StringUtils.isBlank(mvnArtifactNode.getArtifact())
         || StringUtils.startsWith(mvnArtifactNode.getArtifact(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error("The artifact is invalid");
+      logger.error(
+          "The artifact is invalid: {} -- {}",
+          getGav(mvnArtifactNode),
+          mvnArtifactNode.getArtifact());
       throw new IllegalArgumentException("The artifact is invalid");
     }
     if (StringUtils.isBlank(mvnArtifactNode.getVersion())
         || StringUtils.startsWith(mvnArtifactNode.getVersion(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error("The version is invalid");
+      logger.error(
+          "The version is invalid: {} -- {}",
+          getGav(mvnArtifactNode),
+          mvnArtifactNode.getVersion());
       throw new IllegalArgumentException("The version is invalid");
     }
 
     if (StringUtils.isBlank(mvnArtifactNode.getClassifier())
         || StringUtils.startsWith(mvnArtifactNode.getClassifier(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error("The classifier is invalid");
+      logger.error(
+          "The classifier is invalid:  {} -- {}",
+          getGav(mvnArtifactNode),
+          mvnArtifactNode.getClassifier());
       throw new IllegalArgumentException("The classifier is invalid");
     }
   }

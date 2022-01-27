@@ -8,12 +8,14 @@ import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
@@ -175,6 +177,7 @@ public class ArtifactProcessorTest {
     assertEquals(0, p4.getDependencies().size());
     assertFalse(p4.getParent().isPresent());
     assertEquals(15, p4.getProperties().size());
+    testSerialize(process);
   }
 
   @Test
@@ -199,6 +202,7 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     assertEquals(3, process.size());
+    testSerialize(process);
   }
 
   @Test
@@ -223,6 +227,7 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     assertEquals(2, process.size());
+    testSerialize(process);
   }
 
   @Test
@@ -247,6 +252,7 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     assertEquals(2, process.size());
+    testSerialize(process);
   }
 
   @Test
@@ -273,6 +279,7 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     assertEquals(52, process.size());
+    testSerialize(process);
   }
 
   @Test
@@ -295,6 +302,7 @@ public class ArtifactProcessorTest {
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 
   @Test
@@ -315,6 +323,8 @@ public class ArtifactProcessorTest {
     artifactInfo.setPackaging("jar");
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    testSerialize(process);
+
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
@@ -346,6 +356,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(2, process.size());
+      testSerialize(process);
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
@@ -364,6 +375,8 @@ public class ArtifactProcessorTest {
     artifactInfo.setPackaging("jar");
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    testSerialize(process);
+
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
@@ -387,6 +400,7 @@ public class ArtifactProcessorTest {
     artifactInfo.setPackaging("jar");
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    testSerialize(process);
   }
 
   @Test
@@ -412,6 +426,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(2, process.size());
+      testSerialize(process);
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
@@ -436,6 +451,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(1, process.size());
+      testSerialize(process);
     }
   }
 
@@ -463,10 +479,10 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(6, process.size());
+      testSerialize(process);
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
-        RedisSerializerUtil.serialize(node);
       }
     }
 
@@ -488,6 +504,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(2, process.size());
+      testSerialize(process);
     }
   }
 
@@ -538,6 +555,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       // assertEquals(6, process.size());
+      testSerialize(process);
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
@@ -562,9 +580,7 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       //  assertEquals(3, process.size());
-      for (MvnArtifactNode node : process) {
-        RedisSerializerUtil.serialize(node);
-      }
+      testSerialize(process);
     }
   }
 
@@ -591,6 +607,8 @@ public class ArtifactProcessorTest {
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(6, process.size());
+
+      testSerialize(process);
 
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
@@ -631,6 +649,7 @@ public class ArtifactProcessorTest {
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 
   @Test
@@ -638,9 +657,9 @@ public class ArtifactProcessorTest {
   public void testFailedArtifactsFromFile() throws IOException {
     Driver driver = createDriver();
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    Path path = Paths.get("../logs_2022_01_21/failed_artifacts_new.txt");
-    //        ArrayList<String> newFileLines = new ArrayList<>();
-    //        HashSet<String> seenGroups = new HashSet<>();
+    Path path = Paths.get("../logs_2022_01_21/failed_artifacts.txt");
+    ArrayList<String> newFileLines = new ArrayList<>();
+    HashSet<String> seenGroups = new HashSet<>();
 
     try {
       List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -663,33 +682,67 @@ public class ArtifactProcessorTest {
         artifactInfo.setFileExtension("jar");
         artifactInfo.setPackaging("jar");
 
-        //                if (seenGroups.contains(gav[0])) {
-        //                  continue;
-        //                }
-        //                seenGroups.add(gav[0]);
+        if (seenGroups.contains(gav[0])) {
+          continue;
+        }
+        seenGroups.add(gav[0]);
 
         try {
 
           final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
         } catch (Exception ex) {
-          System.out.println(ex.getMessage());
-          //          System.out.println("Failed: " + gav[0] + ":" + gav[1]);
-          //                    newFileLines.add(failedGav);
+          newFileLines.add(failedGav + " --  " + ex.getMessage());
         }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    //        Files.write(
-    //            Paths.get("../logs_2022_01_21/failed_artifacts_new.txt"),
-    //            newFileLines,
-    //            Charset.defaultCharset());
+    Files.write(
+        Paths.get("../logs_2022_01_21/failed_artifacts_new.txt"),
+        newFileLines,
+        Charset.defaultCharset());
+  }
+
+  public void testSerialize(Collection<MvnArtifactNode> nodes) {
+    for (MvnArtifactNode node : nodes) {
+      final byte[] serialize = RedisSerializerUtil.serialize(node);
+      if (serialize == null || serialize.length == 0) {
+        logger.error("Emtpy serialize");
+      }
+      RedisSerializerUtil.deserialize(serialize);
+    }
+  }
+
+  public void testPropertiesFail() throws IOException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    // logoutput
+
+    String[] gav = splitString("io.apiman:apiman-test-policies:1.2.0.Beta2-null");
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId(gav[0]);
+    artifactInfo.setArtifactId(gav[1]);
+    artifactInfo.setArtifactVersion(gav[2]);
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 
   @Test
   @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
-  public void testPropertiesNotResolved2() throws IOException {
+  public void testPropertiesUnresolvable() throws IOException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -714,6 +767,7 @@ public class ArtifactProcessorTest {
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 
   @Test
@@ -741,6 +795,7 @@ public class ArtifactProcessorTest {
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 
   @Test
@@ -770,5 +825,6 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     // TODO add more semantic checks
     assertFalse(process.isEmpty());
+    testSerialize(process);
   }
 }

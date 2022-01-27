@@ -33,26 +33,34 @@ public class RedisWriter {
     jedisPool.destroy();
   }
 
-  public void persist(MvnArtifactNode crawledMavenArtifactMetaData)
-      throws IllegalArgumentException {
+  public void persist(MvnArtifactNode mvnArtifactNode) throws IllegalArgumentException {
     // existingID is useless here as the db write is executed someere else
 
     String key =
         "artifactInsert::"
-            + crawledMavenArtifactMetaData.getGroup()
+            + mvnArtifactNode.getGroup()
             + ":"
-            + crawledMavenArtifactMetaData.getArtifact()
+            + mvnArtifactNode.getArtifact()
             + ":"
-            + crawledMavenArtifactMetaData.getVersion()
+            + mvnArtifactNode.getVersion()
             + "-"
-            + crawledMavenArtifactMetaData.getClassifier()
+            + mvnArtifactNode.getClassifier()
             + ":"
-            + crawledMavenArtifactMetaData.getPackaging();
+            + mvnArtifactNode.getPackaging();
     try (Jedis jedis = jedisPool.getResource()) {
 
       Long counter = jedis.incr("insertCounter");
 
-      final byte[] serialize = RedisSerializerUtil.serialize(crawledMavenArtifactMetaData);
+      final byte[] serialize = RedisSerializerUtil.serialize(mvnArtifactNode);
+      if (serialize == null || serialize.length == 0) {
+        LOGGER.error(
+            "Failed to serialize: {}",
+            mvnArtifactNode.getGroup()
+                + ":"
+                + mvnArtifactNode.getArtifact()
+                + ":"
+                + mvnArtifactNode.getVersion());
+      }
 
       jedis.set(key.getBytes(StandardCharsets.UTF_8), serialize);
 

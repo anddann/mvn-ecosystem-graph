@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -120,7 +121,7 @@ public class Redis2Neo4JDB {
     }
   }
 
-  private void insertIntoPostgresDB(MvnArtifactNode mavenArtifactMetadata) {
+  private void insertIntoNeo4j(MvnArtifactNode mavenArtifactMetadata) {
 
     try {
 
@@ -145,14 +146,18 @@ public class Redis2Neo4JDB {
         byte[] value = jedis.get(key.getBytes(StandardCharsets.UTF_8));
         if (value == null || value.length == 0) {
           LOGGER.error("Value from Cache is blank");
-          continue;
+        } else {
+
+          try {
+            final MvnArtifactNode mavenArtifactMetadata =
+                (MvnArtifactNode) RedisSerializerUtil.deserialize(value);
+            LOGGER.info("Write to NEO: ");
+
+            insertIntoNeo4j(mavenArtifactMetadata);
+          } catch (SerializationException ex) {
+            LOGGER.error("Failed to deserialize with: ", ex);
+          }
         }
-
-        final MvnArtifactNode mavenArtifactMetadata =
-            (MvnArtifactNode) RedisSerializerUtil.deserialize(value);
-        LOGGER.info("Write to NEO: ");
-
-        insertIntoPostgresDB(mavenArtifactMetadata);
 
         jedis.del(key);
       }

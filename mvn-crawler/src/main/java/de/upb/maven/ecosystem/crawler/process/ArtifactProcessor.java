@@ -396,6 +396,13 @@ public class ArtifactProcessor {
       }
     }
 
+    // TODO: One factor to note is that these variables are processed after inheritance as
+    // outlined above. This means that if a parent project uses a variable, then its
+    // definition in the child, not the parent, will be the one eventually used.
+    // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
+    // Thus maybe, we should resolve all parents first and then create an aggreaget set of
+    // properties... :(
+
     MvnArtifactNode currentNode = mvnArtifactNode;
     while (currentNode != null) {
       // check for properties
