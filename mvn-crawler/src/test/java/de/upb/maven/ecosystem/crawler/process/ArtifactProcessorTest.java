@@ -134,7 +134,7 @@ public class ArtifactProcessorTest {
     }
   }
 
-  private void dependencySpec(MvnArtifactNode artifactNode)
+  private void testDependencies(MvnArtifactNode artifactNode)
       throws IOException, SAXException, ParserConfigurationException {
     String fileName =
         artifactNode.getGroup()
@@ -163,6 +163,17 @@ public class ArtifactProcessorTest {
                         + x.getTgtNode().getVersion())
             .collect(Collectors.toSet());
 
+    final Set<String> depMgmTGAVs =
+            artifactNode.getDependencyManagement().stream()
+                    .map(
+                            x ->
+                                    x.getTgtNode().getGroup()
+                                            + ":"
+                                            + x.getTgtNode().getArtifact()
+                                            + ":"
+                                            + x.getTgtNode().getVersion())
+                    .collect(Collectors.toSet());
+
     // parse XML file
     DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -171,10 +182,13 @@ public class ArtifactProcessorTest {
     // optional, but recommended
     // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
     doc.getDocumentElement().normalize();
+
+    boolean checkMgmt = false;
     final NodeList dependenciesNodes = doc.getElementsByTagName("dependencies");
     for (int temp = 0; temp < dependenciesNodes.getLength(); temp++) {
       Node node = dependenciesNodes.item(temp);
-      final NodeList dependencyNodes = ((Element) node).getElementsByTagName("dependency");;
+      checkMgmt = node.getParentNode().getNodeName().equalsIgnoreCase("dependencyManagement")? true: false;
+      final NodeList dependencyNodes = ((Element) node).getElementsByTagName("dependency");
       for (int depCount = 0; depCount < dependencyNodes.getLength(); depCount++) {
         Node dependencyNode = dependencyNodes.item(depCount);
         // check if it exists in the current mapa
@@ -187,7 +201,12 @@ public class ArtifactProcessorTest {
             element.getElementsByTagName("version").item(0).getFirstChild().getNodeValue();
 
         String gavToCheck = group + ":" + artifactId + ":" + version;
-        assertTrue(depGAVs.contains(gavToCheck));
+        if (!checkMgmt) {
+          assertTrue(depGAVs.contains(gavToCheck));
+        }
+        else {
+          assertTrue(depMgmTGAVs.contains(gavToCheck));
+        }
       }
     }
 
@@ -229,7 +248,7 @@ public class ArtifactProcessorTest {
     assertEquals(12, mvnArtifactNode.getDependencies().size());
     assertEquals(1, mvnArtifactNode.getProperties().size());
 
-    dependencySpec(mvnArtifactNode);
+    testDependencies(mvnArtifactNode);
 
     final MvnArtifactNode p1 = collect.get(1);
     assertEquals("io.atlasmap", p1.getGroup());
@@ -239,6 +258,8 @@ public class ArtifactProcessorTest {
     assertEquals(0, p1.getDependencies().size());
     assertEquals(0, p1.getProperties().size());
 
+    testDependencies(p1);
+
     final MvnArtifactNode p2 = collect.get(2);
     assertEquals("io.atlasmap", p2.getGroup());
     assertEquals("atlasmap-lib", p2.getArtifact());
@@ -246,6 +267,8 @@ public class ArtifactProcessorTest {
     assertTrue(p2.getParent().isPresent());
     assertEquals(0, p2.getDependencies().size());
     assertEquals(0, p2.getProperties().size());
+
+    testDependencies(p2);
 
     final MvnArtifactNode p3 = collect.get(3);
     assertEquals("io.atlasmap", p3.getGroup());
@@ -256,6 +279,8 @@ public class ArtifactProcessorTest {
     assertEquals(85, p3.getDependencyManagement().size());
     assertEquals(56, p3.getProperties().size());
 
+    testDependencies(p3);
+
     final MvnArtifactNode p4 = collect.get(4);
     assertEquals("io.atlasmap", p4.getGroup());
     assertEquals("atlasmapio", p4.getArtifact());
@@ -264,10 +289,12 @@ public class ArtifactProcessorTest {
     assertFalse(p4.getParent().isPresent());
     assertEquals(15, p4.getProperties().size());
     testSerialize(process);
+
+    testDependencies(p3);
   }
 
   @Test
-  public void testRecurisiveReferences() throws IOException {
+  public void testRecurisiveReferences() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -289,10 +316,14 @@ public class ArtifactProcessorTest {
     assertFalse(process.isEmpty());
     assertEquals(3, process.size());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testCassandraFeedback() throws IOException {
+  public void testCassandraFeedback() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -314,10 +345,14 @@ public class ArtifactProcessorTest {
     assertFalse(process.isEmpty());
     assertEquals(2, process.size());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testCircularReferences() throws IOException {
+  public void testCircularReferences() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -339,10 +374,14 @@ public class ArtifactProcessorTest {
     assertFalse(process.isEmpty());
     assertEquals(2, process.size());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testFailedPoms() throws IOException {
+  public void testFailedPoms() throws IOException, ParserConfigurationException, SAXException {
 
     Driver driver = createDriver();
 
@@ -366,10 +405,15 @@ public class ArtifactProcessorTest {
     assertFalse(process.isEmpty());
     assertEquals(52, process.size());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
+
   }
 
   @Test
-  public void versionBlankError() throws IOException {
+  public void versionBlankError() throws IOException, ParserConfigurationException, SAXException {
 
     Driver driver = createDriver();
 
@@ -389,10 +433,14 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void versionPropertiesError2() throws IOException {
+  public void versionPropertiesError2() throws IOException, ParserConfigurationException, SAXException {
     // failed on database?
     Driver driver = createDriver();
 
@@ -414,10 +462,14 @@ public class ArtifactProcessorTest {
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void versionBlankError2() throws IOException {
+  public void versionBlankError2() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     //  add the parent before to the database, then the test will fail..
@@ -447,6 +499,11 @@ public class ArtifactProcessorTest {
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
+
     }
 
     ArtifactProcessor artifactProcessor =
@@ -466,10 +523,14 @@ public class ArtifactProcessorTest {
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void propertiesUnresolved() throws IOException {
+  public void propertiesUnresolved() throws IOException, ParserConfigurationException, SAXException {
 
     Driver driver = createDriver();
 
@@ -487,10 +548,15 @@ public class ArtifactProcessorTest {
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     testSerialize(process);
+
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testWithDBAccess() throws IOException {
+  public void testWithDBAccess() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -517,6 +583,10 @@ public class ArtifactProcessorTest {
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
 
     // resolve the next one
@@ -538,11 +608,15 @@ public class ArtifactProcessorTest {
       assertFalse(process.isEmpty());
       assertEquals(1, process.size());
       testSerialize(process);
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
   }
 
   @Test
-  public void testParentParent() throws IOException {
+  public void testParentParent() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
     // Created duplicate parent edge
 
@@ -570,6 +644,10 @@ public class ArtifactProcessorTest {
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
 
     // resolve the next one
@@ -591,11 +669,16 @@ public class ArtifactProcessorTest {
       assertFalse(process.isEmpty());
       assertEquals(2, process.size());
       testSerialize(process);
+
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
   }
 
   @Test
-  public void testNotSingleRecord() throws IOException {
+  public void testNotSingleRecord() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
     // Created duplicate parent edge
     // org.fcrepo:fcrepo:4.4.0
@@ -646,6 +729,10 @@ public class ArtifactProcessorTest {
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
 
     // resolve the next one
@@ -667,11 +754,15 @@ public class ArtifactProcessorTest {
       assertFalse(process.isEmpty());
       //  assertEquals(3, process.size());
       testSerialize(process);
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
   }
 
   @Test
-  public void failedArtifact() throws IOException {
+  public void failedArtifact() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -699,6 +790,10 @@ public class ArtifactProcessorTest {
       for (MvnArtifactNode node : process) {
         doaMvnArtifactNodeImpl.saveOrMerge(node);
       }
+
+      for(MvnArtifactNode node: process){
+        testDependencies(node);
+      }
     }
   }
 
@@ -710,7 +805,7 @@ public class ArtifactProcessorTest {
 
   @Test
   // project.parent property
-  public void testPropertiesNotResolved() throws IOException {
+  public void testPropertiesNotResolved() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -736,6 +831,10 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
@@ -800,7 +899,7 @@ public class ArtifactProcessorTest {
     }
   }
 
-  public void testPropertiesFail() throws IOException {
+  public void testPropertiesFail() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -824,11 +923,15 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
   @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
-  public void testPropertiesUnresolvable() throws IOException {
+  public void testPropertiesUnresolvable() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -854,10 +957,14 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testPropertiesNotResolved3() throws IOException {
+  public void testPropertiesNotResolved3() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -882,10 +989,14 @@ public class ArtifactProcessorTest {
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
   }
 
   @Test
-  public void testProfileProperties() throws IOException {
+  public void testProfileProperties() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -912,5 +1023,11 @@ public class ArtifactProcessorTest {
     // TODO add more semantic checks
     assertFalse(process.isEmpty());
     testSerialize(process);
+
+
+    for(MvnArtifactNode node: process){
+      testDependencies(node);
+    }
+
   }
 }
