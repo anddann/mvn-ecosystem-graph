@@ -20,7 +20,6 @@ jobs:
 
       - name: Test
         run: mvn -B test
-
-      - name: Build a package
-        run: mvn -B package
+      #- name: Build a package
+      #  run: mvn -B package
 

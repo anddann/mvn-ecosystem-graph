@@ -36,7 +36,7 @@
         <module>mvn-central-indexer</module>
         <module>mvn-crawler</module>
         <module>redis-task</module>
-        <module>effective-pom</module>
+     <!--   <module>effective-pom</module> -->
 
     </modules>
 
