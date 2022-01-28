@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -279,11 +280,6 @@ public class ArtifactProcessor {
         // expliclty add add the head of the queue, since this is the closed import
         dependencyManagementNodesToCheck.addFirst(tgtNode);
       }
-    }
-
-    if (!dependencyWithoutVersion.isEmpty()) {
-      // we still have unresolved properties?
-      LOGGER.error("we still have unresolved deps?");
     }
   }
 
@@ -562,6 +558,7 @@ public class ArtifactProcessor {
       return nodesInScene.get(identifier);
     }
 
+    Stopwatch stopwatch = Stopwatch.createStarted();
     MvnArtifactNode nodeToReturn;
     //
     final Optional<MvnArtifactNode> optionalMvnArtifactNode =
@@ -580,6 +577,8 @@ public class ArtifactProcessor {
       // -- same goes obvoiulsy for import nodes... :(
 
       nodeToReturn = optionalMvnArtifactNode.get();
+      LOGGER.info(
+          "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     } else {
       nodeToReturn = mvnArtifactNode;
     }

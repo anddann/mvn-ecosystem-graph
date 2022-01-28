@@ -37,6 +37,7 @@ public class ArtifactManager {
     if (StringUtils.isBlank(ai.getRepoURL())) {
       throw new IOException("No Base URL is given");
     }
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
     if (ArtifactUtils.ignoreArtifact(ai)) {
       LOGGER.info(
@@ -45,24 +46,9 @@ public class ArtifactManager {
           ai.getArtifactId(),
           ai.getArtifactVersion(),
           ai.getClassifier());
-      String log =
-          ai.getGroupId()
-              + ":"
-              + ai.getArtifactId()
-              + ":"
-              + ai.getArtifactVersion()
-              + "-"
-              + ai.getClassifier()
-              + "\n";
-      Files.write(
-          Paths.get("ignored_artifacts.txt"),
-          log.getBytes(),
-          StandardOpenOption.CREATE,
-          StandardOpenOption.APPEND);
-
       return;
     }
-    // the prodcuer should checks if the artifact is in the db
+    // the producer should check if the artifact is in the db
     boolean existsInDb =
         this.doaArtifactNode.containsNodeWithVersionGQ(
             ai.getGroupId(),
@@ -80,8 +66,9 @@ public class ArtifactManager {
       return;
     }
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    LOGGER.info("[Stats] DB lookup took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
+    stopwatch.reset();
     LOGGER.info(
         "Processing Artifact#{} at {}:{}:{}",
         crawledArtifacts++,
@@ -95,6 +82,10 @@ public class ArtifactManager {
       if (newResolvedNodes != null) {
         LOGGER.info("Writing nodes: #{} to db", newResolvedNodes.size());
 
+        LOGGER.info(
+            "[Stats] Processing Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        stopwatch.reset();
+
         for (MvnArtifactNode node : newResolvedNodes) {
           if (instance != null) {
             instance.persist(node);
@@ -102,10 +93,13 @@ public class ArtifactManager {
             doaArtifactNode.saveOrMerge(node);
           }
         }
+        LOGGER.info("[Stats] Writing to DB took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
       } else {
         LOGGER.warn("No nodes have been resolved");
       }
     } catch (Exception ex) {
+      stopwatch.reset();
       LOGGER.error(
           "Crawling of artifact:  {} , failed with ",
           ai.getGroupId()
@@ -136,8 +130,7 @@ public class ArtifactManager {
       } catch (IOException e) {
         LOGGER.error("Could not write failed_artifacts file", e);
       }
+      LOGGER.info("[Stats] Writing to files took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
-
-    LOGGER.info("[Stats] Artifact took: {}", stopwatch.elapsed(TimeUnit.SECONDS));
   }
 }
