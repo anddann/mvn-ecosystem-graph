@@ -1,10 +1,30 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import static org.junit.Assert.*;
+
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -32,27 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest {
 
@@ -148,7 +147,7 @@ public class ArtifactProcessorTest {
     final URL resource = classLoader.getResource(fileName);
     if (resource == null) {
       logger.warn("No file found: {}", fileName);
-      Files.createFile(Paths.get("src/test/resources/"+fileName));
+      Files.createFile(Paths.get("src/test/resources/" + fileName));
       return;
     }
     final File f = new File(resource.getFile());
@@ -217,8 +216,6 @@ public class ArtifactProcessorTest {
         }
       }
     }
-
-    // TODO -- add dependency mgmt nodes
   }
 
   @Test
@@ -245,8 +242,6 @@ public class ArtifactProcessorTest {
     assertFalse(process.isEmpty());
     assertEquals(5, process.size());
     final List<MvnArtifactNode> collect = new ArrayList<>(process);
-
-    // TODO test properties
 
     final MvnArtifactNode mvnArtifactNode = collect.get(0);
     assertEquals("io.atlasmap", mvnArtifactNode.getGroup());
