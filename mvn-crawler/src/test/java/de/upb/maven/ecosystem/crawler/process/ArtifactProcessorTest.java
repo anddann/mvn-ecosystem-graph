@@ -1,22 +1,10 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import static org.junit.Assert.*;
-
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,6 +27,32 @@ import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest {
 
@@ -110,8 +124,78 @@ public class ArtifactProcessorTest {
         "bolt://" + LISTEN_ADDRESS, AuthTokens.basic(CREDENTIAL, CREDENTIAL));
   }
 
+  private static DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+  static {
+    try {
+      dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void dependencySpec(MvnArtifactNode artifactNode)
+      throws IOException, SAXException, ParserConfigurationException {
+    String fileName =
+        artifactNode.getGroup()
+            + "_"
+            + artifactNode.getArtifact()
+            + "_"
+            + artifactNode.getVersion()
+            + ".xml";
+    ClassLoader classLoader = getClass().getClassLoader();
+
+    final URL resource = classLoader.getResource(fileName);
+    if (resource == null) {
+      logger.warn("No file found: {}", fileName);
+      return;
+    }
+    final File f = new File(resource.getFile());
+
+    final Set<String> depGAVs =
+        artifactNode.getDependencies().stream()
+            .map(
+                x ->
+                    x.getTgtNode().getGroup()
+                        + ":"
+                        + x.getTgtNode().getArtifact()
+                        + ":"
+                        + x.getTgtNode().getVersion())
+            .collect(Collectors.toSet());
+
+    // parse XML file
+    DocumentBuilder db = dbf.newDocumentBuilder();
+
+    Document doc = db.parse(f);
+
+    // optional, but recommended
+    // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+    doc.getDocumentElement().normalize();
+    final NodeList dependenciesNodes = doc.getElementsByTagName("dependencies");
+    for (int temp = 0; temp < dependenciesNodes.getLength(); temp++) {
+      Node node = dependenciesNodes.item(temp);
+      final NodeList dependencyNodes = ((Element) node).getElementsByTagName("dependency");;
+      for (int depCount = 0; depCount < dependencyNodes.getLength(); depCount++) {
+        Node dependencyNode = dependencyNodes.item(depCount);
+        // check if it exists in the current mapa
+        Element element = (Element) dependencyNode;
+        String group =
+            element.getElementsByTagName("groupId").item(0).getFirstChild().getNodeValue();
+        String artifactId =
+            element.getElementsByTagName("artifactId").item(0).getFirstChild().getNodeValue();
+        String version =
+            element.getElementsByTagName("version").item(0).getFirstChild().getNodeValue();
+
+        String gavToCheck = group + ":" + artifactId + ":" + version;
+        assertTrue(depGAVs.contains(gavToCheck));
+      }
+    }
+
+    //TODO -- add dependency mgmt nodes
+  }
+
   @Test
-  public void testProcess() throws IOException {
+  public void testProcess() throws IOException, ParserConfigurationException, SAXException {
 
     Driver driver = createDriver();
 
@@ -144,6 +228,8 @@ public class ArtifactProcessorTest {
     assertTrue(mvnArtifactNode.getParent().isPresent());
     assertEquals(12, mvnArtifactNode.getDependencies().size());
     assertEquals(1, mvnArtifactNode.getProperties().size());
+
+    dependencySpec(mvnArtifactNode);
 
     final MvnArtifactNode p1 = collect.get(1);
     assertEquals("io.atlasmap", p1.getGroup());
