@@ -147,7 +147,8 @@ public class ArtifactProcessorTest {
     final URL resource = classLoader.getResource(fileName);
     if (resource == null) {
       logger.warn("No file found: {}", fileName);
-      Files.createFile(Paths.get("src/test/resources/" + fileName));
+      // used to create files locally
+     // Files.createFile(Paths.get("src/test/resources/" + fileName));
       return;
     }
     final File f = new File(resource.getFile());
