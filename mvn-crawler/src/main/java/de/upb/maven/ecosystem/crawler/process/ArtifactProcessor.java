@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
+
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
   private static final int CONNECT_TIMEOUT = 5 * 60000;
   private static final int READ_TIMEOUT = 5 * 60000;
@@ -67,6 +68,8 @@ public class ArtifactProcessor {
 
   private final HashMap<String, Model> nodeToModel = new HashMap<>();
 
+  private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
+
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.daoMvnArtifactNode = doaArtifactNode;
@@ -80,24 +83,33 @@ public class ArtifactProcessor {
   }
 
   private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
+    String id = genId(node);
+    final Integer currentResolvingLevel = internalResolvingLevelHashMap.getOrDefault(id, -1);
+    if (currentResolvingLevel >= resolvinglevel) {
+      return;
+    }
     switch (resolvinglevel) {
       case RESOLVE_NODE:
         // FIFO resolve parents in FIFO order (starting with child)
         worklist[RESOLVE_NODE].addLast(node);
+        internalResolvingLevelHashMap.put(id, RESOLVE_NODE);
         break;
       case RESOLVE_PROPERTIES:
         // LIFO resolve properties in LIFO order (starting with parent)
         worklist[RESOLVE_PROPERTIES].addFirst(node);
+        internalResolvingLevelHashMap.put(id, RESOLVE_PROPERTIES);
         break;
       case RESOLVE_IMPORTS:
         // LIFO resolve imports in LIFO order (starting with parent) // actually the order is
         // irrelevant here?
         worklist[RESOLVE_IMPORTS].addFirst(node);
+        internalResolvingLevelHashMap.put(id, RESOLVE_IMPORTS);
         break;
       case RESOLVE_DIRECT_DEPENDENCIES:
         // LIFO resolve imports in LIFO order (starting with parent) // actually the order is
         // irrelevant here?
         worklist[RESOLVE_DIRECT_DEPENDENCIES].addLast(node);
+        internalResolvingLevelHashMap.put(id, RESOLVE_DIRECT_DEPENDENCIES);
         break;
       default:
         throw new IllegalArgumentException("No valid resolving leven given");
@@ -184,9 +196,18 @@ public class ArtifactProcessor {
     // need to resolve first
     dependencyManagementNodesToCheck.add(mvnArtifactNode);
 
+    // TODO - refactor
+    // avoid circles
+    HashSet<MvnArtifactNode> alreadyCheckedNodes = new HashSet<>();
     // resolve the properties without a version
-    while (!dependencyWithoutVersion.isEmpty() && !dependencyManagementNodesToCheck.isEmpty()) {
+    while (!dependencyManagementNodesToCheck.isEmpty() || !dependencyWithoutVersion.isEmpty()) {
       final MvnArtifactNode poll = dependencyManagementNodesToCheck.poll();
+      if (poll == null) {
+        // list is empty, we did not find a version
+        break;
+      }
+
+      alreadyCheckedNodes.add(poll);
 
       poll.getDependencyManagement()
           .sort((a, b) -> Integer.compare(a.getPosition(), b.getPosition()));
@@ -263,7 +284,10 @@ public class ArtifactProcessor {
       // TODO -- Check what is resolved first (recursive imports or parent?)
       // search in the parent for dependency mgmt
       if (poll.getParent().isPresent()) {
-        dependencyManagementNodesToCheck.add(poll.getParent().get());
+        final MvnArtifactNode e = poll.getParent().get();
+        if (!alreadyCheckedNodes.contains(e)) {
+          dependencyManagementNodesToCheck.add(e);
+        }
       }
 
       // check if we import other dependency management sections
@@ -278,7 +302,9 @@ public class ArtifactProcessor {
 
         final MvnArtifactNode tgtNode = dependencyRelation.getTgtNode();
         // expliclty add add the head of the queue, since this is the closed import
-        dependencyManagementNodesToCheck.addFirst(tgtNode);
+        if (!alreadyCheckedNodes.contains(tgtNode)) {
+          dependencyManagementNodesToCheck.addFirst(tgtNode);
+        }
       }
     }
   }
@@ -400,7 +426,9 @@ public class ArtifactProcessor {
     // properties... :(
 
     MvnArtifactNode currentNode = mvnArtifactNode;
-    while (currentNode != null) {
+    // sometimes artifacts have a cycles, thus, we break it up here
+    HashSet<MvnArtifactNode> workedNodes = new HashSet<>();
+    while (currentNode != null && workedNodes.add(currentNode)) {
       // check for properties
 
       Deque<DependencyRelation> workList = new ArrayDeque<>(dependencyPropertiesToResolve);

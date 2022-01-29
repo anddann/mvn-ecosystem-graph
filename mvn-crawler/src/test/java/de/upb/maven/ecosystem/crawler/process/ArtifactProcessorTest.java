@@ -148,7 +148,7 @@ public class ArtifactProcessorTest {
     if (resource == null) {
       logger.warn("No file found: {}", fileName);
       // used to create files locally
-     // Files.createFile(Paths.get("src/test/resources/" + fileName));
+      // Files.createFile(Paths.get("src/test/resources/" + fileName));
       return;
     }
     final File f = new File(resource.getFile());
@@ -410,7 +410,7 @@ public class ArtifactProcessorTest {
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
-    assertEquals(52, process.size());
+    assertEquals(51, process.size());
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
@@ -1035,6 +1035,66 @@ public class ArtifactProcessorTest {
 
     for (MvnArtifactNode node : process) {
       testDependencies(node);
+    }
+  }
+
+  @Test // the artifact is itself its parent
+  public void cycleParentItself() throws IOException {
+    //
+    // 10:03:51.997 [pool-1-thread-34] INFO  d.u.m.e.c.p.ArtifactManager - Processing Artifact#0 at
+    // com.microsoft.msr.malmo:MalmoJavaJar:0.30.0
+
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.microsoft.msr.malmo");
+    artifactInfo.setArtifactId("MalmoJavaJar");
+    artifactInfo.setArtifactVersion("0.30.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    // TODO add more semantic checks
+    assertFalse(process.isEmpty());
+    testSerialize(process);
+  }
+
+  @Test
+  @Ignore// the artifact has a strange dependency to a pom, that is also in the dependency mgmt section as an import?
+  public void freeze() throws IOException {
+    //
+    // 10:03:51.997 [pool-1-thread-34] INFO  d.u.m.e.c.p.ArtifactManager - Processing Artifact#0 at
+    // com.microsoft.msr.malmo:MalmoJavaJar:0.30.0
+
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("br.com.c8tech.releng");
+    artifactInfo.setArtifactId("fpom-itests-paxexam");
+    artifactInfo.setArtifactVersion("7.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    assertNotNull(process);
+    // TODO add more semantic checks
+    assertFalse(process.isEmpty());
+    testSerialize(process);
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 }
