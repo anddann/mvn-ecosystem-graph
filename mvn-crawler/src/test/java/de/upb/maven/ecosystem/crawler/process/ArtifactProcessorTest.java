@@ -1067,7 +1067,8 @@ public class ArtifactProcessorTest {
   }
 
   @Test
-  @Ignore// the artifact has a strange dependency to a pom, that is also in the dependency mgmt section as an import?
+  @Ignore // the artifact has a strange dependency to a pom, that is also in the dependency mgmt
+  // section as an import?
   public void freeze() throws IOException {
     //
     // 10:03:51.997 [pool-1-thread-34] INFO  d.u.m.e.c.p.ArtifactManager - Processing Artifact#0 at

@@ -544,11 +544,10 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     StringBuilder query = new StringBuilder();
     query
-        .append("MATCH (src:MvnArtifact), (parent:MvnArtifact)")
+        .append("MATCH (parent:MvnArtifact)-[r:PARENT]->(src:MvnArtifact)")
         .append(" WHERE ")
         .append(createMatchingCondition(instance, "src", "src.", parameters))
         .append(" AND parent.packaging = \"pom\"")
-        .append(" MATCH (parent)-[r:PARENT]->(src)")
         .append(" RETURN parent");
     try (Session session = driver.session()) {
       final Value value =
@@ -581,12 +580,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     StringBuilder query = new StringBuilder();
     query
-        .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+        .append("MATCH (src:MvnArtifact)-[r]->(tgt:MvnArtifact)")
         .append(" WHERE ")
         .append(createMatchingCondition(instance, "src", "src.", parameters))
         .append(" AND ")
         .append(createMatchingCondition(dependency, "tgt", "tgt.", parameters))
-        .append(" MATCH (src)-[r]->(tgt)")
         .append(" RETURN r");
 
     try (Session session = driver.session()) {
@@ -775,10 +773,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     StringBuilder query = new StringBuilder();
     query
-        .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+        .append("MATCH (src:MvnArtifact)-[r:MANAGES|IMPORTS]->(tgt:MvnArtifact)")
         .append(" WHERE ")
         .append(createMatchingCondition(instance, "src", "src.", parameters))
-        .append(" MATCH (src)-[r:MANAGES|IMPORTS]->(tgt)")
         .append(" RETURN r, tgt");
 
     try (Session session = driver.session()) {
@@ -829,10 +826,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     StringBuilder query = new StringBuilder();
     query
-        .append("MATCH (src:MvnArtifact), (tgt:MvnArtifact)")
+        .append("MATCH (src:MvnArtifact)-[r:DEPENDS_ON]->(tgt:MvnArtifact)")
         .append(" WHERE ")
         .append(createMatchingCondition(instance, "src", "src.", parameters))
-        .append(" MATCH (src)-[r:DEPENDS_ON]->(tgt)")
         .append(" RETURN r, tgt");
 
     try (Session session = driver.session()) {
