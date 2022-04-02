@@ -19,8 +19,8 @@ public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
       String artifactId,
       String version,
       String classifier,
-      String targetVersion,
-      String packaging);
+      String packaging,
+      String crawlerVersion);
 
   List<DependencyRelation> getDependencyManagement(MvnArtifactNode instance);
 

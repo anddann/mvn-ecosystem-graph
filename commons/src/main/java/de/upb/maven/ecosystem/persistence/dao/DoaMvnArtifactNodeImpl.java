@@ -720,7 +720,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       String version,
       String classifier,
       String packaging,
-      String targetVersion) {
+      String crawlerVersion) {
 
     if (StringUtils.isBlank(classifier)) {
       // neo4j cannot deal with null values
@@ -761,7 +761,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     if (StringUtils.isBlank(versionNumber) || StringUtils.isBlank(resolvingLevel)) {
       return false;
     }
-    final boolean upToDate = StringUtils.compare(versionNumber, targetVersion) >= 0;
+    final boolean upToDate = StringUtils.compare(versionNumber, crawlerVersion) >= 0;
     final boolean fullResolved =
         StringUtils.equals(MvnArtifactNode.ResolvingLevel.FULL.toString(), resolvingLevel);
     return upToDate & fullResolved;
