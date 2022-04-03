@@ -24,5 +24,6 @@ public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
 
   List<DependencyRelation> getDependencyManagement(MvnArtifactNode instance);
 
-  List<DependencyRelation> getDependencies(MvnArtifactNode mvnArtifactNodeProxy);
+  List<MvnArtifactNode> getDependents(
+      String group, String artifact, String depGroup, String depArtifact, String depVersion);
 }

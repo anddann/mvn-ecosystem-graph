@@ -662,6 +662,33 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         packagingParameter);
   }
 
+  private String createMatchingCondition(
+      String group,
+      String artifact,
+      String label,
+      @Nullable String prefixParameter,
+      Map<String, Object> parameters) {
+    if (StringUtils.isNotBlank(prefixParameter) && StringUtils.endsWith(prefixParameter, ".")) {
+      // remove the dot
+      prefixParameter = prefixParameter.substring(0, prefixParameter.length() - 2);
+    }
+
+    String groupParameter = prefixParameter + "Group";
+    String artifactParameter = prefixParameter + "Artifact";
+    String versionParameter = prefixParameter + "Version";
+    String classifierParameter = prefixParameter + "Classifier";
+    String packagingParameter = prefixParameter + "Packaging";
+
+    parameters.put(groupParameter, group);
+    parameters.put(artifactParameter, artifact);
+    parameters.put(classifierParameter, "null");
+    parameters.put(packagingParameter, "jar");
+
+    return String.format(
+        "%1$s.group = $%2$s AND %1$s.artifact = $%3$s AND %1$s.classifier = $%4$s AND %1$s.packaging = $%5$s",
+        label, groupParameter, artifactParameter, classifierParameter, packagingParameter);
+  }
+
   private String createMatchExpression(
       String group,
       String artifact,
@@ -801,6 +828,47 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
   }
 
+  @Override
+  public List<MvnArtifactNode> getDependents(
+      String group, String artifact, String depGroup, String depArtifact, String depVersion) {
+    HashMap<String, Object> parameters = new HashMap<>();
+
+    MvnArtifactNode depNode = new MvnArtifactNode();
+    depNode.setArtifact(depArtifact);
+    depNode.setVersion(depVersion);
+    depNode.setGroup(depGroup);
+    StringBuilder query = new StringBuilder();
+    query
+        .append("MATCH (src:MvnArtifact)-[r:DEPENDS_ON]->(tgt:MvnArtifact)")
+        .append(" WHERE ")
+        .append(
+            createMatchingCondition(depNode, "tgt", "tgt.", parameters)
+                + " AND "
+                + createMatchingCondition(group, artifact, "src", "src.", parameters))
+        .append(" RETURN r, src");
+
+    try (Session session = driver.session()) {
+      List<MvnArtifactNode> list =
+          session.readTransaction(
+              tx -> {
+                Result result = tx.run(query.toString(), parameters);
+                if (result == null) {
+                  return Collections.emptyList();
+                }
+                List<MvnArtifactNode> mvnArtifactNodes = new ArrayList<>();
+                while (result.hasNext()) {
+                  final Record next = result.next();
+                  final DependencyRelation r = createDepRelation(next.get("r"));
+                  final MvnArtifactNodeProxy src = createProxyNode(next.get("src"));
+                  mvnArtifactNodes.add(src);
+                }
+                return mvnArtifactNodes;
+              });
+
+      return list;
+    }
+  }
+
   private MvnArtifactNodeProxy createProxyNode(Value value) {
     // create the node back
     final MvnArtifactNodeProxy mvnArtifactNode =
@@ -820,7 +888,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     return mvnArtifactNode;
   }
 
-  @Override
   public List<DependencyRelation> getDependencies(MvnArtifactNode instance) {
     HashMap<String, Object> parameters = new HashMap<>();
 
