@@ -459,7 +459,7 @@ public class ArtifactProcessor {
 
           // else we have to check if it defined in a profile
           final Model model = this.nodeToModel.get(genId(currentNode));
-          boolean isDirectDependency = mvnArtifactNode.getDependencies().contains(dep);
+          boolean isDirectDependency = mvnArtifactNode.getDependencies().contains(poll);
 
           for (Profile profile : model.getProfiles()) {
             String profileName = profile.getId();

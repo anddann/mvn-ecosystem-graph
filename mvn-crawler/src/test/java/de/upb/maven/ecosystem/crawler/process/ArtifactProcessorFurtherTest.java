@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.crawler.process;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
@@ -18,10 +19,10 @@ import static org.junit.Assert.assertEquals;
 
 public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract {
 
-
-
   /**
-   * * 08:43:56.332 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist *
+   * Version of <artifactId>junit-jupiter</artifactId> missing
+   *
+   * <p>* 08:43:56.332 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist *
    * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=com.9ls, artifact=common-util,
    * * version=1.0.6, repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, *
    * packaging=jar, properties={}),
@@ -31,6 +32,7 @@ public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract 
    * @throws SAXException
    */
   @Test
+  @Ignore
   public void test1() throws IOException, ParserConfigurationException, SAXException {
       Driver driver = createDriver();
 
