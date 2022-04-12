@@ -233,7 +233,7 @@ public class ArtifactProcessor {
           if (StringUtils.equals(
                   nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
               && StringUtils.equals(
-                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())) {
+                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact()) && StringUtils.equals(nextDep.getTgtNode().getPackaging(), nextDepMgmt.getType())) {
             final Deque<DependencyRelation> orDefault =
                 depWithOutVersionDependencyMgmtEdge.computeIfAbsent(
                     nextDep, x -> new ArrayDeque<>());

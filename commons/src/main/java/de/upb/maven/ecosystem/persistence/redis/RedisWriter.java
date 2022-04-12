@@ -34,7 +34,7 @@ public class RedisWriter {
   }
 
   public void persist(MvnArtifactNode mvnArtifactNode) throws IllegalArgumentException {
-    // existingID is useless here as the db write is executed someere else
+    // existingID is useless here as the db write is executed somere else
 
     String key =
         "artifactInsert::"

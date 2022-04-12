@@ -114,7 +114,7 @@ public class Redis2Neo4JDB {
       moveRedisToPSQL();
       clearBuffer();
     } catch (Exception e) {
-      LOGGER.error("Failed to write to PSQL", e);
+      LOGGER.error("Failed to write to Neo4j", e);
     } finally {
       // if done release lock
       releaseLock();
