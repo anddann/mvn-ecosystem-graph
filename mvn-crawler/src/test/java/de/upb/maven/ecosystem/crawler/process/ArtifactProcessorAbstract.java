@@ -78,7 +78,7 @@ public abstract class ArtifactProcessorAbstract {
     }
   }
 
-  private static GraphDatabaseService createDB() {
+  public static GraphDatabaseService createDB() {
 
     logger.info("Creating dbms in {}", databasePath);
 
@@ -129,7 +129,7 @@ public abstract class ArtifactProcessorAbstract {
         "bolt://" + LISTEN_ADDRESS, AuthTokens.basic(CREDENTIAL, CREDENTIAL));
   }
 
-  protected void testDependencies(MvnArtifactNode artifactNode)
+  public void testDependencies(MvnArtifactNode artifactNode)
       throws IOException, SAXException, ParserConfigurationException {
     String fileName =
         artifactNode.getGroup()
