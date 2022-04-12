@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -16,8 +17,6 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,7 +42,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class ArtifactProcessorTestAbstract {
+public abstract class ArtifactProcessorAbstract {
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
   protected static final Logger logger = LoggerFactory.getLogger(ArtifactProcessorTest.class);
@@ -66,7 +65,7 @@ public class ArtifactProcessorTestAbstract {
     if (runEmbedded) {
       Stopwatch sw = Stopwatch.createStarted();
       databasePath = Files.createTempDirectory(CREDENTIAL);
-      databaseService = ArtifactProcessorTestAbstract.createDB();
+      databaseService = ArtifactProcessorAbstract.createDB();
       logger.info("Started Neo4j Test instance after {}", sw);
     }
   }

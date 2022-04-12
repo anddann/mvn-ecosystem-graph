@@ -25,7 +25,7 @@ services:
       - crawler-net
 
   redis-task:
-    image: ghcr.io/anddann/redis-task:0.5.0-SNAPSHOT
+    image: ghcr.io/anddann/redis-task:0.5.2-SNAPSHOT
     restart: always
     deploy:
       mode: global
@@ -36,7 +36,7 @@ services:
 
   maven-central-indexer:
     restart: always
-    image: ghcr.io/anddann/mvn-central-indexer:0.5.0-SNAPSHOT
+    image: ghcr.io/anddann/mvn-central-indexer:0.5.2-SNAPSHOT
     depends_on:
       - rabbitmq
       - redis
@@ -61,7 +61,7 @@ services:
 
   worker:
     restart: always
-    image: ghcr.io/anddann/mvn-crawler:0.5.0-SNAPSHOT
+    image: ghcr.io/anddann/mvn-crawler:0.5.2-SNAPSHOT
     deploy:
       replicas: 1
       mode: replicated

@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +22,7 @@ import org.junit.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
-public class ArtifactProcessorTest extends ArtifactProcessorTestAbstract {
+public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
   @Test
   public void testProcess() throws IOException, ParserConfigurationException, SAXException {
@@ -419,7 +418,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorTestAbstract {
       for (MvnArtifactNode node : process) {
         testDependencies(node);
       }
-
     }
 
     // resolve the next one

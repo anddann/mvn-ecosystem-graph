@@ -1,23 +1,20 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import java.io.IOException;
+import java.util.Collection;
+import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-
-public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract {
+public class ArtifactProcessorFurtherTest extends ArtifactProcessorAbstract {
 
   /**
    * Version of <artifactId>junit-jupiter</artifactId> missing
@@ -34,34 +31,34 @@ public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract 
   @Test
   @Ignore
   public void test1() throws IOException, ParserConfigurationException, SAXException {
-      Driver driver = createDriver();
+    Driver driver = createDriver();
 
-      DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
-      ArtifactProcessor artifactProcessor =
-              new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
-      CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
-      artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-      artifactInfo.setGroupId("com.9ls");
-      artifactInfo.setArtifactId("common-util");
-      artifactInfo.setArtifactVersion("1.0.6");
-      artifactInfo.setFileExtension("jar");
-      artifactInfo.setPackaging("jar");
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.9ls");
+    artifactInfo.setArtifactId("common-util");
+    artifactInfo.setArtifactVersion("1.0.6");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
 
-      assertNotNull(process);
-      assertFalse(process.isEmpty());
-      assertEquals(1, process.size());
-      testSerialize(process);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(1, process.size());
+    testSerialize(process);
 
-      for (MvnArtifactNode node : process) {
-          testDependencies(node);
-      }
-      for (MvnArtifactNode node : process) {
-          DoaMvnArtifactNodeImpl.sanityCheck(node);
-      }
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
   }
 
   /**
@@ -79,35 +76,35 @@ public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract 
    */
   @Test
   public void test2() throws IOException, ParserConfigurationException, SAXException {
-        Driver driver = createDriver();
+    Driver driver = createDriver();
 
-        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
-        ArtifactProcessor artifactProcessor =
-                new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
-        CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
-        artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-        artifactInfo.setGroupId("com.4paradigm.openmldb");
-        artifactInfo.setArtifactId("openmldb-spark-connector");
-        artifactInfo.setArtifactVersion("0.4.3");
-        artifactInfo.setFileExtension("jar");
-        artifactInfo.setPackaging("jar");
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.4paradigm.openmldb");
+    artifactInfo.setArtifactId("openmldb-spark-connector");
+    artifactInfo.setArtifactVersion("0.4.3");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
 
-        final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
 
-        assertNotNull(process);
-        assertFalse(process.isEmpty());
-        assertEquals(2, process.size());
-        testSerialize(process);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(2, process.size());
+    testSerialize(process);
 
-        for (MvnArtifactNode node : process) {
-            testDependencies(node);
-        }
-      for (MvnArtifactNode node : process) {
-          DoaMvnArtifactNodeImpl.sanityCheck(node);
-      }
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
     }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
 
   /**
    * 08:43:52.367 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist *
@@ -126,33 +123,33 @@ public class ArtifactProcessorFurtherTest extends ArtifactProcessorTestAbstract 
    */
   @Test
   public void test3() throws IOException, ParserConfigurationException, SAXException {
-        Driver driver = createDriver();
+    Driver driver = createDriver();
 
-        DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
-        ArtifactProcessor artifactProcessor =
-                new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
-        CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
-        artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-        artifactInfo.setGroupId("com.alibaba.lindorm.thirdparty");
-        artifactInfo.setArtifactId("avatica-server");
-        artifactInfo.setArtifactVersion("1.13.4");
-        artifactInfo.setFileExtension("jar");
-        artifactInfo.setPackaging("jar");
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.alibaba.lindorm.thirdparty");
+    artifactInfo.setArtifactId("avatica-server");
+    artifactInfo.setArtifactVersion("1.13.4");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
 
-        final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
 
-        assertNotNull(process);
-        assertFalse(process.isEmpty());
-        assertEquals(3, process.size());
-        testSerialize(process);
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(3, process.size());
+    testSerialize(process);
 
-        for (MvnArtifactNode node : process) {
-            testDependencies(node);
-        }
-      for (MvnArtifactNode node : process) {
-          DoaMvnArtifactNodeImpl.sanityCheck(node);
-      }
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
     }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
 }
