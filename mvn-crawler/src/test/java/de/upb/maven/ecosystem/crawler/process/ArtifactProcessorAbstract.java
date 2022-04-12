@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.neo4j.driver.AuthTokens;
@@ -42,6 +43,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+@Ignore
 public abstract class ArtifactProcessorAbstract {
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
@@ -61,11 +63,32 @@ public abstract class ArtifactProcessorAbstract {
   }
 
   @BeforeClass
-  public static void setupTestDb() throws IOException {
+  public static void setupNeo4jDB() throws IOException {
     if (runEmbedded) {
       Stopwatch sw = Stopwatch.createStarted();
       databasePath = Files.createTempDirectory(CREDENTIAL);
-      databaseService = ArtifactProcessorAbstract.createDB();
+
+      logger.info("Creating dbms in {}", databasePath);
+
+      BoltConnector bolt = new BoltConnector("0");
+
+      GraphDatabaseService graphDb =
+          new GraphDatabaseFactory()
+              .newEmbeddedDatabaseBuilder(databasePath.toFile())
+              .setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
+              .setConfig(GraphDatabaseSettings.string_block_size, "60")
+              .setConfig(GraphDatabaseSettings.array_block_size, "300")
+              .setConfig(bolt.enabled, Settings.TRUE)
+              .setConfig(bolt.type, "BOLT")
+              .setConfig(bolt.listen_address, LISTEN_ADDRESS)
+              .newGraphDatabase();
+
+      // Registers a shutdown hook for the Neo4j instance so that it
+      // shuts down nicely when the VM exits (even if you "Ctrl-C" the
+      // running application).
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDb.shutdown()));
+
+      databaseService = graphDb;
       logger.info("Started Neo4j Test instance after {}", sw);
     }
   }
@@ -76,31 +99,6 @@ public abstract class ArtifactProcessorAbstract {
       databaseService.shutdown();
       FileUtils.deleteRecursively(databasePath.toFile());
     }
-  }
-
-  public static GraphDatabaseService createDB() {
-
-    logger.info("Creating dbms in {}", databasePath);
-
-    BoltConnector bolt = new BoltConnector("0");
-
-    GraphDatabaseService graphDb =
-        new GraphDatabaseFactory()
-            .newEmbeddedDatabaseBuilder(databasePath.toFile())
-            .setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
-            .setConfig(GraphDatabaseSettings.string_block_size, "60")
-            .setConfig(GraphDatabaseSettings.array_block_size, "300")
-            .setConfig(bolt.enabled, Settings.TRUE)
-            .setConfig(bolt.type, "BOLT")
-            .setConfig(bolt.listen_address, LISTEN_ADDRESS)
-            .newGraphDatabase();
-
-    // Registers a shutdown hook for the Neo4j instance so that it
-    // shuts down nicely when the VM exits (even if you "Ctrl-C" the
-    // running application).
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDb.shutdown()));
-
-    return graphDb;
   }
 
   public static void testSerialize(Collection<MvnArtifactNode> nodes) {
