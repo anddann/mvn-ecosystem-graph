@@ -240,7 +240,10 @@ public class ArtifactProcessor {
                     nextDep, x -> new ArrayDeque<>());
             orDefault.push(nextDepMgmt);
             // we found a depmgmt node
-            iteratorDepMgmt.remove();
+            // do not remove the node, to handle duplicate dependencies without a version, @see test
+            // case
+            // de.upb.maven.ecosystem.crawler.process.ArtifactProcessorTest.testDuplicateDependencyWithoutVersion
+            // iteratorDepMgmt.remove();
           }
         }
       }

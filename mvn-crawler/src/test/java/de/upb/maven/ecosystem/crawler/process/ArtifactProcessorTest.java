@@ -24,6 +24,46 @@ import org.xml.sax.SAXException;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
+  @Test
+  /**
+   * 07:41:19.109 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=org.neo4j,
+   * artifact=neo4j-cypher, version=3.3.5, repoURL=https://repo1.maven.org/maven2/, scmURL=null,
+   * classifier=null, packaging=jar, properties={scala.binary.version=2.11, doclint-groups=none,
+   * version-package=cypher.internal, maven.javadoc.failOnError=false, scala.version=2.11.12})
+   */
+  public void testDuplicateDependencyWithoutVersion()
+      throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.neo4j");
+    artifactInfo.setArtifactId("neo4j-cypher");
+    artifactInfo.setArtifactVersion("3.3.5");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
   /**
    * Version of <artifactId>junit-jupiter</artifactId> missing
    *
