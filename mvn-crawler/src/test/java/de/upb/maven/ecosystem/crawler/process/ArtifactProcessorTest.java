@@ -24,6 +24,214 @@ import org.xml.sax.SAXException;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
+  /**
+   * *
+   *
+   * <p>02:13:15.280 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=org.dashbuilder,
+   * artifact=dashbuilder-displayer-screen, version=7.67.0.Final,
+   * repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, packaging=jar,
+   * properties={}), 02:13:15.280 [pool-1-thread-1] ERROR d.u.m.e.p.d.DoaMvnArtifactNodeImpl - The
+   * version is invalid: com.google.gwt:gwt-user:null-null -- null
+   */
+  @Test
+  public void classifierPropertyRelation()
+      throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.dashbuilder");
+    artifactInfo.setArtifactId("dashbuilder-displayer-screen");
+    artifactInfo.setArtifactVersion("7.67.0.Final");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(18, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  /**
+   * 12:30:38.553 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=com.azure,
+   * artifact=azure-core, version=1.27.0, repoURL=https://repo1.maven.org/maven2/, scmURL=null,
+   * classifier=null, packaging=jar,
+   */
+  @Test
+  public void classifierProperty() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.azure");
+    artifactInfo.setArtifactId("azure-core");
+    artifactInfo.setArtifactVersion("1.27.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(3, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  /**
+   * 14:40:24.840 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=org.jboss.weld,
+   * artifact=weld-core-impl, version=2.0.2.Final, repoURL=https://repo1.maven.org/maven2/,
+   * scmURL=null, classifier=null, packaging=jar, properties={})
+   *
+   * @throws IOException
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   */
+  @Test
+  @Ignore
+  public void versionInvalid1() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.jboss.weld");
+    artifactInfo.setArtifactId("weld-core-impl");
+    artifactInfo.setArtifactVersion("2.0.2.Final");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  @Test
+  @Ignore
+  /**
+   * 12:30:36.856 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2,
+   * group=com.github.AnonymousMister.plugin, artifact=confusion-maven-plugin, version=0.2,
+   * repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, packaging=maven-plugin,
+   * properties={maven.compiler.target=8, maven.compiler.source=8, mavenVersion=3.6.0})
+   */
+  public void duplicateDepOptionWithoutVersion()
+      throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.github.AnonymousMister.plugin");
+    artifactInfo.setArtifactId("confusion-maven-plugin");
+    artifactInfo.setArtifactVersion("0.2");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(1, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  /**
+   * 15:00:23.627 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
+   * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=org.apache.jackrabbit,
+   * artifact=jackrabbit-spi2dav, version=2.6.9, repoURL=https://repo1.maven.org/maven2/,
+   * scmURL=null, classifier=null, packaging=jar, properties={})
+   *
+   * @throws IOException
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   */
+  @Test
+  public void handleBlankClassifier()
+      throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.apache.jackrabbit");
+    artifactInfo.setArtifactId("jackrabbit-spi2dav");
+    artifactInfo.setArtifactVersion("2.6.9");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(3, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
   @Test
   /**
    * 07:41:19.109 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist

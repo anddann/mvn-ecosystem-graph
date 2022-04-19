@@ -419,6 +419,8 @@ public class ArtifactProcessor {
         dependencyPropertiesToResolve.add(dependencyRelation);
       } else if (StringUtils.contains(dependencyRelation.getTgtNode().getArtifact(), "$")) {
         dependencyPropertiesToResolve.add(dependencyRelation);
+      } else if (StringUtils.contains(dependencyRelation.getTgtNode().getClassifier(), "$")) {
+        dependencyPropertiesToResolve.add(dependencyRelation);
       }
     }
 
@@ -426,7 +428,7 @@ public class ArtifactProcessor {
     // outlined above. This means that if a parent project uses a variable, then its
     // definition in the child, not the parent, will be the one eventually used.
     // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
-    // Thus maybe, we should resolve all parents first and then create an aggreaget set of
+    // Thus maybe, we should resolve all parents first and then create an aggregate set of
     // properties... :(
 
     MvnArtifactNode currentNode = mvnArtifactNode;
@@ -450,10 +452,18 @@ public class ArtifactProcessor {
         String resolvedArtifact =
             resolveProperty(
                 dep.getArtifact(), currentNode, currentNode.getProperties(), new HashSet<>());
+        String resolvedClassifier =
+            resolveProperty(
+                dep.getClassifier(), currentNode, currentNode.getProperties(), new HashSet<>());
 
         dep.setGroup(resolvedGroup);
         dep.setArtifact(resolvedArtifact);
         dep.setVersion(resolvedVersion);
+
+        // safety check - maybe superflous
+        dep.setClassifier(resolvedClassifier);
+        // also set the classifier in the dependency relation
+        poll.setClassifier(resolvedClassifier);
 
         // check if the artifact is now fully resolved
 
@@ -488,9 +498,19 @@ public class ArtifactProcessor {
               resolvedArtifact =
                   resolveProperty(profileDep.getArtifact(), currentNode, newPros, new HashSet<>());
 
+              resolvedClassifier =
+                  resolveProperty(
+                      dep.getClassifier(),
+                      currentNode,
+                      currentNode.getProperties(),
+                      new HashSet<>());
+
               profileDep.setGroup(resolvedGroup);
               profileDep.setArtifact(resolvedArtifact);
               profileDep.setVersion(resolvedVersion);
+              profileDep.setClassifier(resolvedClassifier);
+              // also set the classifier in the dependency relation
+              profileDepRelation.setClassifier(resolvedClassifier);
 
               if (isFullyResolved(profileDep)) {
 

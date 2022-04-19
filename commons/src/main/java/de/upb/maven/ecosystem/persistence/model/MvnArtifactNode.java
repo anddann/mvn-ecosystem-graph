@@ -93,6 +93,6 @@ public class MvnArtifactNode implements Serializable {
   }
 
   public void setClassifier(String classifier) {
-    this.classifier = (classifier == null) ? "null" : classifier;
+    this.classifier = (classifier == null || StringUtils.isBlank(classifier)) ? "null" : classifier;
   }
 }

@@ -188,7 +188,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         }
       }
       // check if the numbers are consecutive
-
       for (int i = 0; i < seenPos.size(); i++) {
         final boolean contains = seenPos.contains(i);
         if (!contains) {
@@ -198,7 +197,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       }
     }
     {
-      // check position of dependencies mgmg
+      // check position of dependencies management
       final Map<Integer, List<DependencyRelation>> collect =
           mvnArtifactNode.getDependencyManagement().stream()
               .collect(groupingBy(DependencyRelation::getPosition));

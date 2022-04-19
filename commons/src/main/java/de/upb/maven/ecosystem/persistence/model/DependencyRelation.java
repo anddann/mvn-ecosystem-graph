@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 // the relationship
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -24,7 +25,7 @@ public class DependencyRelation implements Serializable {
   private DependencyScope scope = DependencyScope.COMPILE;
   private boolean optional;
 
-  // The profile namer under which this dependency is included, by default ="". Thus, the dependency
+  // The profile name under which this dependency is included, by default ="". Thus, the dependency
   // is always included
   private String profile = "";
 
@@ -50,6 +51,6 @@ public class DependencyRelation implements Serializable {
   private List<String> exclusions = new ArrayList<>();
 
   public void setClassifier(String classifier) {
-    this.classifier = classifier == null ? "null" : classifier;
+    this.classifier = (classifier == null || StringUtils.isBlank(classifier)) ? "null" : classifier;
   }
 }
