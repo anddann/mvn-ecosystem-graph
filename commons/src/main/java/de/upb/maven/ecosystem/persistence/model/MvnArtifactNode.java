@@ -31,6 +31,8 @@ public class MvnArtifactNode implements Serializable {
     FULL;
   }
 
+  // FIXME: add the Model from maven as a serialized artifact to the properties...
+
   // only used as an identifier for neo4j
   @JsonProperty("hashId")
   public String getHashId() {
@@ -59,7 +61,7 @@ public class MvnArtifactNode implements Serializable {
   // When no packaging is declared, Maven assumes the packaging is the default: jar
   private String packaging = "jar";
 
-  // the maven properties declared in this artifact's pom which are inherited to the children
+  // the maven properties declared in this artifact's pom. They are inherited to the children
   // @JsonProperty("properties_json")
   // flatt the nested object into a string, since neo4j does not support complex types
   //  @JsonSerialize(using = ToStringSerializer.class)

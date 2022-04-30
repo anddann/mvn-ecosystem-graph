@@ -24,6 +24,38 @@ import org.xml.sax.SAXException;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
+  @Test
+  public void nonTestedJackson() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.fasterxml.jackson.core");
+    artifactInfo.setArtifactId("jackson-databind");
+    artifactInfo.setArtifactVersion("2.13.2");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
   /**
    * *
    *

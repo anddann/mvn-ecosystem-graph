@@ -68,6 +68,36 @@ public class ArtifactProcessor {
 
   private final HashMap<String, Model> nodeToModel = new HashMap<>();
 
+  private Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {
+    Model model = this.nodeToModel.get(genId(mvnArtifactNode));
+    if (model == null) {
+
+      // Derive pom.xml from info
+      CustomArtifactInfo pomInfo = new CustomArtifactInfo();
+      pomInfo.setClassifier(mvnArtifactNode.getClassifier());
+      pomInfo.setGroupId(mvnArtifactNode.getGroup());
+      pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
+      pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
+      pomInfo.setRepoURL(this.repoUrl);
+      pomInfo.setFileExtension("pom");
+      Path pomLocation = null;
+      try {
+        pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
+
+        final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
+
+        if (mavenProject != null && mavenProject.getModel() != null) {
+          model = mavenProject.getModel();
+          // add to the hashset - to get profile information later (easily)
+          nodeToModel.put(genId(mvnArtifactNode), model);
+        }
+      } catch (IOException exception) {
+        LOGGER.error("Failed to resolve model for {}", pomInfo);
+      }
+    }
+    return model;
+  }
+
   private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
 
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
@@ -472,7 +502,7 @@ public class ArtifactProcessor {
         } else {
 
           // else we have to check if it defined in a profile
-          final Model model = this.nodeToModel.get(genId(currentNode));
+          final Model model = this.nodeToModelGetOrFetchModel(currentNode);
           boolean isDirectDependency = mvnArtifactNode.getDependencies().contains(poll);
 
           for (Profile profile : model.getProfiles()) {
