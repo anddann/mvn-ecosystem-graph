@@ -1,11 +1,16 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import static org.junit.Assert.*;
-
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.driver.Driver;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -16,42 +21,40 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.driver.Driver;
-import org.xml.sax.SAXException;
+
+import static org.junit.Assert.*;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
-  // 08:22:46.893 [pool-1-thread-9] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
-  // io.streamnative:pulsar-client-auth-athenz:2.7.4.0-null , failed with ,
-  @Test@Ignore
-  public void unresolvableProperty() throws IOException, ParserConfigurationException, SAXException {
+  // 16:29:00.483 [pool-1-thread-21] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
+  // org.springframework.cloud:spring-cloud-skipper-autoconfigure:2.5.2-null , failed with ,
+  @Test
+  @Ignore
+  public void unresolvedPropertyInVersion()
+      throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
-    artifactInfo.setGroupId("io.streamnative");
-    artifactInfo.setArtifactId("pulsar-client-auth-athenz");
-    artifactInfo.setArtifactVersion("2.7.4.0");
+    artifactInfo.setGroupId("org.springframework.cloud");
+    artifactInfo.setArtifactId("spring-cloud-skipper-autoconfigure");
+    artifactInfo.setArtifactVersion("2.5.2");
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
     final boolean b =
-            doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
-                    artifactInfo.getGroupId(),
-                    artifactInfo.getArtifactId(),
-                    artifactInfo.getArtifactVersion(),
-                    artifactInfo.getClassifier(),
-                    artifactInfo.getPackaging(),
-                    Neo4JConnector.getCrawlerVersion());
+        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+            artifactInfo.getGroupId(),
+            artifactInfo.getArtifactId(),
+            artifactInfo.getArtifactVersion(),
+            artifactInfo.getClassifier(),
+            artifactInfo.getPackaging(),
+            Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
 
@@ -70,6 +73,97 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
   }
 
+  // 16:29:03.334 [pool-1-thread-29] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
+  // org.openehealth.ipf.tutorials:ipf-tutorials-iheclient:3.7.3-null , failed with
+
+  @Test
+  @Ignore
+  public void typoInProperty() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("org.openehealth.ipf.tutorials");
+    artifactInfo.setArtifactId("ipf-tutorials-iheclient");
+    artifactInfo.setArtifactVersion("3.7.3");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final boolean b =
+        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+            artifactInfo.getGroupId(),
+            artifactInfo.getArtifactId(),
+            artifactInfo.getArtifactVersion(),
+            artifactInfo.getClassifier(),
+            artifactInfo.getPackaging(),
+            Neo4JConnector.getCrawlerVersion());
+
+    assertFalse(b);
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+  @Test
+  @Ignore
+  public void unresolvableProperty()
+      throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("io.streamnative");
+    artifactInfo.setArtifactId("pulsar-client-auth-athenz");
+    artifactInfo.setArtifactVersion("2.7.4.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final boolean b =
+        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+            artifactInfo.getGroupId(),
+            artifactInfo.getArtifactId(),
+            artifactInfo.getArtifactVersion(),
+            artifactInfo.getClassifier(),
+            artifactInfo.getPackaging(),
+            Neo4JConnector.getCrawlerVersion());
+
+    assertFalse(b);
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
 
   @Test
   public void nonTestedJackson() throws IOException, ParserConfigurationException, SAXException {
@@ -112,7 +206,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
-//    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
+    //    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
   }
 
   /**
@@ -202,8 +296,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * artifact=weld-core-impl, version=2.0.2.Final, repoURL=https://repo1.maven.org/maven2/,
    * scmURL=null, classifier=null, packaging=jar, properties={})
    *
-   *
-   * java.xml.ws has no version
+   * <p>java.xml.ws has no version
    *
    * @throws IOException
    * @throws ParserConfigurationException
@@ -374,14 +467,14 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * * version=1.0.6, repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, *
    * packaging=jar, properties={}),
    *
-   *
    * @throws IOException
    * @throws ParserConfigurationException
    * @throws SAXException
    */
   @Test
   @Ignore
-  public void dependencyWithoutVersion() throws IOException, ParserConfigurationException, SAXException {
+  public void dependencyWithoutVersion()
+      throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
