@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -24,6 +25,52 @@ import org.xml.sax.SAXException;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
+  // 08:22:46.893 [pool-1-thread-9] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
+  // io.streamnative:pulsar-client-auth-athenz:2.7.4.0-null , failed with ,
+  @Test@Ignore
+  public void unresolvableProperty() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("io.streamnative");
+    artifactInfo.setArtifactId("pulsar-client-auth-athenz");
+    artifactInfo.setArtifactVersion("2.7.4.0");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final boolean b =
+            doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+                    artifactInfo.getGroupId(),
+                    artifactInfo.getArtifactId(),
+                    artifactInfo.getArtifactVersion(),
+                    artifactInfo.getClassifier(),
+                    artifactInfo.getPackaging(),
+                    Neo4JConnector.getCrawlerVersion());
+
+    assertFalse(b);
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    assertEquals(5, process.size());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+  }
+
+
   @Test
   public void nonTestedJackson() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -41,6 +88,17 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
+    final boolean b =
+        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+            artifactInfo.getGroupId(),
+            artifactInfo.getArtifactId(),
+            artifactInfo.getArtifactVersion(),
+            artifactInfo.getClassifier(),
+            artifactInfo.getPackaging(),
+            Neo4JConnector.getCrawlerVersion());
+
+    assertFalse(b);
+
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
 
     assertNotNull(process);
@@ -54,6 +112,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     for (MvnArtifactNode node : process) {
       DoaMvnArtifactNodeImpl.sanityCheck(node);
     }
+//    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
   }
 
   /**
