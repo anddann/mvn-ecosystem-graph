@@ -202,6 +202,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * artifact=weld-core-impl, version=2.0.2.Final, repoURL=https://repo1.maven.org/maven2/,
    * scmURL=null, classifier=null, packaging=jar, properties={})
    *
+   *
+   * java.xml.ws has no version
+   *
    * @throws IOException
    * @throws ParserConfigurationException
    * @throws SAXException
@@ -364,12 +367,13 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   /**
-   * Version of <artifactId>junit-jupiter</artifactId> missing
+   * Version of <artifactId>junit-jupiter</artifactId> is NOT specified
    *
    * <p>* 08:43:56.332 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist *
    * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=com.9ls, artifact=common-util,
    * * version=1.0.6, repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, *
    * packaging=jar, properties={}),
+   *
    *
    * @throws IOException
    * @throws ParserConfigurationException
@@ -377,7 +381,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    */
   @Test
   @Ignore
-  public void test1() throws IOException, ParserConfigurationException, SAXException {
+  public void dependencyWithoutVersion() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
