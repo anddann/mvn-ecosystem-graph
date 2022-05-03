@@ -17,9 +17,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.MultiBits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.Bits;
 import org.apache.maven.index.ArtifactInfo;
@@ -201,8 +202,7 @@ public class MavenIndexProducer {
 
     try {
       final IndexReader ir = searcher.getIndexReader();
-      Bits liveDocs = MultiFields.getLiveDocs(ir);
-      int numOfDocs = ir.maxDoc() - 1;
+      Bits liveDocs = MultiBits.getLiveDocs(ir);
       for (int i = 0; i < ir.maxDoc(); i++) {
         int docIndex = i;
 
@@ -225,6 +225,13 @@ public class MavenIndexProducer {
             customArtifactInfo.setDistribution(ai.getRemoteUrl());
             customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
             customArtifactInfo.setPackaging(ai.getPackaging());
+
+            // FIXME -- delete later
+            if (!(StringUtils.equals("jackson-annotations", ai.getArtifactId())
+                && StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
+                && StringUtils.equals("2.13.2", ai.getVersion()))) {
+              continue;
+            }
 
             if (ArtifactUtils.ignoreArtifact(customArtifactInfo)) {
               LOGGER.info(
@@ -266,7 +273,7 @@ public class MavenIndexProducer {
         }
       }
     } finally {
-      LOGGER.info("Maven Crawler Crashed");
+      LOGGER.info("Maven Crawler Finished");
       centralContext.releaseIndexSearcher(searcher);
       LOGGER.info("Released Index");
     }

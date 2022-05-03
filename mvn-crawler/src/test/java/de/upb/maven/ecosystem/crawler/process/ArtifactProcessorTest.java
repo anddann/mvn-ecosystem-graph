@@ -209,6 +209,50 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     //    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
   }
 
+  @Test
+  public void nonTestedJackson2() throws IOException, ParserConfigurationException, SAXException {
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+
+    CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
+    artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
+    artifactInfo.setGroupId("com.fasterxml.jackson.core");
+    artifactInfo.setArtifactId("jackson-annotations");
+    artifactInfo.setArtifactVersion("2.13.2");
+    artifactInfo.setFileExtension("jar");
+    artifactInfo.setPackaging("jar");
+
+    final boolean b =
+        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+            artifactInfo.getGroupId(),
+            artifactInfo.getArtifactId(),
+            artifactInfo.getArtifactVersion(),
+            artifactInfo.getClassifier(),
+            artifactInfo.getPackaging(),
+            Neo4JConnector.getCrawlerVersion());
+
+    assertFalse(b);
+
+    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+
+    assertNotNull(process);
+    assertFalse(process.isEmpty());
+    testSerialize(process);
+
+    for (MvnArtifactNode node : process) {
+      testDependencies(node);
+    }
+    for (MvnArtifactNode node : process) {
+      DoaMvnArtifactNodeImpl.sanityCheck(node);
+    }
+
+    //    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
+  }
+
   /**
    * *
    *
