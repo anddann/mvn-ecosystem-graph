@@ -1,16 +1,11 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import static org.junit.Assert.*;
+
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.driver.Driver;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -21,8 +16,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import static org.junit.Assert.*;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.driver.Driver;
+import org.xml.sax.SAXException;
 
 public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 

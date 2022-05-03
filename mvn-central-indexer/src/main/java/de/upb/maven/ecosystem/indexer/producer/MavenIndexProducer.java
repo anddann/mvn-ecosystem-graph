@@ -10,24 +10,23 @@ import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiBits;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Bits;
 import org.apache.maven.index.ArtifactInfo;
+import org.apache.maven.index.FlatSearchRequest;
+import org.apache.maven.index.FlatSearchResponse;
 import org.apache.maven.index.Indexer;
+import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
+import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.updater.IndexUpdateRequest;
 import org.apache.maven.index.updater.IndexUpdateResult;
 import org.apache.maven.index.updater.IndexUpdater;
@@ -45,6 +44,14 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -81,6 +88,7 @@ public class MavenIndexProducer {
   private final IndexUpdater indexUpdater;
   private final Wagon httpWagon;
   private final DoaMvnArtifactNodeImpl doaMvnArtifactNode;
+  private IndexingContext centralContext;
 
   public MavenIndexProducer(
       RabbitMQCollective collective, DoaMvnArtifactNodeImpl doaMvnArtifactNode)
@@ -128,7 +136,7 @@ public class MavenIndexProducer {
     indexers.add(plexusContainer.lookup(IndexCreator.class, "maven-plugin"));
 
     // Create context for central repository index
-    IndexingContext centralContext =
+    centralContext =
         indexer.createIndexingContext(
             "central-context",
             "central",
@@ -209,6 +217,7 @@ public class MavenIndexProducer {
         if (liveDocs == null || liveDocs.get(docIndex)) {
           final Document doc = ir.document(docIndex);
           final ArtifactInfo ai = IndexUtils.constructArtifactInfo(doc, centralContext);
+          // FIXME use the url to determine the file extension
           String fileExtToUse = getFileExtToUse(ai);
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
@@ -225,13 +234,6 @@ public class MavenIndexProducer {
             customArtifactInfo.setDistribution(ai.getRemoteUrl());
             customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
             customArtifactInfo.setPackaging(ai.getPackaging());
-
-            // FIXME -- delete later
-            if (!(StringUtils.equals("jackson-annotations", ai.getArtifactId())
-                && StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
-                && StringUtils.equals("2.13.2", ai.getVersion()))) {
-              continue;
-            }
 
             if (ArtifactUtils.ignoreArtifact(customArtifactInfo)) {
               LOGGER.info(
@@ -279,6 +281,22 @@ public class MavenIndexProducer {
     }
   }
 
+  public void search(String groupId, String artifactId) throws IOException {
+    Query gidQ = indexer.constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId));
+    Query aidQ = indexer.constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId));
+
+    BooleanQuery bq =
+        new BooleanQuery.Builder()
+            .add(gidQ, BooleanClause.Occur.MUST)
+            .add(aidQ, BooleanClause.Occur.MUST)
+            .build();
+    FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(bq, centralContext));
+
+    for (ArtifactInfo ai : response.getResults()) {
+      System.out.println(ai.toString());
+    }
+  }
+
   // sieht so aus, als ob je nach index, die file extension nicht immer stimmt
   // z.b. im clojar index haben die  extension pom|jar|...., deswegen nur 80 artifacts
   @Nullable
@@ -295,12 +313,18 @@ public class MavenIndexProducer {
       if (artifactInfo.getFileExtension().equalsIgnoreCase("jar")) {
         return "jar";
       }
+      if (artifactInfo.getFileExtension().equalsIgnoreCase("module")) {
+        return "jar";
+      }
       if (artifactInfo.getFileExtension().equalsIgnoreCase("war")) {
         return "war";
       }
     }
     if (artifactInfo.getPackaging() != null) {
       if (artifactInfo.getPackaging().equalsIgnoreCase("jar")) {
+        return "jar";
+      }
+      if (artifactInfo.getPackaging().equalsIgnoreCase("bundle")) {
         return "jar";
       }
       if (artifactInfo.getPackaging().equalsIgnoreCase("war")) {
