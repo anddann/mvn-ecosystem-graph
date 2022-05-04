@@ -34,10 +34,15 @@ public class MvnArtifactNode implements Serializable {
   // FIXME: add the Model from maven as a serialized artifact to the properties...
 
   // only used as an identifier for neo4j
+
+  /**
+   * A node is uniquely identified by g,a,v, classifier
+   * @return
+   */
   @JsonProperty("hashId")
   public String getHashId() {
     return DigestUtils.sha1Hex(
-        group + ":" + artifact + ":" + version + "-" + classifier + ":" + packaging);
+        group + ":" + artifact + ":" + version + "-" + classifier);
   }
 
   private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;

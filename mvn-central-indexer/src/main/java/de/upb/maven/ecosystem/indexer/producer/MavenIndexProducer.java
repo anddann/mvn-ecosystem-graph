@@ -10,6 +10,14 @@ import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiBits;
@@ -42,16 +50,9 @@ import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -222,6 +223,11 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
+                        if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
+                            && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
+                          continue;
+                        }
+
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
             customArtifactInfo.setArtifactId(ai.getArtifactId());
@@ -281,7 +287,7 @@ public class MavenIndexProducer {
     }
   }
 
-  public void search(String groupId, String artifactId) throws IOException {
+  public Collection<ArtifactInfo> search(String groupId, String artifactId) throws IOException {
     Query gidQ = indexer.constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId));
     Query aidQ = indexer.constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId));
 
@@ -292,9 +298,7 @@ public class MavenIndexProducer {
             .build();
     FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(bq, centralContext));
 
-    for (ArtifactInfo ai : response.getResults()) {
-      System.out.println(ai.toString());
-    }
+    return response.getResults();
   }
 
   // sieht so aus, als ob je nach index, die file extension nicht immer stimmt

@@ -179,7 +179,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setArtifactId("jackson-databind");
     artifactInfo.setArtifactVersion("2.13.2");
     artifactInfo.setFileExtension("jar");
-    artifactInfo.setPackaging("jar");
+    artifactInfo.setPackaging("bundle");
 
     final boolean b =
         doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(

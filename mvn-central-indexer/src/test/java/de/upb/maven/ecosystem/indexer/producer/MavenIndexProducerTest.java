@@ -1,10 +1,16 @@
 package de.upb.maven.ecosystem.indexer.producer;
 
 import java.io.IOException;
+
+import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 
 public class MavenIndexProducerTest {
 
@@ -12,8 +18,10 @@ public class MavenIndexProducerTest {
   @Ignore // collective cannot be null, this makes testing very hard
   public void perform()
       throws PlexusContainerException, ComponentLookupException, IOException, InterruptedException {
-
-    MavenIndexProducer mavenIndexProducer = new MavenIndexProducer(null, null);
+    Driver driver =  GraphDatabase.driver(
+            "bolt://heap-snapshots.cs.upb.de:7687", AuthTokens.basic("neo4j", "PdBwGaQecqX69M28"));
+    DoaMvnArtifactNodeImpl daoMvnArtifactNode = new DoaMvnArtifactNodeImpl(driver);
+    MavenIndexProducer mavenIndexProducer = new MavenIndexProducer(null, daoMvnArtifactNode);
     mavenIndexProducer.perform(null);
   }
 }
