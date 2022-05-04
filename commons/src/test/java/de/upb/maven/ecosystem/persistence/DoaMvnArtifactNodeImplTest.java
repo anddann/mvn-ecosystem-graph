@@ -357,12 +357,7 @@ public class DoaMvnArtifactNodeImplTest {
 
     final boolean b =
         doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
-            "g",
-            "a",
-            "1.0",
-            null,
-            mvnArtifactNode.getPackaging(),
-            Neo4JConnector.getCrawlerVersion());
+            "g", "a", "1.0", null, Neo4JConnector.getCrawlerVersion());
     assertTrue(b);
   }
 

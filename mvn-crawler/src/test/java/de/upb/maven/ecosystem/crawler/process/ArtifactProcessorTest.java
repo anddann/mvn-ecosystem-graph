@@ -52,7 +52,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            artifactInfo.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
@@ -99,7 +98,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            artifactInfo.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
@@ -144,7 +142,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            artifactInfo.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
@@ -187,7 +184,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            artifactInfo.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
@@ -231,7 +227,6 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            artifactInfo.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
 
     assertFalse(b);
@@ -932,7 +927,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setArtifactId("syncope");
       artifactInfo.setArtifactVersion("1.0.3-incubating");
       artifactInfo.setFileExtension("jar");
-      artifactInfo.setPackaging("jar");
+      artifactInfo.setPackaging("pom");
 
       final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
 
@@ -959,7 +954,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setArtifactId("syncope-console");
     artifactInfo.setArtifactVersion("1.0.3-incubating");
     artifactInfo.setFileExtension("jar");
-    artifactInfo.setPackaging("jar");
+    artifactInfo.setPackaging("pom");
 
     final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
     testSerialize(process);

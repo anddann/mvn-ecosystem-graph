@@ -55,7 +55,6 @@ public class ArtifactManager {
             ai.getArtifactId(),
             ai.getArtifactVersion(),
             ai.getClassifier(),
-            ai.getPackaging(),
             Neo4JConnector.getCrawlerVersion());
     if (existsInDb) {
       LOGGER.info(

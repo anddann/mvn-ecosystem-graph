@@ -37,12 +37,12 @@ public class MvnArtifactNode implements Serializable {
 
   /**
    * A node is uniquely identified by g,a,v, classifier
+   *
    * @return
    */
   @JsonProperty("hashId")
   public String getHashId() {
-    return DigestUtils.sha1Hex(
-        group + ":" + artifact + ":" + version + "-" + classifier);
+    return DigestUtils.sha1Hex(group + ":" + artifact + ":" + version + "-" + classifier);
   }
 
   private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;

@@ -61,10 +61,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         tx.run(
             "CREATE CONSTRAINT uni_mvnartifact_hashids IF NOT EXISTS FOR (node:MvnArtifact) REQUIRE node.hashId IS UNIQUE");
         // add index for lookup - increases speed heavily
-//        tx.run(
-//            "CREATE INDEX gavcp_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier, n.packaging)");
+        //        tx.run(
+        //            "CREATE INDEX gavcp_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group,
+        // n.artifact, n.version, n.classifier, n.packaging)");
         tx.run(
-                "CREATE INDEX gavc_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier)");
+            "CREATE INDEX gavc_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier)");
         tx.commit();
       }
     }
@@ -140,11 +141,12 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         logger.error("The dependency relation classifier do not match");
         throw new IllegalArgumentException("The dependency relation classifier do not match");
       }
-//      if (!StringUtils.equals(
-//          dependencyRelation.getType(), dependencyRelation.getTgtNode().getPackaging())) {
-//        logger.error("The dependency relation type/packaging do not match");
-//        throw new IllegalArgumentException("The dependency relation type/packaging do not match");
-//      }
+      //      if (!StringUtils.equals(
+      //          dependencyRelation.getType(), dependencyRelation.getTgtNode().getPackaging())) {
+      //        logger.error("The dependency relation type/packaging do not match");
+      //        throw new IllegalArgumentException("The dependency relation type/packaging do not
+      // match");
+      //      }
     }
 
     for (DependencyRelation dependencyRelation : mvnArtifactNode.getDependencyManagement()) {
@@ -154,11 +156,12 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         logger.error("The import dependency relation classifier do not match");
         throw new IllegalArgumentException("The dependency relation classifier do not match");
       }
-//      if (!StringUtils.equals(
-//          dependencyRelation.getType(), dependencyRelation.getTgtNode().getPackaging())) {
-//        logger.error("The import dependency relation type/packaging do not match");
-//        throw new IllegalArgumentException("The dependency relation type/packaging do not match");
-//      }
+      //      if (!StringUtils.equals(
+      //          dependencyRelation.getType(), dependencyRelation.getTgtNode().getPackaging())) {
+      //        logger.error("The import dependency relation type/packaging do not match");
+      //        throw new IllegalArgumentException("The dependency relation type/packaging do not
+      // match");
+      //      }
       if (dependencyRelation.getScope() == DependencyScope.IMPORT
           && !StringUtils.equals(dependencyRelation.getType(), "pom")) {
         logger.error("The import dependency relation type do not match");
@@ -294,7 +297,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     Map<String, Object> parameters = new HashMap<>();
     // match based on gav, classifier
     String query =
-        "MATCH (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier) RETURN n";
+        "MATCH (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier}) RETURN n";
 
     parameters.put("group", instance.getGroup());
     parameters.put("artifact", instance.getArtifact());
@@ -377,7 +380,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     Map<String, Object> parameters = new HashMap<>();
 
     String query =
-        "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier)"
+        "MERGE (n:MvnArtifact {group:$group, artifact:$artifact, version:$version, classifier:$classifier})"
             + " ON CREATE SET n = $props";
     if (node.getResolvingLevel() == MvnArtifactNode.ResolvingLevel.FULL) {
       // only override if the resolving level of this node is full
@@ -651,11 +654,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     return String.format(
         "%1$s.group = $%2$s AND %1$s.artifact = $%3$s AND %1$s.version = $%4$s AND %1$s.classifier = $%5$s",
-        label,
-        groupParameter,
-        artifactParameter,
-        versionParameter,
-        classifierParameter);
+        label, groupParameter, artifactParameter, versionParameter, classifierParameter);
   }
 
   private String createMatchingCondition(
@@ -707,11 +706,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
     return String.format(
         "MATCH (%s:MvnArtifact {group:$%s, artifact:$%s, version:$%s, classifier:$%s})",
-        label,
-        groupParameter,
-        artifactParameter,
-        versionParameter,
-        classifierParameter);
+        label, groupParameter, artifactParameter, versionParameter, classifierParameter);
   }
 
   private String createMatchExpression(
@@ -730,11 +725,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
   }
 
   public boolean containsNodeWithVersionGQ(
-      String groupId,
-      String artifactId,
-      String version,
-      String classifier,
-      String crawlerVersion) {
+      String groupId, String artifactId, String version, String classifier, String crawlerVersion) {
 
     if (StringUtils.isBlank(classifier)) {
       // neo4j cannot deal with null values
@@ -744,8 +735,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     HashMap<String, Object> parameters = new HashMap<>();
     // match based on gav, classifier
     String query =
-        createMatchExpression(
-                groupId, artifactId, version, classifier,  "n", null, parameters)
+        createMatchExpression(groupId, artifactId, version, classifier, "n", null, parameters)
             + " return n.crawlerVersion, n.resolvingLevel";
     Pair<String, String> versionNumberAndResolvingLevel;
     try (Session session = driver.session()) {
