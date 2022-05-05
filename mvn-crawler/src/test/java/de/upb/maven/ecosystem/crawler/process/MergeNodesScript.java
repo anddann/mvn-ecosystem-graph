@@ -1,13 +1,5 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +7,13 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 
 @Ignore
 public class MergeNodesScript {
@@ -27,49 +26,47 @@ public class MergeNodesScript {
             "bolt://heap-snapshots.cs.upb.de:7687", AuthTokens.basic("neo4j", "PdBwGaQecqX69M28"));
     Class clazz = MergeNodesScript.class;
 
+    ExecutorService executorService = Executors.newFixedThreadPool(25);
 
-      ExecutorService executorService = Executors.newFixedThreadPool(25);
-
-      HashSet<String> groups = new HashSet<String>();
+    HashSet<String> groups = new HashSet<String>();
     int i = 0;
     try (BufferedReader br =
         new BufferedReader(new InputStreamReader(clazz.getResourceAsStream("/export.csv")))) {
       String line = br.readLine();
 
       while (line != null) {
-          System.out.println("Line: " + i++);
+        System.out.println("Line: " + i++);
 
-          line = line.trim();
+        line = line.trim();
         line = line.replaceAll("[^\\x00-\\x7F]", "");
         final boolean add = groups.add(line);
         if (add) {
 
-            String finalLine = line;
-            executorService.submit(()->{
+          String finalLine = line;
+          executorService.submit(
+              () -> {
                 runQuery(driver, finalLine);
-            });
-
+              });
         }
         line = br.readLine();
       }
     } catch (IOException exception) {
       exception.printStackTrace();
     }
-   awaitTerminationAfterShutdown(executorService);
-
+    awaitTerminationAfterShutdown(executorService);
   }
 
-    public void awaitTerminationAfterShutdown(ExecutorService threadPool) {
-        threadPool.shutdown();
-        try {
-            if (!threadPool.awaitTermination(60, TimeUnit.DAYS)) {
-                threadPool.shutdownNow();
-            }
-        } catch (InterruptedException ex) {
-            threadPool.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+  public void awaitTerminationAfterShutdown(ExecutorService threadPool) {
+    threadPool.shutdown();
+    try {
+      if (!threadPool.awaitTermination(60, TimeUnit.DAYS)) {
+        threadPool.shutdownNow();
+      }
+    } catch (InterruptedException ex) {
+      threadPool.shutdownNow();
+      Thread.currentThread().interrupt();
     }
+  }
 
   public void runQuery(Driver driver, String groupId) {
     System.out.println("Running on group: " + groupId);
