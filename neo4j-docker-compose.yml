@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  neo4j:
+    image: neo4j:4.4.3
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/PdBwGaQecqX69M28
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=["apoc"]
+    volumes:
+      - /data2/docker_volumes2/neo4j_maven/plugins:/plugins
+      - /data2/docker_volumes2/neo4j_maven/data:/data
+      - /data2/docker_volumes2/neo4j_maven/import:/import
