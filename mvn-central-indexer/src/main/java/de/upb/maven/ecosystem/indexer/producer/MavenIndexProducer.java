@@ -50,7 +50,6 @@ import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
@@ -223,10 +222,10 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
-//            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
-//                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
-//              continue;
-//            }
+            //            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
+            //                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
+            //              continue;
+            //            }
 
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
