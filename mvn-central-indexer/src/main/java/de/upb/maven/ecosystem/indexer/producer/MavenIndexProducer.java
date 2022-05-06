@@ -223,10 +223,10 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
-            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
-                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
-              continue;
-            }
+//            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
+//                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
+//              continue;
+//            }
 
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
