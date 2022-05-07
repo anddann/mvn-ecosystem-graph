@@ -34,12 +34,13 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
-  private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private final Driver driver;
 
@@ -49,7 +50,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       this.createUniqueConstraint();
     } catch (ClientException ex) {
       // may fail on embedded database checks
-      logger.error("Failed create constraint", ex);
+      LOGGER.error("Failed create constraint", ex);
     }
   }
 
@@ -85,14 +86,14 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     if (StringUtils.isBlank(mvnArtifactNode.getGroup())
         || StringUtils.startsWith(mvnArtifactNode.getGroup(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error(
+      LOGGER.error(
           "The group is invalid: {} -- {}", getGav(mvnArtifactNode), mvnArtifactNode.getGroup());
       throw new IllegalArgumentException("The group is invalid");
     }
     if (StringUtils.isBlank(mvnArtifactNode.getArtifact())
         || StringUtils.startsWith(mvnArtifactNode.getArtifact(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error(
+      LOGGER.error(
           "The artifact is invalid: {} -- {}",
           getGav(mvnArtifactNode),
           mvnArtifactNode.getArtifact());
@@ -101,7 +102,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     if (StringUtils.isBlank(mvnArtifactNode.getVersion())
         || StringUtils.startsWith(mvnArtifactNode.getVersion(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error(
+      LOGGER.error(
           "The version is invalid: {} -- {}",
           getGav(mvnArtifactNode),
           mvnArtifactNode.getVersion());
@@ -111,7 +112,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     if (StringUtils.isBlank(mvnArtifactNode.getClassifier())
         || StringUtils.startsWith(mvnArtifactNode.getClassifier(), "$")) {
       // the parent artifact may only have the packaging pom
-      logger.error(
+      LOGGER.error(
           "The classifier is invalid:  {} -- {}",
           getGav(mvnArtifactNode),
           mvnArtifactNode.getClassifier());
@@ -130,7 +131,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     if (mvnArtifactNode.getParent().isPresent()
         && !StringUtils.equals(mvnArtifactNode.getParent().get().getPackaging(), "pom")) {
       // the parent artifact may only have the packaging pom
-      logger.error("The packaging of the parent is invalid");
+      LOGGER.error("The packaging of the parent is invalid");
       throw new IllegalArgumentException("A Maven parent must have packaging: pom");
     }
     // validate direct dependencies
@@ -138,7 +139,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       // check for sanity
       if (!StringUtils.equals(
           dependencyRelation.getClassifier(), dependencyRelation.getTgtNode().getClassifier())) {
-        logger.error("The dependency relation classifier do not match");
+        LOGGER.error("The dependency relation classifier do not match");
         throw new IllegalArgumentException("The dependency relation classifier do not match");
       }
       //      if (!StringUtils.equals(
@@ -153,7 +154,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       // check for sanity
       if (!StringUtils.equals(
           dependencyRelation.getClassifier(), dependencyRelation.getTgtNode().getClassifier())) {
-        logger.error("The import dependency relation classifier do not match");
+        LOGGER.error("The import dependency relation classifier do not match");
         throw new IllegalArgumentException("The dependency relation classifier do not match");
       }
       //      if (!StringUtils.equals(
@@ -164,12 +165,12 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       //      }
       if (dependencyRelation.getScope() == DependencyScope.IMPORT
           && !StringUtils.equals(dependencyRelation.getType(), "pom")) {
-        logger.error("The import dependency relation type do not match");
+        LOGGER.error("The import dependency relation type do not match");
         throw new IllegalArgumentException("The import dependency relation type do not match");
       }
       if (dependencyRelation.getScope() == DependencyScope.IMPORT
           && !StringUtils.equals(dependencyRelation.getTgtNode().getPackaging(), "pom")) {
-        logger.error("The import dependency has not packaging: pom");
+        LOGGER.error("The import dependency has not packaging: pom");
         throw new IllegalArgumentException("The import dependency has not packaging: pom");
       }
     }
@@ -182,13 +183,13 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       for (Map.Entry<Integer, List<DependencyRelation>> entry : collect.entrySet()) {
 
         if (!seenPos.add(entry.getKey())) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
         // if multiple with same position different profiles
         final long count = entry.getValue().stream().map(x -> x.getProfile()).count();
         if (count != entry.getValue().size()) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
       }
@@ -196,7 +197,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       for (int i = 0; i < seenPos.size(); i++) {
         final boolean contains = seenPos.contains(i);
         if (!contains) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
       }
@@ -210,13 +211,13 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       for (Map.Entry<Integer, List<DependencyRelation>> entry : collect.entrySet()) {
 
         if (!seenPos.add(entry.getKey())) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
         // if multiple with same position different profiles
         final long count = entry.getValue().stream().map(x -> x.getProfile()).count();
         if (count != entry.getValue().size()) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
       }
@@ -224,14 +225,14 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       for (int i = 0; i < seenPos.size(); i++) {
         final boolean contains = seenPos.contains(i);
         if (!contains) {
-          logger.error("Position of dependency is incorrect");
+          LOGGER.error("Position of dependency is incorrect");
           throw new IllegalArgumentException("Position of dependency is incorrect");
         }
       }
     }
 
     if (StringUtils.isBlank(mvnArtifactNode.getPackaging())) {
-      logger.error("Packaging is blank");
+      LOGGER.error("Packaging is blank");
       throw new IllegalArgumentException("Packaging is blank");
     }
 
@@ -278,7 +279,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         try {
           properties.put(key, OBJECT_MAPPER.treeToValue(value, Object.class));
         } catch (JsonProcessingException e) {
-          logger.warn("Error deserializing primitive value " + value, e);
+          LOGGER.warn("Error deserializing primitive value " + value, e);
         }
       }
     }
@@ -521,7 +522,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
           instance, instance.getDependencies(), session, this::createDirectDependencyRelationQuery);
     }
 
-    logger.info("Finished writing node to Neo4j in {}", sw.elapsed(TimeUnit.MILLISECONDS));
+    LOGGER.info("Finished writing node to Neo4j in {}", sw.elapsed(TimeUnit.MILLISECONDS));
   }
 
   @Override
@@ -626,7 +627,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       // TODO?? reference to tgtNode and srceNode, set them...
 
     } catch (JsonProcessingException e) {
-      logger.error("Could not parse node from db back", e);
+      LOGGER.error("Could not parse node from db back", e);
       e.printStackTrace();
     }
     return depRelation;
@@ -754,6 +755,18 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                   return null;
                 }
               });
+    } catch (NoSuchRecordException ex) {
+      LOGGER.error(
+          "Exception for query with: "
+              + groupId
+              + ":"
+              + artifactId
+              + ":"
+              + version
+              + "-"
+              + classifier,
+          ex);
+      return false;
     }
     if (versionNumberAndResolvingLevel == null) {
       // we did not find a node
@@ -859,7 +872,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       stringStringMap = OBJECT_MAPPER.readValue(o, Map.class);
       mvnArtifactNode.setProperties(stringStringMap);
     } catch (JsonProcessingException e) {
-      logger.error("Could not parse node from db back", e);
+      LOGGER.error("Could not parse node from db back", e);
       e.printStackTrace();
     }
     return mvnArtifactNode;
