@@ -52,7 +52,6 @@ public abstract class ArtifactProcessorAbstract {
   private static Path databasePath;
   private static GraphDatabaseService databaseService;
   private static DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-  @Rule public TestName currentTestName = new TestName();
 
   static {
     try {
@@ -61,6 +60,8 @@ public abstract class ArtifactProcessorAbstract {
       e.printStackTrace();
     }
   }
+
+  @Rule public TestName currentTestName = new TestName();
 
   @BeforeClass
   public static void setupNeo4jDB() throws IOException {

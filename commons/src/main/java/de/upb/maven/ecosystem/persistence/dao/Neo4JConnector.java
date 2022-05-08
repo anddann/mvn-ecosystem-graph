@@ -43,6 +43,7 @@ public class Neo4JConnector {
     if (instance == null) {
       instance =
           GraphDatabase.driver(getNeo4jURL(), AuthTokens.basic(getNeo4jUser(), getNeo4jPASS()));
+      instance.verifyConnectivity();
     }
     return instance;
   }

@@ -54,24 +54,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
   }
 
-  private void createUniqueConstraint() {
-    try (Session session = driver.session()) {
-      try (Transaction tx = session.beginTransaction()) {
-
-        // add unique constraints
-        tx.run(
-            "CREATE CONSTRAINT uni_mvnartifact_hashids IF NOT EXISTS FOR (node:MvnArtifact) REQUIRE node.hashId IS UNIQUE");
-        // add index for lookup - increases speed heavily
-        //        tx.run(
-        //            "CREATE INDEX gavcp_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group,
-        // n.artifact, n.version, n.classifier, n.packaging)");
-        tx.run(
-            "CREATE INDEX gavc_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier)");
-        tx.commit();
-      }
-    }
-  }
-
   private static String getGav(MvnArtifactNode node) {
     return node.getGroup()
         + ":"
@@ -249,6 +231,24 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
             .collect(Collectors.toList()));
     for (MvnArtifactNode nodeToCheck : mvnArtifactNodes) {
       sanityCheckProperties(nodeToCheck);
+    }
+  }
+
+  private void createUniqueConstraint() {
+    try (Session session = driver.session()) {
+      try (Transaction tx = session.beginTransaction()) {
+
+        // add unique constraints
+        tx.run(
+            "CREATE CONSTRAINT uni_mvnartifact_hashids IF NOT EXISTS FOR (node:MvnArtifact) REQUIRE node.hashId IS UNIQUE");
+        // add index for lookup - increases speed heavily
+        //        tx.run(
+        //            "CREATE INDEX gavcp_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group,
+        // n.artifact, n.version, n.classifier, n.packaging)");
+        tx.run(
+            "CREATE INDEX gavc_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier)");
+        tx.commit();
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.redis;
 
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.StringUtils;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -19,11 +20,23 @@ import redis.clients.jedis.JedisPool;
 public class Redis2Neo4JDB {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Redis2Neo4JDB.class);
-  private final JedisPool jedisPool;
+  private static final String db_write_lock_name = "dbWriteLock";
   private static ScheduledExecutorService exec;
   private static Redis2Neo4JDB moveRedisToNeo4J;
+  private final JedisPool jedisPool;
+  private final DaoMvnArtifactNode doaMvnArtifactNode;
+  private Duration redis_write_lock_timeout;
+  private String lockName;
+  private Long insertCounter;
 
-  public static void init(String url, DoaMvnArtifactNodeImpl doaMvnArtifactNode) {
+  private Redis2Neo4JDB(String url, DaoMvnArtifactNode doaMvnArtifactNode) {
+    jedisPool = new JedisPool(url, 6379);
+    this.doaMvnArtifactNode = doaMvnArtifactNode;
+
+    clearAllLocks();
+  }
+
+  public static void init(String url, DaoMvnArtifactNode doaMvnArtifactNode) {
     exec = Executors.newSingleThreadScheduledExecutor();
     LOGGER.info("Initialize Redis2Neo4JDB");
     moveRedisToNeo4J = new Redis2Neo4JDB(url, doaMvnArtifactNode);
@@ -41,21 +54,8 @@ public class Redis2Neo4JDB {
           }
         },
         0,
-        10,
+        30,
         TimeUnit.MINUTES);
-  }
-
-  private final DoaMvnArtifactNodeImpl postgresDBHandler;
-  private static final String db_write_lock_name = "dbWriteLock";
-  private Duration redis_write_lock_timeout;
-  private String lockName;
-  private Long insertCounter;
-
-  private Redis2Neo4JDB(String url, DoaMvnArtifactNodeImpl doaMvnArtifactNode) {
-    jedisPool = new JedisPool(url, 6379);
-    this.postgresDBHandler = doaMvnArtifactNode;
-
-    clearAllLocks();
   }
 
   private void clearAllLocks() {
@@ -111,8 +111,11 @@ public class Redis2Neo4JDB {
     }
     LOGGER.info("Acquired Log");
     try {
-      moveRedisToPSQL();
+      moveRedisToNeo4j();
       clearBuffer();
+    } catch (ServiceUnavailableException ex) {
+      LOGGER.error("Failed to establish connect", ex);
+      System.exit(-1);
     } catch (Exception e) {
       LOGGER.error("Failed to write to Neo4j", e);
     } finally {
@@ -124,14 +127,13 @@ public class Redis2Neo4JDB {
   private void insertIntoNeo4j(MvnArtifactNode mavenArtifactMetadata) {
 
     try {
-
-      postgresDBHandler.saveOrMerge(mavenArtifactMetadata);
+      doaMvnArtifactNode.saveOrMerge(mavenArtifactMetadata);
     } catch (IllegalArgumentException e) {
       LOGGER.error("Failed to persist {}", mavenArtifactMetadata.toString());
     }
   }
 
-  private void moveRedisToPSQL() {
+  private void moveRedisToNeo4j() {
     try (Jedis jedis = jedisPool.getResource()) {
       String insertCounter = jedis.get("insertCounter");
       if (StringUtils.isBlank(insertCounter)) {

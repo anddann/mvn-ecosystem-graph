@@ -13,8 +13,6 @@
     <artifactId>redis-task</artifactId>
 
 
-
-
     <build>
         <plugins>
             <plugin>

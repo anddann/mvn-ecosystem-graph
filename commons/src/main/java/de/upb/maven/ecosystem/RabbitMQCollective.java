@@ -126,6 +126,14 @@ public abstract class RabbitMQCollective {
     return actorLimit;
   }
 
+  private static boolean reachable() {
+    try (Socket ignored = new Socket(getRabbitMQHostFromEnvironment(), 5672)) {
+      return true;
+    } catch (IOException ignored) {
+      return false;
+    }
+  }
+
   protected void runWorker(Channel channel) throws IOException, TimeoutException {
     DeliverCallback deliverCallback =
         (consumerTag, delivery) -> {
@@ -198,14 +206,6 @@ public abstract class RabbitMQCollective {
       logger.info("[Worker] Run Worker");
       runWorker(activeChannel);
       // usually only consumer define a prefetch counts
-    }
-  }
-
-  private static boolean reachable() {
-    try (Socket ignored = new Socket(getRabbitMQHostFromEnvironment(), 5672)) {
-      return true;
-    } catch (IOException ignored) {
-      return false;
     }
   }
 

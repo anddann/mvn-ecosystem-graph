@@ -39,12 +39,10 @@ import org.slf4j.LoggerFactory;
 
 public class DoaMvnArtifactNodeImplTest {
 
-  private static final boolean runEmbedded = true;
-  private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImplTest.class);
-
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
-
+  private static final boolean runEmbedded = true;
+  private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImplTest.class);
   private static Path databasePath;
   private static GraphDatabaseService databaseService;
 
@@ -65,17 +63,6 @@ public class DoaMvnArtifactNodeImplTest {
     if (databaseService != null) {
       databaseService.shutdown();
       FileUtils.deleteRecursively(databasePath.toFile());
-    }
-  }
-
-  @Before
-  public void clearDb() {
-    try (Session session = createDriver().session()) {
-      try (Transaction tx = session.beginTransaction()) {
-        Query clear = new Query("MATCH (n) DETACH DELETE (n)");
-        tx.run(clear);
-        tx.commit();
-      }
     }
   }
 
@@ -102,6 +89,17 @@ public class DoaMvnArtifactNodeImplTest {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDb.shutdown()));
 
     return graphDb;
+  }
+
+  @Before
+  public void clearDb() {
+    try (Session session = createDriver().session()) {
+      try (Transaction tx = session.beginTransaction()) {
+        Query clear = new Query("MATCH (n) DETACH DELETE (n)");
+        tx.run(clear);
+        tx.commit();
+      }
+    }
   }
 
   private Driver createDriver() {

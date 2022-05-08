@@ -15,18 +15,18 @@ public class RedisWriter {
 
   private final JedisPool jedisPool;
 
+  private RedisWriter(String host) {
+    jedisPool = new JedisPool(host, 6379);
+
+    LOGGER.info("Initialized Redis Connection: " + host);
+  }
+
   public static RedisWriter getInstance() {
 
     if (instance == null) {
       instance = new RedisWriter(RedisSerializerUtil.getRedisURLFromEnvironment());
     }
     return instance;
-  }
-
-  private RedisWriter(String host) {
-    jedisPool = new JedisPool(host, 6379);
-
-    LOGGER.info("Initialized Redis Connection: " + host);
   }
 
   public void shutdownHook() {

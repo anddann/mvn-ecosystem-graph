@@ -7,15 +7,14 @@ import java.util.List;
 
 public class MvnArtifactNodeProxy extends MvnArtifactNode {
 
-  public void setDoaMvnArtifactNode(DoaMvnArtifactNodeImpl doaMvnArtifactNode) {
-    this.doaMvnArtifactNode = doaMvnArtifactNode;
-  }
-
   private transient DoaMvnArtifactNodeImpl doaMvnArtifactNode;
-
   private transient boolean depsResolved = false;
   private transient boolean depMgmtResolved = false;
   private transient boolean parentRes = false;
+
+  public void setDoaMvnArtifactNode(DoaMvnArtifactNodeImpl doaMvnArtifactNode) {
+    this.doaMvnArtifactNode = doaMvnArtifactNode;
+  }
 
   @Override
   public List<DependencyRelation> getDependencies() {

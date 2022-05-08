@@ -26,14 +26,44 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 public class MvnArtifactNode implements Serializable {
 
-  public enum ResolvingLevel {
-    DANGLING,
-    FULL;
-  }
+  private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
 
   // FIXME: add the Model from maven as a serialized artifact to the properties...
 
   // only used as an identifier for neo4j
+  // version number that created this node, e.g., used for updating and check which crawler was used
+  private String crawlerVersion = Neo4JConnector.getCrawlerVersion();
+  private String group;
+  private String artifact;
+  private String version;
+  // TODO set in code for multiple repo support
+  private String repoURL = "https://repo1.maven.org/maven2/";
+  // the url of the repo
+  private String scmURL;
+  // the default is null
+  private String classifier = "null";
+  // When no packaging is declared, Maven assumes the packaging is the default: jar
+  private String packaging = "jar";
+  // the maven properties declared in this artifact's pom. They are inherited to the children
+  // @JsonProperty("properties_json")
+  // flatt the nested object into a string, since neo4j does not support complex types
+  //  @JsonSerialize(using = ToStringSerializer.class)
+  //  @JsonDeserialize(using = CustomNullDeserializer.class)
+  private Map<String, String> properties = new HashMap<>();
+  // relationship type=PARENT // use guava to serialize it for redis :(
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private Optional<MvnArtifactNode> parent = Optional.absent();
+  // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
+  // resolving
+  // relationship type=DEPENDENCY / DEPENDS_ON
+  // inherited to the children,
+  // exclude to avoid recursive calling in the case of circular dependencies
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private List<DependencyRelation> dependencies = new ArrayList<>();
+  // relationship type=DEPENDENCY_MANAGEMENT / MANAGES
+  // exclude to avoid recursive calling in the case of circular dependencies
+  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+  private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
   /**
    * A node is uniquely identified by g,a,v, classifier
@@ -44,51 +74,6 @@ public class MvnArtifactNode implements Serializable {
   public String getHashId() {
     return DigestUtils.sha1Hex(group + ":" + artifact + ":" + version + "-" + classifier);
   }
-
-  private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
-
-  // version number that created this node, e.g., used for updating and check which crawler was used
-  private String crawlerVersion = Neo4JConnector.getCrawlerVersion();
-
-  private String group;
-  private String artifact;
-  private String version;
-
-  // TODO set in code for multiple repo support
-  private String repoURL = "https://repo1.maven.org/maven2/";
-
-  // the url of the repo
-  private String scmURL;
-
-  // the default is null
-  private String classifier = "null";
-
-  // When no packaging is declared, Maven assumes the packaging is the default: jar
-  private String packaging = "jar";
-
-  // the maven properties declared in this artifact's pom. They are inherited to the children
-  // @JsonProperty("properties_json")
-  // flatt the nested object into a string, since neo4j does not support complex types
-  //  @JsonSerialize(using = ToStringSerializer.class)
-  //  @JsonDeserialize(using = CustomNullDeserializer.class)
-  private Map<String, String> properties = new HashMap<>();
-
-  // relationship type=PARENT // use guava to serialize it for redis :(
-  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
-  private Optional<MvnArtifactNode> parent = Optional.absent();
-
-  // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
-  // resolving
-  // relationship type=DEPENDENCY / DEPENDS_ON
-  // inherited to the children,
-  // exclude to avoid recursive calling in the case of circular dependencies
-  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
-  private List<DependencyRelation> dependencies = new ArrayList<>();
-
-  // relationship type=DEPENDENCY_MANAGEMENT / MANAGES
-  // exclude to avoid recursive calling in the case of circular dependencies
-  @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
-  private List<DependencyRelation> dependencyManagement = new ArrayList<>();
 
   public void setParent(Optional<MvnArtifactNode> parent) {
     // quick sanity check
@@ -101,5 +86,10 @@ public class MvnArtifactNode implements Serializable {
 
   public void setClassifier(String classifier) {
     this.classifier = (classifier == null || StringUtils.isBlank(classifier)) ? "null" : classifier;
+  }
+
+  public enum ResolvingLevel {
+    DANGLING,
+    FULL;
   }
 }

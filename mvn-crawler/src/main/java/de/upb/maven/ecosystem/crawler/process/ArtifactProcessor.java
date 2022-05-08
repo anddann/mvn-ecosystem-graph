@@ -67,6 +67,20 @@ public class ArtifactProcessor {
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
 
   private final HashMap<String, Model> nodeToModel = new HashMap<>();
+  private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
+  private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
+
+  public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
+    TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
+    this.daoMvnArtifactNode = doaArtifactNode;
+    this.repoUrl = repoUrl;
+    // FIFO queue
+    worklist[RESOLVE_NODE] = new ArrayDeque<>();
+    // LIFO
+    worklist[RESOLVE_PROPERTIES] = new ArrayDeque<>();
+    worklist[RESOLVE_IMPORTS] = new ArrayDeque<>();
+    worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<>();
+  }
 
   private Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {
     Model model = this.nodeToModel.get(genId(mvnArtifactNode));
@@ -96,20 +110,6 @@ public class ArtifactProcessor {
       }
     }
     return model;
-  }
-
-  private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
-
-  public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
-    TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
-    this.daoMvnArtifactNode = doaArtifactNode;
-    this.repoUrl = repoUrl;
-    // FIFO queue
-    worklist[RESOLVE_NODE] = new ArrayDeque<>();
-    // LIFO
-    worklist[RESOLVE_PROPERTIES] = new ArrayDeque<>();
-    worklist[RESOLVE_IMPORTS] = new ArrayDeque<>();
-    worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<>();
   }
 
   private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
@@ -359,8 +359,6 @@ public class ArtifactProcessor {
     // is a nicer approach
     processResolveWorklist();
   }
-
-  private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
 
   private String resolveProperty(
       String prop,

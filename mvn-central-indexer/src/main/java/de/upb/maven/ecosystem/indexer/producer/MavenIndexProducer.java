@@ -8,7 +8,7 @@ import com.rabbitmq.client.AMQP;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import java.io.File;
 import java.io.IOException;
@@ -87,11 +87,10 @@ public class MavenIndexProducer {
   private final Indexer indexer;
   private final IndexUpdater indexUpdater;
   private final Wagon httpWagon;
-  private final DoaMvnArtifactNodeImpl doaMvnArtifactNode;
+  private final DaoMvnArtifactNode doaMvnArtifactNode;
   private IndexingContext centralContext;
 
-  public MavenIndexProducer(
-      RabbitMQCollective collective, DoaMvnArtifactNodeImpl doaMvnArtifactNode)
+  public MavenIndexProducer(RabbitMQCollective collective, DaoMvnArtifactNode doaMvnArtifactNode)
       throws PlexusContainerException, ComponentLookupException {
     this.doaMvnArtifactNode = doaMvnArtifactNode;
     initMavenRepoUrl();
@@ -270,7 +269,7 @@ public class MavenIndexProducer {
               continue;
             }
             LOGGER.info(
-                "Checking DB for  artifact took: {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                "Checking DB for artifact took: {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             LOGGER.info("Queueing Artifact#{}", crawledArtifacts);
 
