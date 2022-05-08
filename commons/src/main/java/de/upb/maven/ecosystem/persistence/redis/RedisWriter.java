@@ -35,7 +35,7 @@ public class RedisWriter {
 
   public void persist(MvnArtifactNode mvnArtifactNode) throws IllegalArgumentException {
     // existingID is useless here as the db write is executed somere else
-
+  //FIXME -- maybe implement de-duplication here, by removing packing from key? 2022/05/08 - AD
     String key =
         "artifactInsert::"
             + mvnArtifactNode.getGroup()
