@@ -657,7 +657,7 @@ public class ArtifactProcessor {
       // -- same goes obvoiulsy for import nodes... :(
 
       nodeToReturn = optionalMvnArtifactNode.get();
-      LOGGER.info(
+      LOGGER.debug(
           "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     } else {
       nodeToReturn = mvnArtifactNode;
