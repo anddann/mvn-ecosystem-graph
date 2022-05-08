@@ -65,7 +65,7 @@ public class ArtifactManager {
       return;
     }
 
-    LOGGER.info("[Stats] DB lookup took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    LOGGER.debug("[Stats] DB lookup took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
     stopwatch.reset();
     LOGGER.info(
