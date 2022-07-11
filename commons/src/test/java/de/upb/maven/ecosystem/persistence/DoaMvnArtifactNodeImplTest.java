@@ -1,7 +1,5 @@
 package de.upb.maven.ecosystem.persistence;
 
-import static org.junit.Assert.*;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
@@ -10,14 +8,6 @@ import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,6 +29,15 @@ import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class DoaMvnArtifactNodeImplTest {
 
@@ -366,20 +365,19 @@ public class DoaMvnArtifactNodeImplTest {
 
   // TODO get DepMgmt Test
 
-
   @Test
-  public void getGraphTest(){
-//    String query =
-//        "MATCH (n:MvnArtifact)-[r:DEPENDS_ON]->(m:MvnArtifact) where m.group=\"org.jeesl\" and m.artifact=\"jeesl-test\" and m.version=\"0.2.9\" and m.classifier=\"null\" RETURN *";
-//
-//    final Driver driver = GraphDatabase.driver("bolt://heap-snapshots-bullseye.cs.upb.de:7687", AuthTokens.basic("neo4j", "PdBwGaQecqX69M28"));
-//    driver.verifyConnectivity();
-//
-//    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-//
-//    final DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph = doaMvnArtifactNodeImpl.getGraph(query);
-//
-//    // TODO get the jgrapht
-//    System.out.println(graph);
+  public void getGraphTest() {
+    String query =
+        "MATCH (n:MvnArtifact)-[r:DEPENDS_ON]->(m:MvnArtifact) where m.group=\"org.jeesl\" and m.artifact=\"jeesl-test\" and m.version=\"0.2.9\" and m.classifier=\"null\" RETURN *";
+
+    Driver driver = createDriver();
+
+    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+
+    final DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph =
+        doaMvnArtifactNodeImpl.getGraph(query);
+
+    // TODO get the jgrapht
+    System.out.println(graph);
   }
 }
