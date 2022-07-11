@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -369,17 +370,16 @@ public class DoaMvnArtifactNodeImplTest {
   @Test
   public void getGraphTest(){
     String query =
-        "MATCH (n:MvnArtifact)-[:DEPENDS_ON*1..]->(m:MvnArtifact) where m.group=\"org.jeesl\" and m.artifact=\"jeesl-test\" and m.version=\"0.2.9\" and m.classifier=\"null\" RETURN *";
+        "MATCH (n:MvnArtifact)-[r:DEPENDS_ON]->(m:MvnArtifact) where m.group=\"org.jeesl\" and m.artifact=\"jeesl-test\" and m.version=\"0.2.9\" and m.classifier=\"null\" RETURN *";
 
     final Driver driver = GraphDatabase.driver("bolt://heap-snapshots-bullseye.cs.upb.de:7687", AuthTokens.basic("neo4j", "PdBwGaQecqX69M28"));
     driver.verifyConnectivity();
 
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
 
-    final Pair<List<MvnArtifactNode>, List<DependencyRelation>> graph = doaMvnArtifactNodeImpl.getGraph(query);
+    final DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph = doaMvnArtifactNodeImpl.getGraph(query);
 
     // TODO get the jgrapht
-
-
+    System.out.println(graph);
   }
 }

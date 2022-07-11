@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Query;
 import org.neo4j.driver.Record;
@@ -21,6 +23,8 @@ import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.NoSuchRecordException;
+import org.neo4j.driver.internal.value.NodeValue;
+import org.neo4j.driver.internal.value.RelationshipValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,36 +340,52 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
   }
 
   @Override
-  public Pair<List<MvnArtifactNode>, List<DependencyRelation>> getGraph(String query) {
+  public DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> getGraph(String query) {
 
     try (Session session = driver.session()) {
-      Pair<List<MvnArtifactNode>, List<DependencyRelation>> list =
+      DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph =
           session.readTransaction(
               tx -> {
                 Result result = tx.run(query);
                 if (result == null) {
-                  return Pair.of(Collections.emptyList(), Collections.emptyList());
+                  return null;
                 }
-                List<MvnArtifactNode> mvnArtifactNodeList = new ArrayList<>();
-                List<DependencyRelation> dependencyRelationList = new ArrayList<>();
+                HashMap<Long, MvnArtifactNode> nodeIds = new HashMap<>();
+                HashMap<DependencyRelation, Pair<Long, Long>> srcTgtRelationShip = new HashMap<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
-                  final DependencyRelation r = createDepRelation(next.get("r"));
-                  dependencyRelationList.add(r);
-
-                  final MvnArtifactNodeProxy src = createProxyNode(next.get("src"));
-                  mvnArtifactNodeList.add(src);
-
-                  // TODO
-                  r.setTgtNode(src);
-                  src.setDependencies(null);
+                  for (Value value : next.values()) {
+                    if (value instanceof NodeValue) {
+                      final MvnArtifactNodeProxy src = createProxyNode(value);
+                      nodeIds.put(value.asNode().id(), src);
+                    } else if (value instanceof RelationshipValue) {
+                      final DependencyRelation r = createDepRelation(value);
+                      srcTgtRelationShip.put(
+                          r,
+                          Pair.of(
+                              value.asRelationship().startNodeId(),
+                              value.asRelationship().endNodeId()));
+                    }
+                  }
                 }
-                final Pair<List<MvnArtifactNode>, List<DependencyRelation>> of =
-                    Pair.of(mvnArtifactNodeList, dependencyRelationList);
-                return of;
+                // build the jgraphT representation
+                DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> dependencyRelationGraph =
+                    new DefaultDirectedGraph<>(DependencyRelation.class);
+                for (MvnArtifactNode node : nodeIds.values()) {
+                  dependencyRelationGraph.addVertex(node);
+                }
+
+                for (Map.Entry<DependencyRelation, Pair<Long, Long>> srcTgt :
+                    srcTgtRelationShip.entrySet()) {
+                  final Pair<Long, Long> value = srcTgt.getValue();
+                  dependencyRelationGraph.addEdge(nodeIds.get(value.getLeft()), nodeIds.get(value.getRight()), srcTgt.getKey());
+
+                }
+
+                return dependencyRelationGraph;
               });
 
-      return list;
+      return graph;
     }
   }
 
