@@ -352,8 +352,13 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                   final Record next = result.next();
                   final DependencyRelation r = createDepRelation(next.get("r"));
                   dependencyRelationList.add(r);
+
                   final MvnArtifactNodeProxy src = createProxyNode(next.get("src"));
                   mvnArtifactNodeList.add(src);
+
+                  // TODO
+                  r.setTgtNode(src);
+                  src.setDependencies(null);
                 }
                 final Pair<List<MvnArtifactNode>, List<DependencyRelation>> of =
                     Pair.of(mvnArtifactNodeList, dependencyRelationList);
