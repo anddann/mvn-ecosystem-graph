@@ -1,7 +1,10 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
 import com.google.common.base.Optional;
+import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.List;
 
 public interface Dao<T> {
@@ -9,6 +12,8 @@ public interface Dao<T> {
   com.google.common.base.Optional<MvnArtifactNode> get(long id);
 
   Optional<MvnArtifactNode> get(T instance);
+
+  Pair<List<MvnArtifactNode>, List<DependencyRelation>> getGraph(String query);
 
   List<T> getAll();
 
