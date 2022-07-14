@@ -340,7 +340,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       if (n != null) {
 
         if (n instanceof EntityValueAdapter) {
-          return Optional.of(createProxyNode(((EntityValueAdapter) n).asNode()));
+          return Optional.of(createProxyNode(n));
         }
         return Optional.absent();
       }
@@ -361,7 +361,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 }
                 HashMap<Long, MvnArtifactNode> nodeIds = new HashMap<>();
                 HashMap<DependencyRelation, Pair<Long, Long>> srcTgtRelationShip = new HashMap<>();
-                Queue<Value> worklist = new ArrayDeque<>();
+                Queue<Object> worklist = new ArrayDeque<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
                   worklist.addAll(next.values());
@@ -370,9 +370,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                     if (value instanceof ListValue) {
                       final List<Object> objects = ((ListValue) value).asList();
                       for (Object obj : objects) {
-                        if (obj instanceof Value) {
-                          worklist.add((Value) obj);
-                        }
+                        worklist.add(obj);
                       }
                     }
                     if (value instanceof Node) {
@@ -646,7 +644,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         return Optional.absent();
       }
 
-      return Optional.of(createProxyNode((Node) value));
+      return Optional.of(createProxyNode(value));
     }
   }
 
@@ -685,12 +683,33 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       }
 
       if (value instanceof EntityValueAdapter) {
-        return Optional.of(createDepRelation(((EntityValueAdapter) value).asRelationship()));
+        return Optional.of(createDepRelation(value));
       }
       return Optional.absent();
     }
   }
 
+  private DependencyRelation createDepRelation(Value value) {
+    // create the node back
+    final DependencyRelation depRelation =
+        OBJECT_MAPPER.convertValue(value.asMap(), DependencyRelation.class);
+    // get back the properties
+    try {
+      // TODO adapt deserializer in the future to use jackson only
+      final String o = (String) value.asMap().get("exclusions_json");
+      final List<String> stringStringMap;
+      stringStringMap = OBJECT_MAPPER.readValue(o, List.class);
+      depRelation.setExclusions(stringStringMap);
+      // TODO?? reference to tgtNode and srceNode, set them...
+
+    } catch (JsonProcessingException e) {
+      LOGGER.error("Could not parse node from db back", e);
+      e.printStackTrace();
+    }
+    return depRelation;
+  }
+
+  // TODO clean up Typing of Neo3j
   private DependencyRelation createDepRelation(Relationship value) {
     // create the node back
     final DependencyRelation depRelation =
@@ -884,8 +903,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 List<DependencyRelation> dependencyRelations = new ArrayList<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
-                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
-                  final MvnArtifactNodeProxy tgt = createProxyNode((Node) next.get("tgt"));
+                  final DependencyRelation r = createDepRelation(next.get("r"));
+                  final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
                   r.setTgtNode(tgt);
                   dependencyRelations.add(r);
                 }
@@ -929,9 +948,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 while (result.hasNext()) {
                   final Record next = result.next();
 
-                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
+                  final DependencyRelation r = createDepRelation(next.get("r"));
                   dependencyRelationList.add(r);
-                  final MvnArtifactNodeProxy src = createProxyNode((Node) next.get("src"));
+                  final MvnArtifactNodeProxy src = createProxyNode(next.get("src"));
                   mvnArtifactNodeList.add(src);
                 }
                 return mvnArtifactNodeList;
@@ -939,6 +958,25 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
       return list;
     }
+  }
+
+  private MvnArtifactNodeProxy createProxyNode(Value value) {
+    // create the node back
+    final MvnArtifactNodeProxy mvnArtifactNode =
+        OBJECT_MAPPER.convertValue(value.asMap(), MvnArtifactNodeProxy.class);
+    mvnArtifactNode.setDoaMvnArtifactNode(this);
+    // get back the properties
+    try {
+      // TODO adapt deserializer in the future to use jackson only
+      final String o = (String) value.asMap().get("properties_json");
+      final Map<String, String> stringStringMap;
+      stringStringMap = OBJECT_MAPPER.readValue(o, Map.class);
+      mvnArtifactNode.setProperties(stringStringMap);
+    } catch (JsonProcessingException e) {
+      LOGGER.error("Could not parse node from db back", e);
+      e.printStackTrace();
+    }
+    return mvnArtifactNode;
   }
 
   private MvnArtifactNodeProxy createProxyNode(Node value) {
@@ -981,8 +1019,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 List<DependencyRelation> dependencyRelations = new ArrayList<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
-                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
-                  final MvnArtifactNodeProxy tgt = createProxyNode((Node) next.get("tgt"));
+                  final DependencyRelation r = createDepRelation(next.get("r"));
+                  final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
                   r.setTgtNode(tgt);
                   dependencyRelations.add(r);
                 }
