@@ -361,7 +361,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                   return null;
                 }
                 HashMap<Long, MvnArtifactNode> nodeIds = new HashMap<>();
-                HashMap<DependencyRelation, Pair<Long, Long>> srcTgtRelationShip = new HashMap<>();
+                HashMap<Pair<Long, Long>, DependencyRelation> srcTgtRelationShip = new HashMap<>();
                 Queue<Value> worklist = new ArrayDeque<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
@@ -394,7 +394,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                       Relationship relationship = value.asRelationship();
                       final DependencyRelation r = createDepRelation(relationship);
                       srcTgtRelationShip.put(
-                          r, Pair.of(relationship.startNodeId(), relationship.endNodeId()));
+                          Pair.of(relationship.startNodeId(), relationship.endNodeId()), r);
                     } catch (Uncoercible e) {
                       // is not a relationship
                       LOGGER.debug("Not a Relationship");
@@ -414,11 +414,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                   dependencyRelationGraph.addVertex(node);
                 }
 
-                for (Map.Entry<DependencyRelation, Pair<Long, Long>> srcTgt :
+                for (Map.Entry<Pair<Long, Long>, DependencyRelation> srcTgt :
                     srcTgtRelationShip.entrySet()) {
-                  final Pair<Long, Long> value = srcTgt.getValue();
+                  final Pair<Long, Long> key = srcTgt.getKey();
                   dependencyRelationGraph.addEdge(
-                      nodeIds.get(value.getLeft()), nodeIds.get(value.getRight()), srcTgt.getKey());
+                      nodeIds.get(key.getLeft()), nodeIds.get(key.getRight()), srcTgt.getValue());
                 }
 
                 return dependencyRelationGraph;
