@@ -1,5 +1,7 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +10,20 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -23,27 +39,10 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.NoSuchRecordException;
 import org.neo4j.driver.internal.value.ListValue;
-import org.neo4j.driver.internal.value.NodeValue;
-import org.neo4j.driver.internal.value.RelationshipValue;
+import org.neo4j.driver.types.Node;
+import org.neo4j.driver.types.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
@@ -338,7 +337,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       final Value n = record.get("n");
       if (n != null) {
 
-        return Optional.of(createProxyNode(n));
+        return Optional.of(createProxyNode((Node) n));
       }
       return Optional.absent();
     }
@@ -362,26 +361,25 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                   final Record next = result.next();
                   worklist.addAll(next.values());
                   while (!worklist.isEmpty()) {
-                    Value value = worklist.poll();
+                    Object value = worklist.poll();
                     if (value instanceof ListValue) {
-                      final List<Object> objects = value.asList();
+                      final List<Object> objects = ((ListValue) value).asList();
                       for (Object obj : objects) {
                         if (obj instanceof Value) {
                           worklist.add((Value) obj);
                         }
                       }
                     }
-
-                    if (value instanceof NodeValue) {
-                      final MvnArtifactNodeProxy src = createProxyNode(value);
-                      nodeIds.put(value.asNode().id(), src);
-                    } else if (value instanceof RelationshipValue) {
-                      final DependencyRelation r = createDepRelation(value);
+                    if (value instanceof Node) {
+                      final MvnArtifactNodeProxy src = createProxyNode((Node) value);
+                      nodeIds.put(((Node) value).id(), src);
+                    } else if (value instanceof Relationship) {
+                      final DependencyRelation r = createDepRelation((Relationship) value);
                       srcTgtRelationShip.put(
                           r,
                           Pair.of(
-                              value.asRelationship().startNodeId(),
-                              value.asRelationship().endNodeId()));
+                              ((Relationship) value).startNodeId(),
+                              ((Relationship) value).endNodeId()));
                     }
                   }
                 }
@@ -643,7 +641,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         return Optional.absent();
       }
 
-      return Optional.of(createProxyNode(value));
+      return Optional.of(createProxyNode((Node) value));
     }
   }
 
@@ -681,11 +679,11 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         return Optional.absent();
       }
 
-      return Optional.of(createDepRelation(value));
+      return Optional.of(createDepRelation((Relationship) value));
     }
   }
 
-  private DependencyRelation createDepRelation(Value value) {
+  private DependencyRelation createDepRelation(Relationship value) {
     // create the node back
     final DependencyRelation depRelation =
         OBJECT_MAPPER.convertValue(value.asMap(), DependencyRelation.class);
@@ -878,8 +876,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 List<DependencyRelation> dependencyRelations = new ArrayList<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
-                  final DependencyRelation r = createDepRelation(next.get("r"));
-                  final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
+                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
+                  final MvnArtifactNodeProxy tgt = createProxyNode((Node) next.get("tgt"));
                   r.setTgtNode(tgt);
                   dependencyRelations.add(r);
                 }
@@ -923,9 +921,9 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 while (result.hasNext()) {
                   final Record next = result.next();
 
-                  final DependencyRelation r = createDepRelation(next.get("r"));
+                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
                   dependencyRelationList.add(r);
-                  final MvnArtifactNodeProxy src = createProxyNode(next.get("src"));
+                  final MvnArtifactNodeProxy src = createProxyNode((Node) next.get("src"));
                   mvnArtifactNodeList.add(src);
                 }
                 return mvnArtifactNodeList;
@@ -935,7 +933,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
     }
   }
 
-  private MvnArtifactNodeProxy createProxyNode(Value value) {
+  private MvnArtifactNodeProxy createProxyNode(Node value) {
     // create the node back
     final MvnArtifactNodeProxy mvnArtifactNode =
         OBJECT_MAPPER.convertValue(value.asMap(), MvnArtifactNodeProxy.class);
@@ -975,8 +973,8 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 List<DependencyRelation> dependencyRelations = new ArrayList<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
-                  final DependencyRelation r = createDepRelation(next.get("r"));
-                  final MvnArtifactNodeProxy tgt = createProxyNode(next.get("tgt"));
+                  final DependencyRelation r = createDepRelation((Relationship) next.get("r"));
+                  final MvnArtifactNodeProxy tgt = createProxyNode((Node) next.get("tgt"));
                   r.setTgtNode(tgt);
                   dependencyRelations.add(r);
                 }
