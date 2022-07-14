@@ -22,8 +22,9 @@ import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.NoSuchRecordException;
+import org.neo4j.driver.exceptions.value.Uncoercible;
+import org.neo4j.driver.internal.AsValue;
 import org.neo4j.driver.internal.value.EntityValueAdapter;
-import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
 import org.slf4j.Logger;
@@ -361,29 +362,49 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 }
                 HashMap<Long, MvnArtifactNode> nodeIds = new HashMap<>();
                 HashMap<DependencyRelation, Pair<Long, Long>> srcTgtRelationShip = new HashMap<>();
-                Queue<Object> worklist = new ArrayDeque<>();
+                Queue<Value> worklist = new ArrayDeque<>();
                 while (result.hasNext()) {
                   final Record next = result.next();
                   worklist.addAll(next.values());
                   while (!worklist.isEmpty()) {
-                    Object value = worklist.poll();
-                    if (value instanceof ListValue) {
-                      final List<Object> objects = ((ListValue) value).asList();
+                    Value value = worklist.poll();
+                    try {
+                      final List<Object> objects = value.asList();
                       for (Object obj : objects) {
-                        worklist.add(obj);
+                        if (obj instanceof Value) {
+                          worklist.add((Value) obj);
+                        } else if (obj instanceof AsValue) {
+                          worklist.add(((AsValue) obj).asValue());
+                        }
                       }
+                    } catch (Uncoercible ex) {
+                      // is not a list
+                      LOGGER.debug("Not a List");
                     }
-                    if (value instanceof Node) {
-                      final MvnArtifactNodeProxy src = createProxyNode((Node) value);
-                      nodeIds.put(((Node) value).id(), src);
-                    } else if (value instanceof Relationship) {
-                      final DependencyRelation r = createDepRelation((Relationship) value);
+
+                    try {
+                      Node node = value.asNode();
+                      final MvnArtifactNodeProxy src = createProxyNode(node);
+                      nodeIds.put(node.id(), src);
+                    } catch (Uncoercible ex) {
+                      // is not a node
+                      LOGGER.debug("Not a Node");
+                    }
+                    try {
+                      Relationship relationship = value.asRelationship();
+                      final DependencyRelation r = createDepRelation(relationship);
                       srcTgtRelationShip.put(
-                          r,
-                          Pair.of(
-                              ((Relationship) value).startNodeId(),
-                              ((Relationship) value).endNodeId()));
+                          r, Pair.of(relationship.startNodeId(), relationship.endNodeId()));
+                    } catch (Uncoercible e) {
+                      // is not a relationship
+                      LOGGER.debug("Not a Relationship");
                     }
+
+                    //
+                    //                      LOGGER.error(
+                    //                          "Unknown Type: {} of class {}", type,
+                    // value.getClass().getName());
+
                   }
                 }
                 // build the jgraphT representation
