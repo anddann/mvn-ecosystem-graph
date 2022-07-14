@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 public class DependencyRelation implements Serializable {
 
+  @JsonIgnore private long id;
+
   // the default scope is compile
   private DependencyScope scope = DependencyScope.COMPILE;
   private boolean optional;

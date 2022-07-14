@@ -721,6 +721,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       stringStringMap = OBJECT_MAPPER.readValue(o, List.class);
       depRelation.setExclusions(stringStringMap);
       // TODO?? reference to tgtNode and srceNode, set them...
+      // TODO -- set the id  depRelation.setId(value.("id").asLong());
 
     } catch (JsonProcessingException e) {
       LOGGER.error("Could not parse node from db back", e);
@@ -742,6 +743,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
       stringStringMap = OBJECT_MAPPER.readValue(o, List.class);
       depRelation.setExclusions(stringStringMap);
       // TODO?? reference to tgtNode and srceNode, set them...
+      depRelation.setId(value.id());
 
     } catch (JsonProcessingException e) {
       LOGGER.error("Could not parse node from db back", e);
