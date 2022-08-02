@@ -35,7 +35,7 @@ public class Redis2Neo4JDB {
     return insertCounter;
   }
 
-  private static final Driver driver = Neo4JConnector.getDriver();
+
 
   private final DaoMvnArtifactNode doaMvnArtifactNode;
 
@@ -54,6 +54,7 @@ public class Redis2Neo4JDB {
           public void run() {
             LOGGER.info("Triggered Executor for Redis Flush");
             try {
+              final Driver driver = Neo4JConnector.getDriver();
               moveRedisToNeo4J = new Redis2Neo4JDB(url, new DoaMvnArtifactNodeImpl(driver));
               moveRedisToNeo4J.flush();
               driver.close();
