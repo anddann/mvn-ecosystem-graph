@@ -37,6 +37,7 @@ public class Redis2Neo4JDB {
   }
 
   private final DaoMvnArtifactNode doaMvnArtifactNode;
+  private static final Driver driver = Neo4JConnector.getDriver();
 
   private Redis2Neo4JDB(String url, DaoMvnArtifactNode doaMvnArtifactNode) {
     jedisPool = new JedisPool(url, 6379);
@@ -53,10 +54,8 @@ public class Redis2Neo4JDB {
           public void run() {
             LOGGER.info("Triggered Executor for Redis Flush");
             try {
-              final Driver driver = Neo4JConnector.getDriver();
               moveRedisToNeo4J = new Redis2Neo4JDB(url, new DoaMvnArtifactNodeImpl(driver));
               moveRedisToNeo4J.flush();
-              driver.close();
             } catch (Exception e) {
               LOGGER.error("Failed flush redis with", e);
             }
