@@ -5,6 +5,16 @@ import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
+import org.apache.commons.lang3.SerializationException;
+import org.apache.commons.lang3.StringUtils;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
@@ -12,13 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.SerializationException;
-import org.apache.commons.lang3.StringUtils;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 public class Redis2Neo4JDB {
 
@@ -36,7 +39,6 @@ public class Redis2Neo4JDB {
   }
 
   private final DaoMvnArtifactNode doaMvnArtifactNode;
-  private static final Driver driver = Neo4JConnector.getDriver();
 
   private Redis2Neo4JDB(String url, DaoMvnArtifactNode doaMvnArtifactNode) {
     jedisPool = new JedisPool(url, 6379);
@@ -53,8 +55,15 @@ public class Redis2Neo4JDB {
           public void run() {
             LOGGER.info("Triggered Executor for Redis Flush");
             try {
+              final Driver driver =
+                  GraphDatabase.driver(
+                      Neo4JConnector.getNeo4jURL(),
+                      AuthTokens.basic(
+                          Neo4JConnector.getNeo4jUser(), Neo4JConnector.getNeo4jPASS()));
+              driver.verifyConnectivity();
               moveRedisToNeo4J = new Redis2Neo4JDB(url, new DoaMvnArtifactNodeImpl(driver));
               moveRedisToNeo4J.flush();
+              driver.close();
             } catch (Exception e) {
               LOGGER.error("Failed flush redis with", e);
             }
