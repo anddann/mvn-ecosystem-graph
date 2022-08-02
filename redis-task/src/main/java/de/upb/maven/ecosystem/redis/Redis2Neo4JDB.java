@@ -64,7 +64,7 @@ public class Redis2Neo4JDB {
           }
         },
         0,
-        15,
+        30,
         TimeUnit.MINUTES);
   }
 
