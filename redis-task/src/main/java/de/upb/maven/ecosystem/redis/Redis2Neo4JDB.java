@@ -5,13 +5,6 @@ import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.driver.Driver;
@@ -19,6 +12,14 @@ import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Redis2Neo4JDB {
 
@@ -34,8 +35,6 @@ public class Redis2Neo4JDB {
   public Long getInsertCounter() {
     return insertCounter;
   }
-
-
 
   private final DaoMvnArtifactNode doaMvnArtifactNode;
 
