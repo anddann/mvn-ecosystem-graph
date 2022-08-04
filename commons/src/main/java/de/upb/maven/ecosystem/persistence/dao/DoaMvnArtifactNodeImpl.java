@@ -408,6 +408,14 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                         srcTgtRelationShip.put(
                             Pair.of(relationship.startNodeId(), relationship.endNodeId()), r);
                       }
+                      for (Node node : path.nodes()) {
+                        final long id = node.id();
+                        if (!nodeIds.containsKey(id)) {
+                          final MvnArtifactNodeProxy src = createProxyNode(node);
+                          nodeIds.put(id, src);
+                        }
+                      }
+
                     } catch (Uncoercible ex) {
                       LOGGER.debug("Not a path");
                     }
