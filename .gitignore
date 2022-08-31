@@ -3,6 +3,7 @@
 
 .DS_Store
 production.env
+production*.env
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -145,3 +146,4 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,java
+/produ_heap.env
