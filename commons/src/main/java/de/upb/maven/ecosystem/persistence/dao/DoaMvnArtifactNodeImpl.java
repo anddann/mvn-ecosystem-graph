@@ -1,5 +1,7 @@
 package de.upb.maven.ecosystem.persistence.dao;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,30 +10,7 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.DependencyScope;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Query;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.exceptions.ClientException;
-import org.neo4j.driver.exceptions.NoSuchRecordException;
-import org.neo4j.driver.exceptions.value.Uncoercible;
-import org.neo4j.driver.internal.AsValue;
-import org.neo4j.driver.internal.value.EntityValueAdapter;
-import org.neo4j.driver.types.Entity;
-import org.neo4j.driver.types.Node;
-import org.neo4j.driver.types.Path;
-import org.neo4j.driver.types.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,14 +25,50 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Query;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionConfig;
+import org.neo4j.driver.Value;
+import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
+import org.neo4j.driver.exceptions.TransientException;
+import org.neo4j.driver.exceptions.value.Uncoercible;
+import org.neo4j.driver.internal.AsValue;
+import org.neo4j.driver.internal.value.EntityValueAdapter;
+import org.neo4j.driver.types.Entity;
+import org.neo4j.driver.types.Node;
+import org.neo4j.driver.types.Path;
+import org.neo4j.driver.types.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private final Driver driver;
+
+  private static long NEO4J_TRANSACTION_TIMEOUT = -1;
+
+  static {
+    String timeOut = System.getenv("NEO4J_TRANSACTION_TIMEOUT");
+    if (StringUtils.isNotBlank(timeOut)) {
+      try {
+        NEO4J_TRANSACTION_TIMEOUT = Long.parseLong(timeOut);
+      } catch (NumberFormatException e) {
+        // nothing
+      }
+    }
+  }
 
   public DoaMvnArtifactNodeImpl(Driver driver) {
     this.driver = driver;
@@ -353,6 +368,13 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   @Override
   public DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> getGraph(String query) {
+    TransactionConfig config = TransactionConfig.builder().build();
+    if (NEO4J_TRANSACTION_TIMEOUT > 0) {
+      config =
+          TransactionConfig.builder()
+              .withTimeout(Duration.ofSeconds(NEO4J_TRANSACTION_TIMEOUT))
+              .build();
+    }
 
     try (Session session = driver.session()) {
       DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph =
@@ -442,9 +464,13 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                 }
 
                 return dependencyRelationGraph;
-              });
+              },
+              config);
 
       return graph;
+    } catch (TransientException | ClientException ex) {
+      LOGGER.error("Transaction failed with ", ex);
+      return null;
     }
   }
 
