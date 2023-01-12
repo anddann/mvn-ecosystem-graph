@@ -99,6 +99,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <username>${env.DOCKER_USER}</username>
+                    <password>${env.DOCKER_TOKEN}</password>
                     <tag>${project.version}</tag>
                     <repository>${docker.image.prefix}${project.artifactId}</repository>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
