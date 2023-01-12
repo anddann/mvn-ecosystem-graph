@@ -141,7 +141,7 @@
                 </executions>
                 <configuration>
                     <tag>${project.version}</tag>
-                    <repository>${docker.image.prefix}${artifactId}</repository>
+                    <repository>${docker.image.prefix}${project.artifactId}</repository>
                     <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
