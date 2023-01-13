@@ -3,6 +3,7 @@ on:
   release:
     types: [created]
 
+# if pushing docker images fails https://stackoverflow.com/a/71193319 -- make sure to allow access for GitHub Actions to that package registry
 env:
   REGISTRY: ghcr.io
 
