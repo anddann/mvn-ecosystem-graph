@@ -140,7 +140,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+                    <username>${env.DOCKER_USER}</username>
+                    <password>${env.DOCKER_TOKEN}</password>
                     <repository>${docker.image.prefix}/${project.artifactId}</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
