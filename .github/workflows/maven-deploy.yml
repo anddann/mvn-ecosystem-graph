@@ -21,7 +21,7 @@ jobs:
       - name: maven-settings-xml-action
         uses: whelk-io/maven-settings-xml-action@v20
         with:
-          servers: '[{ "id": "ghcr.io", "username": ${{ github.actor }}, "password": ${{ secrets.GITHUB_TOKEN }} }]'
+          servers: '[{ "id": "ghcr.io", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
       - name: Publish package
         run: mvn --batch-mode deploy
         env:
