@@ -18,9 +18,11 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+      - name: maven-settings-xml-action
+        uses: whelk-io/maven-settings-xml-action@v20
+        with:
+          servers: '[{ "id": "ghcr.io", "username": ${{ github.actor }}, "password": ${{ secrets.GITHUB_TOKEN }} }]'
       - name: Publish package
         run: mvn --batch-mode deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCKER_USER: ${{ github.actor }}
-          DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
