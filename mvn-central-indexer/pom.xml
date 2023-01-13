@@ -142,7 +142,7 @@
                 <configuration>
                     <username>${env.DOCKER_USER}</username>
                     <password>${env.DOCKER_TOKEN}</password>
-                    <repository>${docker.image.prefix}${project.artifactId}</repository>
+                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
