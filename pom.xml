@@ -224,10 +224,10 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <name>GitHub</name>
-            <url>https://maven.pkg.github.com/anddann/mvn-ecosystem-graph</url>
+          <id>github</id>
+          <name>GitHub Packages</name>
+          <url>https://maven.pkg.github.com/anddann/mvn-ecosystem-graph</url>
         </repository>
-    </distributionManagement>
+  </distributionManagement>
 
 </project>
