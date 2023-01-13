@@ -3,6 +3,7 @@ on:
   release:
     types: [created]
 
+# if pushing docker images fails https://stackoverflow.com/a/71193319 -- make sure to allow access for GitHub Actions to that package registry
 env:
   REGISTRY: ghcr.io
 
@@ -26,5 +27,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish package
         run: mvn --batch-mode deploy
+        #  Shared REPO requies different token  <!-- https://dev.to/jakub_zalas/how-to-publish-maven-packages-to-a-single-github-repository-3lkc -->
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_GITHUB_TOKEN }}
