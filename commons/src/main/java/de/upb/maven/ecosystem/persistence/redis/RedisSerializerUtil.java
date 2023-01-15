@@ -1,8 +1,9 @@
 package de.upb.maven.ecosystem.persistence.redis;
 
 import com.google.common.base.Strings;
-import java.io.Serializable;
 import org.apache.commons.lang3.SerializationUtils;
+
+import java.io.Serializable;
 
 public class RedisSerializerUtil {
 

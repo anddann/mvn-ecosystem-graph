@@ -3,8 +3,14 @@ package de.upb.maven.ecosystem.persistence.dao;
 import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+
 import java.util.List;
 
+/**
+ * DAO interface for MvnArtifactNode stored in Neo4j
+ *
+ * @param <T>
+ */
 public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
 
   com.google.common.base.Optional<MvnArtifactNode> getParent(long id);
