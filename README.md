@@ -2,7 +2,17 @@
 
 # mvn-ecosystem-graph
 
-The repository contains code for creating a Neo4j database of the artifacts on Maven Central.
+The repository contains code for creating a Neo4j database of the artifacts on Maven Central. It consists of
+
+* a producer: using a downloadable snapshot of the Maven Central Index, the producer pushes information for relevant
+  artifacts (excl. test or src JARS) into a RabbitMQ queue
+* worker(s): take messages from the RabbitMQ queue and produce dependency graphs for Neo4j for an artifact, and writes
+  to Redis or Neo4j
+* redis-task: takes the crawled MvnArtifactNodes from Redis and writes them into Neo43
+
+We **recommend** the use of Redis for the writers. This eases the workers from creating complex Cypher queries or
+ensuring uniqueness. Instead, works can then "burst" all information into Redis, and thus can crawl *significant*
+faster.
 
 ## Requirements
 
