@@ -19,6 +19,10 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Logic for pom file parsing
+ * @author adann
+ */
 public class PomFileUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(PomFileUtil.class);
   private static final Set<String> ARCHIVE_TYPES = Sets.newHashSet("zip", "war", "jar");

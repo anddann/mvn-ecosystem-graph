@@ -5,6 +5,10 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 
+/**
+ * Code to store MvnArtifactNodes and Relationships "intermediate" in Redis
+ * Redis is used to allow the crawler to burst data into redis, without paying attention to uniqueness Neo4j access, etc.
+ */
 public class RedisSerializerUtil {
 
   public static byte[] serialize(Serializable obj) {

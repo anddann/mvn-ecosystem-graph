@@ -12,6 +12,12 @@ import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Use a downloaded snapshot of the Maven Central index, and push artifacts into RabbitMQ for worker
+ * nodes
+ *
+ * @author adann
+ */
 public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 

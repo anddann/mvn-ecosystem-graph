@@ -10,6 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * @author adann
+ */
 public class ArtifactUtils {
   public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
     // CAUTION: the url is not the right download url. The download url ist replaced
@@ -54,7 +57,8 @@ public class ArtifactUtils {
   }
 
   public static boolean ignoreArtifact(CustomArtifactInfo ai) {
-    // FIXME -- I gues we should only handle artifacts witch classifier =null
+    //  we should only handle artifacts with classifier =null for dependency resolving
+    // ignore src, test JARs
     return StringUtils.isNotBlank(ai.getClassifier());
   }
 }

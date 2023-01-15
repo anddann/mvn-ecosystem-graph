@@ -12,10 +12,17 @@ import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.redis.RedisWriter;
-import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
+/**
+ * Take artifact from RabbitMQ and process their dependencies Write the results in Redis or in Neo4j
+ * directly
+ *
+ * @author adann
+ */
 public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 

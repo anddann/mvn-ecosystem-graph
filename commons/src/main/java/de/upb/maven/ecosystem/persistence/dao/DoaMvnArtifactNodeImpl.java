@@ -52,6 +52,11 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
+/**
+ * DOA for lazy fetching of MvnArtifact Nodes (and parents) from Neo4j
+ *
+ * @author adann
+ */
 public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
@@ -268,10 +273,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
         // add unique constraints
         tx.run(
             "CREATE CONSTRAINT uni_mvnartifact_hashids IF NOT EXISTS FOR (node:MvnArtifact) REQUIRE node.hashId IS UNIQUE");
-        // add index for lookup - increases speed heavily
-        //        tx.run(
-        //            "CREATE INDEX gavcp_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group,
-        // n.artifact, n.version, n.classifier, n.packaging)");
+        // add indices for lookup - increases speed heavily;
         tx.run(
             "CREATE INDEX gavc_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact, n.version, n.classifier)");
         tx.run("CREATE INDEX ga_index IF NOT EXISTS FOR (n:MvnArtifact) ON (n.group, n.artifact)");
@@ -442,12 +444,6 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
                     } catch (Uncoercible ex) {
                       LOGGER.debug("Not a path");
                     }
-
-                    //
-                    //                      LOGGER.error(
-                    //                          "Unknown Type: {} of class {}", type,
-                    // value.getClass().getName());
-
                   }
                 }
                 // build the jgraphT representation

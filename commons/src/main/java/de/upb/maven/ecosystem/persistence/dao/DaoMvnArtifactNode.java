@@ -10,6 +10,7 @@ import java.util.List;
  * DAO interface for MvnArtifactNode stored in Neo4j
  *
  * @param <T>
+ * @author adann
  */
 public interface DaoMvnArtifactNode extends Dao<MvnArtifactNode> {
 

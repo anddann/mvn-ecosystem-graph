@@ -9,6 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Redis is used to allow the crawler to burst data into redis, without paying attention to
+ * uniqueness Neo4j access, etc. This code is run in a separate docker container. Regularly fetched
+ * the data from Redis and writes it into Neo4j.
+ */
 public class RedisWriter {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RedisWriter.class);

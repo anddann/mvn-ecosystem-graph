@@ -29,8 +29,6 @@ public class MvnArtifactNode implements Serializable {
 
   private ResolvingLevel resolvingLevel = ResolvingLevel.DANGLING;
 
-  // FIXME: add the Model from maven as a serialized artifact to the properties...
-
   // only used as an identifier for neo4j
   // version number that created this node, e.g., used for updating and check which crawler was used
   private String crawlerVersion = Neo4JConnector.getCrawlerVersion();
