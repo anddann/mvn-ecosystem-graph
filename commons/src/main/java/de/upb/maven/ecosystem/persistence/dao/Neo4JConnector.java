@@ -4,11 +4,16 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 
+/** Initiate connection to a Neo4j database using environment variables */
 public class Neo4JConnector {
+  public static final String CRAWLER_VERSION = System.getenv("CRAWLER_VERSION");
+  public static final String NEO_4_J_URL = System.getenv("NEO4J_URL");
+  public static final String NEO_4_J_USER = System.getenv("NEO4J_USER");
+  public static final String NEO_4_J_PASS = System.getenv("NEO4J_PASS");
   private static Driver instance;
 
   public static String getCrawlerVersion() {
-    String res = System.getenv("CRAWLER_VERSION");
+    String res = CRAWLER_VERSION;
     if (res == null || res.isEmpty()) {
       res = "0.5.0";
     }
@@ -16,7 +21,7 @@ public class Neo4JConnector {
   }
 
   public static String getNeo4jURL() {
-    String res = System.getenv("NEO4J_URL");
+    String res = NEO_4_J_URL;
     if (res == null || res.isEmpty()) {
       res = "bolt://localhost:7687";
     }
@@ -24,7 +29,7 @@ public class Neo4JConnector {
   }
 
   public static String getNeo4jUser() {
-    String res = System.getenv("NEO4J_USER");
+    String res = NEO_4_J_USER;
     if (res == null || res.isEmpty()) {
       res = "neo4j";
     }
@@ -32,7 +37,7 @@ public class Neo4JConnector {
   }
 
   public static String getNeo4jPASS() {
-    String res = System.getenv("NEO4J_PASS");
+    String res = NEO_4_J_PASS;
     if (res == null || res.isEmpty()) {
       res = "test";
     }
