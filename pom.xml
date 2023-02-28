@@ -11,7 +11,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jackson.version>2.11.1</jackson.version>
+        <jackson.version>2.12.7.1</jackson.version>
         <revision>0.6.0-SNAPSHOT</revision>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
