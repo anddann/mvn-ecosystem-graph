@@ -4,7 +4,6 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

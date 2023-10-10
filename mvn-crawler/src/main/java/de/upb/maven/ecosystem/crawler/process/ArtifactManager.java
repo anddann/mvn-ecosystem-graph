@@ -99,7 +99,7 @@ public class ArtifactManager {
     } catch (Exception ex) {
       stopwatch.reset();
       LOGGER.error(
-          "Crawling of artifact:  {} , failed with ",
+          "Crawling of artifact: {} , failed with ",
           ai.getGroupId()
               + ":"
               + ai.getArtifactId()

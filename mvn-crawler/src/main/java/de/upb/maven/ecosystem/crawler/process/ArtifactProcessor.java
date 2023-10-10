@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
@@ -86,14 +88,7 @@ public class ArtifactProcessor {
     Model model = this.nodeToModel.get(genId(mvnArtifactNode));
     if (model == null) {
 
-      // Derive pom.xml from info
-      CustomArtifactInfo pomInfo = new CustomArtifactInfo();
-      pomInfo.setClassifier(mvnArtifactNode.getClassifier());
-      pomInfo.setGroupId(mvnArtifactNode.getGroup());
-      pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
-      pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
-      pomInfo.setRepoURL(this.repoUrl);
-      pomInfo.setFileExtension("pom");
+      CustomArtifactInfo pomInfo = getCustomArtifactInfo(mvnArtifactNode);
       Path pomLocation = null;
       try {
         pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
@@ -110,6 +105,19 @@ public class ArtifactProcessor {
       }
     }
     return model;
+  }
+
+  @NotNull
+  private CustomArtifactInfo getCustomArtifactInfo(MvnArtifactNode mvnArtifactNode) {
+    // Derive pom.xml from info
+    CustomArtifactInfo pomInfo = new CustomArtifactInfo();
+    pomInfo.setClassifier(mvnArtifactNode.getClassifier());
+    pomInfo.setGroupId(mvnArtifactNode.getGroup());
+    pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
+    pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
+    pomInfo.setRepoURL(this.repoUrl);
+    pomInfo.setFileExtension("pom");
+    return pomInfo;
   }
 
   private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
@@ -206,15 +214,15 @@ public class ArtifactProcessor {
     if (!dependencyPropertiesToResolve.isEmpty()) {
       // we still have unresolved properties?
       LOGGER.error("we still have unresolved properties?");
-      String outout = "";
+      StringBuilder outout = new StringBuilder();
       for (MvnArtifactNode missingNodes : dependencyPropertiesToResolve) {
-        outout +=
-            missingNodes.getGroup()
-                + ":"
-                + missingNodes.getArtifact()
-                + ":"
-                + missingNodes.getVersion()
-                + "\n";
+        outout
+            .append(missingNodes.getGroup())
+            .append(":")
+            .append(missingNodes.getArtifact())
+            .append(":")
+            .append(missingNodes.getVersion())
+            .append("\n");
       }
       throw new IllegalStateException("Invalid State. Unresolved Property: " + outout);
     }
@@ -246,7 +254,7 @@ public class ArtifactProcessor {
       final List<DependencyRelation> dependencyMgmNode =
           poll.getDependencyManagement().stream()
               .filter(x -> x.getScope() != DependencyScope.IMPORT)
-              .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
+              .sorted(Comparator.comparingInt(DependencyRelation::getPosition))
               .collect(Collectors.toList());
 
       HashMap<DependencyRelation, Deque<DependencyRelation>> depWithOutVersionDependencyMgmtEdge =
@@ -329,7 +337,7 @@ public class ArtifactProcessor {
       final List<DependencyRelation> importNodes =
           poll.getDependencyManagement().stream()
               .filter(x -> x.getScope() == DependencyScope.IMPORT)
-              .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
+              .sorted(Comparator.comparingInt(DependencyRelation::getPosition))
               .collect(Collectors.toList());
 
       for (DependencyRelation dependencyRelation : importNodes) {
@@ -699,13 +707,7 @@ public class ArtifactProcessor {
   public void addInfoFromPom(MvnArtifactNode mvnArtifactNode) throws IOException {
 
     // Derive pom.xml from info
-    CustomArtifactInfo pomInfo = new CustomArtifactInfo();
-    pomInfo.setClassifier(mvnArtifactNode.getClassifier());
-    pomInfo.setGroupId(mvnArtifactNode.getGroup());
-    pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
-    pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
-    pomInfo.setRepoURL(this.repoUrl);
-    pomInfo.setFileExtension("pom");
+    CustomArtifactInfo pomInfo = getCustomArtifactInfo(mvnArtifactNode);
     Path pomLocation = null;
     try {
       pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
@@ -823,6 +825,7 @@ public class ArtifactProcessor {
   }
 
   private DependencyScope getScope(String mavenScope) {
+    // the default scope
     DependencyScope dependencyScope = DependencyScope.COMPILE;
     if (StringUtils.isNotBlank(mavenScope)) {
       if (mavenScope.equalsIgnoreCase("compile")) {

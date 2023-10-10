@@ -28,7 +28,7 @@ public class MergeNodesScript {
 
     ExecutorService executorService = Executors.newFixedThreadPool(25);
 
-    HashSet<String> groups = new HashSet<String>();
+    HashSet<String> groups = new HashSet<>();
     int i = 0;
     try (BufferedReader br =
         new BufferedReader(new InputStreamReader(clazz.getResourceAsStream("/export.csv")))) {
@@ -44,9 +44,7 @@ public class MergeNodesScript {
 
           String finalLine = line;
           executorService.submit(
-              () -> {
-                runQuery(driver, finalLine);
-              });
+              () -> runQuery(driver, finalLine));
         }
         line = br.readLine();
       }
