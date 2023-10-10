@@ -11,8 +11,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jackson.version>2.11.1</jackson.version>
-        <revision>0.6.0-SNAPSHOT</revision>
+        <jackson.version>2.15.2</jackson.version>
+        <revision>2.0.0-SNAPSHOT</revision>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
