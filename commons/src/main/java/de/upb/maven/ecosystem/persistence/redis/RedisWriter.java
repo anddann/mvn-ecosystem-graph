@@ -1,13 +1,12 @@
 package de.upb.maven.ecosystem.persistence.redis;
 
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 /**
  * Redis is used to allow the crawler to burst data into redis, without paying attention to

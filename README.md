@@ -1,5 +1,9 @@
 ![Maven](https://github.com/anddann/mvn-ecosystem-graph/actions/workflows/maven.yml/badge.svg)
 
+# TODO
+- Error Handling / logging
+- Move to Java11
+
 # Maven-Ecosystem-Graph
 The repository contains code for creating a Neo4j database of the artifacts on Maven Central. It consists of
 

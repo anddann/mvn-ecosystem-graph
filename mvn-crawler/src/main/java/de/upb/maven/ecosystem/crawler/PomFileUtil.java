@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Logic for pom file parsing
+ *
  * @author adann
  */
 public class PomFileUtil {

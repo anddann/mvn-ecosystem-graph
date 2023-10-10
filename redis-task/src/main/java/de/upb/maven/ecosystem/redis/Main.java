@@ -1,7 +1,6 @@
 package de.upb.maven.ecosystem.redis;
 
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
-
 import java.io.IOException;
 import java.net.Socket;
 

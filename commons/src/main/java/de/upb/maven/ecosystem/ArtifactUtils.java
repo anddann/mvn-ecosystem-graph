@@ -4,15 +4,12 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * @author adann
- */
+/** @author adann */
 public class ArtifactUtils {
   public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
     // CAUTION: the url is not the right download url. The download url ist replaced

@@ -3,9 +3,8 @@ package de.upb.maven.ecosystem.persistence.dao;
 import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import org.jgrapht.graph.DefaultDirectedGraph;
-
 import java.util.List;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 /**
  * DAO pattern for database access

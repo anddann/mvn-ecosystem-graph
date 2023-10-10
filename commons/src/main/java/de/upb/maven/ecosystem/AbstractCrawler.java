@@ -3,9 +3,7 @@ package de.upb.maven.ecosystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author adann
- */
+/** @author adann */
 public abstract class AbstractCrawler extends RabbitMQCollective {
   private static final Logger logger = LoggerFactory.getLogger(AbstractCrawler.class);
 
