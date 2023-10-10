@@ -188,8 +188,7 @@ public abstract class ArtifactProcessorAbstract {
     final NodeList dependenciesNodes = doc.getElementsByTagName("dependencies");
     for (int temp = 0; temp < dependenciesNodes.getLength(); temp++) {
       Node node = dependenciesNodes.item(temp);
-      checkMgmt =
-              node.getParentNode().getNodeName().equalsIgnoreCase("dependencyManagement");
+      checkMgmt = node.getParentNode().getNodeName().equalsIgnoreCase("dependencyManagement");
       final NodeList dependencyNodes = ((Element) node).getElementsByTagName("dependency");
       for (int depCount = 0; depCount < dependencyNodes.getLength(); depCount++) {
         Node dependencyNode = dependencyNodes.item(depCount);

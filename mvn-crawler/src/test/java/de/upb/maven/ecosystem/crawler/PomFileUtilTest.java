@@ -1,11 +1,10 @@
 package de.upb.maven.ecosystem.crawler;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class PomFileUtilTest {
 

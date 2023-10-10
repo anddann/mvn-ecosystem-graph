@@ -27,7 +27,6 @@ public class Main extends AbstractCrawler {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

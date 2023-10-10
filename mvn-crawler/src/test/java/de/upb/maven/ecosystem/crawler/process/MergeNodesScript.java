@@ -43,8 +43,7 @@ public class MergeNodesScript {
         if (add) {
 
           String finalLine = line;
-          executorService.submit(
-              () -> runQuery(driver, finalLine));
+          executorService.submit(() -> runQuery(driver, finalLine));
         }
         line = br.readLine();
       }
