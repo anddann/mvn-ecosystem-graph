@@ -26,7 +26,7 @@ public class Main extends AbstractCrawler {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  private RedisWriter useRedis = null;
+
 
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);
@@ -45,7 +45,7 @@ public class Main extends AbstractCrawler {
 
       if (StringUtils.isNotBlank(System.getenv("REDIS"))) {
         LOGGER.info("use redis");
-        this.useRedis = RedisWriter.getInstance();
+        RedisWriter.getInstance();
       }
 
     } catch (Exception e) {
@@ -63,7 +63,7 @@ public class Main extends AbstractCrawler {
       LOGGER.info("[Worker] Received Request");
       ArtifactManager manager =
           new ArtifactManager(new DoaMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
-      manager.process(artifactInfo, 0);
+      manager.process(artifactInfo);
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed Crawling  with", e);
     }

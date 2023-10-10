@@ -53,7 +53,7 @@ public class ArtifactUtils {
     return constructURL(customArtifactInfo);
   }
 
-  public static boolean ignoreArtifact(CustomArtifactInfo ai) {
+  public static boolean ignoredArtifactType(CustomArtifactInfo ai) {
     //  we should only handle artifacts with classifier =null for dependency resolving
     // ignore src, test JARs
     return StringUtils.isNotBlank(ai.getClassifier());

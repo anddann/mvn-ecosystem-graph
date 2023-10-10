@@ -28,7 +28,8 @@ public class PomFileUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(PomFileUtil.class);
   private static final Set<String> ARCHIVE_TYPES = Sets.newHashSet("zip", "war", "jar");
 
-  public PomFileUtil() {}
+  /** Utility class; No need for constructor */
+  private PomFileUtil() {}
 
   @Nullable
   public static MavenProject readPom(Path foundPomFile) {

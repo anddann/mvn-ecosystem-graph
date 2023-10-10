@@ -51,7 +51,7 @@ public abstract class ArtifactProcessorAbstract {
   private static final boolean runEmbedded = true;
   private static Path databasePath;
   private static GraphDatabaseService databaseService;
-  private static DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+  private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
   static {
     try {
@@ -189,9 +189,7 @@ public abstract class ArtifactProcessorAbstract {
     for (int temp = 0; temp < dependenciesNodes.getLength(); temp++) {
       Node node = dependenciesNodes.item(temp);
       checkMgmt =
-          node.getParentNode().getNodeName().equalsIgnoreCase("dependencyManagement")
-              ? true
-              : false;
+              node.getParentNode().getNodeName().equalsIgnoreCase("dependencyManagement");
       final NodeList dependencyNodes = ((Element) node).getElementsByTagName("dependency");
       for (int depCount = 0; depCount < dependencyNodes.getLength(); depCount++) {
         Node dependencyNode = dependencyNodes.item(depCount);

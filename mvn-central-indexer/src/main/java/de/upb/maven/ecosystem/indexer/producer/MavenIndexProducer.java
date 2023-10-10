@@ -239,7 +239,7 @@ public class MavenIndexProducer {
             customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
             customArtifactInfo.setPackaging(ai.getPackaging());
 
-            if (ArtifactUtils.ignoreArtifact(customArtifactInfo)) {
+            if (ArtifactUtils.ignoredArtifactType(customArtifactInfo)) {
               LOGGER.info(
                   "Skipping {}:{}:{}-{}",
                   customArtifactInfo.getGroupId(),

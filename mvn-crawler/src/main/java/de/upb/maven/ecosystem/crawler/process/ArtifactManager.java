@@ -33,13 +33,13 @@ public class ArtifactManager {
     }
   }
 
-  public void process(CustomArtifactInfo ai, int crawledArtifacts) throws IOException {
+  public void process(CustomArtifactInfo ai) throws IOException {
     if (StringUtils.isBlank(ai.getRepoURL())) {
       throw new IOException("No Base URL is given");
     }
     Stopwatch stopwatch = Stopwatch.createStarted();
 
-    if (ArtifactUtils.ignoreArtifact(ai)) {
+    if (ArtifactUtils.ignoredArtifactType(ai)) {
       LOGGER.info(
           "Ignoring artifact {}:{}:{}-{}",
           ai.getGroupId(),
@@ -69,8 +69,7 @@ public class ArtifactManager {
 
     stopwatch.reset();
     LOGGER.info(
-        "Processing Artifact#{} at {}:{}:{}",
-        crawledArtifacts++,
+        "Processing Artifact: {}:{}:{}",
         ai.getGroupId(),
         ai.getArtifactId(),
         ai.getArtifactVersion());
