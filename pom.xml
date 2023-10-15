@@ -33,8 +33,8 @@
     <modules>
         <module>commons</module>
         <module>mvn-central-indexer</module>
-        <module>mvn-crawler</module>
-        <module>redis-task</module>
+        <module>mvn-graph-crawler</module>
+        <module>mvn-graph-redis-task</module>
         <!--   <module>effective-pom</module> -->
 
     </modules>
