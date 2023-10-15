@@ -8,8 +8,7 @@ import com.rabbitmq.client.AMQP;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -87,12 +86,13 @@ public class MavenIndexProducer {
   private final Indexer indexer;
   private final IndexUpdater indexUpdater;
   private final Wagon httpWagon;
-  private final DaoMvnArtifactNode doaMvnArtifactNode;
+  private final ArtifactCrawlDecider artifactCrawlDecider;
   private IndexingContext centralContext;
 
-  public MavenIndexProducer(RabbitMQCollective collective, DaoMvnArtifactNode doaMvnArtifactNode)
+  public MavenIndexProducer(
+      RabbitMQCollective collective, ArtifactCrawlDecider artifactCrawlDecider)
       throws PlexusContainerException, ComponentLookupException {
-    this.doaMvnArtifactNode = doaMvnArtifactNode;
+    this.artifactCrawlDecider = artifactCrawlDecider;
     initMavenRepoUrl();
     this.collective = collective;
 
@@ -221,11 +221,6 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
-            //            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
-            //                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
-            //              continue;
-            //            }
-
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
             customArtifactInfo.setArtifactId(ai.getArtifactId());
@@ -257,13 +252,7 @@ public class MavenIndexProducer {
             final URL url = ArtifactUtils.constructURL(customArtifactInfo);
             Stopwatch stopwatch = Stopwatch.createStarted();
 
-            final boolean l =
-                doaMvnArtifactNode.containsNodeWithVersionGQ(
-                    ai.getGroupId(),
-                    ai.getArtifactId(),
-                    ai.getVersion(),
-                    ai.getClassifier(),
-                    Neo4JConnector.getCrawlerVersion());
+            final boolean l = artifactCrawlDecider.shouldProcessArtifact(ai);
             if (l) {
               LOGGER.info("Artifact up-to-date: " + url);
               continue;

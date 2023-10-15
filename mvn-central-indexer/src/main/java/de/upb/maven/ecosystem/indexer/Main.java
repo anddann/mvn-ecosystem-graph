@@ -8,6 +8,7 @@ import com.rabbitmq.client.Delivery;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.indexer.producer.MavenIndexProducer;
+import de.upb.maven.ecosystem.indexer.producer.MvnGraphArtifactDecider;
 import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class Main extends AbstractCrawler {
   @Override
   protected void doProducerJob(AMQP.BasicProperties props) throws Exception {
     final MavenIndexProducer basicUsageExample =
-        new MavenIndexProducer(this, new DoaMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
+        new MavenIndexProducer(this, new MvnGraphArtifactDecider());
     basicUsageExample.perform(props);
   }
 
