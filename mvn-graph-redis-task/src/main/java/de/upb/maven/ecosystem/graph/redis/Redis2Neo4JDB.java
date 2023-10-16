@@ -1,9 +1,9 @@
-package de.upb.maven.ecosystem.redis;
+package de.upb.maven.ecosystem.graph.redis;
 
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

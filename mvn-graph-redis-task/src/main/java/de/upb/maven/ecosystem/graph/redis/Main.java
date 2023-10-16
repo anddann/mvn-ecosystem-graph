@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.redis;
+package de.upb.maven.ecosystem.graph.redis;
 
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;

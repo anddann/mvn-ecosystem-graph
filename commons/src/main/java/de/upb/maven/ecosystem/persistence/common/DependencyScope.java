@@ -1,5 +1,8 @@
-package de.upb.maven.ecosystem.persistence.model;
+package de.upb.maven.ecosystem.persistence.common;
 
+import lombok.ToString;
+
+@ToString
 public enum DependencyScope {
   COMPILE,
   PROVIDED,

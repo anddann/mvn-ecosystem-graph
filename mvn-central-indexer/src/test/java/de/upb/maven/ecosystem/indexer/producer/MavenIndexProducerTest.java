@@ -1,7 +1,7 @@
 package de.upb.maven.ecosystem.indexer.producer;
 
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
 import java.io.IOException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -21,7 +21,8 @@ public class MavenIndexProducerTest {
         GraphDatabase.driver(
             "bolt://heap-snapshots.cs.upb.de:7687", AuthTokens.basic("neo4j", "PdBwGaQecqX69M28"));
     DaoMvnArtifactNode daoMvnArtifactNode = new DoaMvnArtifactNodeImpl(driver);
-    MavenIndexProducer mavenIndexProducer = new MavenIndexProducer(null, daoMvnArtifactNode);
+    MavenIndexProducer mavenIndexProducer =
+        new MavenIndexProducer(null, new MvnGraphArtifactDecider(daoMvnArtifactNode));
     mavenIndexProducer.perform(null);
   }
 }

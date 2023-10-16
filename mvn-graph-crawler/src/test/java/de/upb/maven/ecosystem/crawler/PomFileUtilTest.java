@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler;
 
+import de.upb.maven.ecosystem.PomFileUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.maven.project.MavenProject;

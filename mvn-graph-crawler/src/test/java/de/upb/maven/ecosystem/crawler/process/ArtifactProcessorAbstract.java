@@ -3,7 +3,7 @@ package de.upb.maven.ecosystem.crawler.process;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Stopwatch;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.File;
 import java.io.IOException;

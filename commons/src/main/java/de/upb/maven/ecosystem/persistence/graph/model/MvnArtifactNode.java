@@ -1,11 +1,11 @@
-package de.upb.maven.ecosystem.persistence.model;
+package de.upb.maven.ecosystem.persistence.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
+import de.upb.maven.ecosystem.AbstractCrawler;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class MvnArtifactNode implements Serializable {
 
   // only used as an identifier for neo4j
   // version number that created this node, e.g., used for updating and check which crawler was used
-  private String crawlerVersion = Neo4JConnector.getCrawlerVersion();
+  private String crawlerVersion = AbstractCrawler.getCrawlerVersion();
   private String group;
   private String artifact;
   private String version;
@@ -48,9 +48,11 @@ public class MvnArtifactNode implements Serializable {
   //  @JsonSerialize(using = ToStringSerializer.class)
   //  @JsonDeserialize(using = CustomNullDeserializer.class)
   private Map<String, String> properties = new HashMap<>();
+
   // relationship type=PARENT // use guava to serialize it for redis :(
   @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
   private Optional<MvnArtifactNode> parent = Optional.absent();
+
   // must be list to be ordered, in the mvn resolution process the order of dependencies matters for
   // resolving
   // relationship type=DEPENDENCY / DEPENDS_ON
@@ -58,6 +60,7 @@ public class MvnArtifactNode implements Serializable {
   // exclude to avoid recursive calling in the case of circular dependencies
   @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
   private List<DependencyRelation> dependencies = new ArrayList<>();
+
   // relationship type=DEPENDENCY_MANAGEMENT / MANAGES
   // exclude to avoid recursive calling in the case of circular dependencies
   @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore

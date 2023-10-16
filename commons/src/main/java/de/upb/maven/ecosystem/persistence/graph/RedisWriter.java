@@ -1,6 +1,7 @@
-package de.upb.maven.ecosystem.persistence.redis;
+package de.upb.maven.ecosystem.persistence.graph;
 
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;

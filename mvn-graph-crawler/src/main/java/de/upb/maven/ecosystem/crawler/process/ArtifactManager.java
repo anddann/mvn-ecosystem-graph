@@ -1,12 +1,12 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Stopwatch;
+import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.redis.RedisWriter;
+import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -55,7 +55,7 @@ public class ArtifactManager {
             ai.getArtifactId(),
             ai.getArtifactVersion(),
             ai.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
     if (existsInDb) {
       LOGGER.info(
           "Skipping artifact {}:{}:{}, already present and update in database",

@@ -1,8 +1,9 @@
-package de.upb.maven.ecosystem.persistence.model;
+package de.upb.maven.ecosystem.persistence.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import de.upb.maven.ecosystem.persistence.common.DependencyScope;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

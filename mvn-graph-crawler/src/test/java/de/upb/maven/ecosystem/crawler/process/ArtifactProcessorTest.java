@@ -2,10 +2,10 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import static org.junit.Assert.*;
 
+import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +52,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
 
     assertFalse(b);
 
@@ -98,7 +98,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
 
     assertFalse(b);
 
@@ -142,7 +142,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
 
     assertFalse(b);
 
@@ -184,7 +184,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
 
     assertFalse(b);
 
@@ -227,7 +227,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
             artifactInfo.getClassifier(),
-            Neo4JConnector.getCrawlerVersion());
+            AbstractCrawler.getCrawlerVersion());
 
     assertFalse(b);
 

@@ -1,8 +1,8 @@
-package de.upb.maven.ecosystem.persistence.dao;
+package de.upb.maven.ecosystem.persistence.graph.dao;
 
 import com.google.common.base.Optional;
-import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.util.List;
 
 /**

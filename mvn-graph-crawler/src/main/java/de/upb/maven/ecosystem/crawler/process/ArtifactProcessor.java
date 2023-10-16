@@ -2,14 +2,14 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
+import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactUtils;
-import de.upb.maven.ecosystem.crawler.PomFileUtil;
+import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
-import de.upb.maven.ecosystem.persistence.model.DependencyScope;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.common.DependencyScope;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -687,7 +687,7 @@ public class ArtifactProcessor {
             mvenartifactinfo.getArtifactVersion(),
             mvenartifactinfo.getClassifier(),
             mvenartifactinfo.getPackaging());
-    mvnArtifactNode.setCrawlerVersion(Neo4JConnector.getCrawlerVersion());
+    mvnArtifactNode.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
 
     addtoWorklist(mvnArtifactNode, RESOLVE_NODE);
 

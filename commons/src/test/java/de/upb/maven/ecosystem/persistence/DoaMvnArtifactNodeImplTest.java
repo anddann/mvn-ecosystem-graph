@@ -4,11 +4,11 @@ import static org.junit.Assert.*;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
-import de.upb.maven.ecosystem.persistence.dao.DoaMvnArtifactNodeImpl;
-import de.upb.maven.ecosystem.persistence.dao.MvnArtifactNodeProxy;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
-import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.AbstractCrawler;
+import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.MvnArtifactNodeProxy;
+import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -356,7 +356,7 @@ public class DoaMvnArtifactNodeImplTest {
 
     final boolean b =
         doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
-            "g", "a", "1.0", null, Neo4JConnector.getCrawlerVersion());
+            "g", "a", "1.0", null, AbstractCrawler.getCrawlerVersion());
     assertTrue(b);
   }
 

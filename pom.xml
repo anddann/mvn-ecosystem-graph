@@ -35,6 +35,9 @@
         <module>mvn-central-indexer</module>
         <module>mvn-graph-crawler</module>
         <module>mvn-graph-redis-task</module>
+        <module>mvn-fingerprint-crawler</module>
+        <module>mvn-fingerprint-redis-task</module>
+        <module>license-utils</module>
         <!--   <module>effective-pom</module> -->
 
     </modules>
@@ -184,7 +187,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>21.0.1</version>
+            <version>24.0.0</version>
         </dependency>
 
     </dependencies>
@@ -218,6 +221,11 @@
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-hibernate5</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -225,10 +233,10 @@
     <distributionManagement>
         <!-- https://dev.to/jakub_zalas/how-to-publish-maven-packages-to-a-single-github-repository-3lkc -->
         <repository>
-          <id>github</id>
-          <name>GitHub Packages</name>
-          <url>https://maven.pkg.github.com/anddann/m2-repository</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/anddann/m2-repository</url>
         </repository>
-  </distributionManagement>
+    </distributionManagement>
 
 </project>

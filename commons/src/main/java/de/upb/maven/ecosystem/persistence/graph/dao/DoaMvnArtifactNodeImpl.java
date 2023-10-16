@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.persistence.dao;
+package de.upb.maven.ecosystem.persistence.graph.dao;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
-import de.upb.maven.ecosystem.persistence.model.DependencyRelation;
-import de.upb.maven.ecosystem.persistence.model.DependencyScope;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.common.DependencyScope;
+import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;

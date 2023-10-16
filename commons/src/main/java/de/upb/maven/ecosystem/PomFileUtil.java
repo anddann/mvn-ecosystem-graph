@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.crawler;
+package de.upb.maven.ecosystem;
 
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -48,12 +48,20 @@ public class PomFileUtil {
   }
 
   public static synchronized Path acquireZipFs(Path path, URI uri) throws IOException {
+    // only one thread should try to open a zip fs at once. would be cool to sync on path but
+    // the instances are probably not the same
+
     String[] zipFile = uri.toString().split("!");
 
     try {
+      // for some reaseon path.getFileSystem does not return the same filesystem as querying
+      // this way. This filesystem is open if existing..the one you get with
+      // path.getFileSystem
+      // isn't...jdk bug?
       FileSystem fs = path.getFileSystem().provider().getFileSystem(uri);
       path = fs.getPath("/").resolve(zipFile[1]);
-    } catch (Exception var6) {
+    } catch (Exception e) {
+
       Map<String, String> env = new HashMap<>();
       env.put("create", "false");
       Path root = FileSystems.newFileSystem(URI.create(zipFile[0]), env).getPath("/");
@@ -73,9 +81,9 @@ public class PomFileUtil {
       MavenXpp3Reader mavenreader = new MavenXpp3Reader();
       Model model = mavenreader.read(foundPomFileStream);
       return new MavenProject(model);
-    } catch (XmlPullParserException | IOException var3) {
-      LOGGER.error("Failed to read POM ", var3);
-      return null;
+    } catch (IOException | XmlPullParserException e) {
+      LOGGER.error("Failed to read POM ", e);
     }
+    return null;
   }
 }

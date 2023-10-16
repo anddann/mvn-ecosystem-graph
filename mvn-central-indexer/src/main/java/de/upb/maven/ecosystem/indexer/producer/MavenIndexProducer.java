@@ -8,7 +8,6 @@ import com.rabbitmq.client.AMQP;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -252,7 +251,7 @@ public class MavenIndexProducer {
             final URL url = ArtifactUtils.constructURL(customArtifactInfo);
             Stopwatch stopwatch = Stopwatch.createStarted();
 
-            final boolean l = artifactCrawlDecider.shouldProcessArtifact(ai);
+            final boolean l = artifactCrawlDecider.shouldProcessArtifact(ai, url);
             if (l) {
               LOGGER.info("Artifact up-to-date: " + url);
               continue;
