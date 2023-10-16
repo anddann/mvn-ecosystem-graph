@@ -88,6 +88,7 @@ public class ArtifactProcessorTest {
   }
 
   @Test
+  @Ignore
   public void takesForeverInDocker() throws IOException {
     // https://repo1.maven.org/maven2/uk/ac/open/kmi/iserve/iserve-integrated-engine/2.1.0/iserve-integrated-engine-2.1.0-jar-with-dependencies.jar
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
