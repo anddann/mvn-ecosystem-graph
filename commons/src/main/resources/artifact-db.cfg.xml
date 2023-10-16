@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://${DB_HOST}:${DB_PORT}/artifact-db
+        </property>
+
+        <!-- JDBC connection pool (use the built-in)  -->
+        <property name="connection.pool_size">10</property>
+
+        <!--
+                <property name="hibernate.c3p0.min_size">1</property>
+                <property name="hibernate.c3p0.max_size">3</property>
+                <property name="hibernate.c3p0.acquire_increment">1</property>
+                <property name="hibernate.c3p0.timeout">1800</property>  -->
+
+        <!-- SQL dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL94Dialect</property>
+        <property name="hibernate.jdbc.batch_size">50</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- C3Po -->
+        <property name="connection.provider_class">org.hibernate.c3p0.internal.C3P0ConnectionProvider</property>
+        <property name="c3p0.min_size">1</property>
+        <property name="c3p0.max_size">3</property>
+        <property name="c3p0.acquire_increment">1</property>
+        <property name="c3p0.timeout">60</property>
+
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+
+        <!-- Update the schema on startup if necessary -->
+        <property name="hbm2ddl.auto">validate</property>
+
+
+        <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav"/>
+        <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.License"/>
+
+        <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.ClassFile"/>
+        <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata"/>
+        <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Dependency"/>
+        <mapping class="de.upb.maven.ecosystem.persistence.common.DependencyScope"/>
+
+
+    </session-factory>
+
+
+</hibernate-configuration>

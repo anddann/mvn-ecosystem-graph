@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.upb</groupId>
+    <artifactId>example-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>A Maven Test Project</name>
+
+
+    <description>A Simple Test Project</description>
+    <url>https://upb.de</url>
+    <organization>
+        <name>UPB Inc.</name>
+        <url>https://upb.de</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>UPB License</name>
+            <url>https://www.gnu.org/licenses/lgpl-2.1.txt</url>
+            <distribution> testDistribution
+            </distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>John Doe</name>
+            <email>john.doe@upb.de</email>
+            <organization>UPB Hack</organization>
+            <organizationUrl>https://www.upb.de/</organizationUrl>
+        </developer>
+    </developers>
+
+     <scm>
+        <connection>scm:git:git@github.com:Sable/soot.git</connection>
+        <developerConnection>scm:git:git@github.com:Sable/soot.git</developerConnection>
+        <url>https://github.com/Sable/soot/tree/master</url>
+    </scm>
+
+</project>

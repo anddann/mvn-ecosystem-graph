@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: de.codeshield.depscan:backend-datamodel:2.1.2-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/backend-datamodel/2.1.2-SNAPSHOT/backend-datamodel-2.1.2-20200921.124326-13.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/backend-datamodel/2.1.2-SNAPSHOT/backend-datamodel-2.1.2-20200921.124326-13-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/backend-datamodel/2.1.2-SNAPSHOT/backend-datamodel-2.1.2-20200921.124326-13-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

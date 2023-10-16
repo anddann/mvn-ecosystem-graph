@@ -1,0 +1,103 @@
+version: '3.7'
+services:
+
+
+  rabbitmq_maven_crawler:
+    restart: always
+    image: rabbitmq:3.8
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit consumer_timeout 3600000
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.hostname == heap-snapshots]
+    networks:
+      - maven-crawler-net
+
+
+  redis_maven_crawler:
+    image: redis:alpine
+    restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.hostname == heap-snapshots]
+    networks:
+      - maven-crawler-net
+
+  redis-task:
+    image: ghcr.io/anddann/mvn-fingerprint-redis-task:2.0.0-SNAPSHOT
+    restart: always
+    deploy:
+      mode: global
+    env_file:
+      - production.env
+    networks:
+      - maven-crawler-net
+
+  maven-central-producer:
+    restart: always
+    image: ghcr.io/anddann/mvn-central-indexer:2.0.0-SNAPSHOT
+    depends_on:
+      - rabbitmq
+      - redis
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.hostname == heap-snapshots]
+    volumes:
+      - central-index-data:/data/
+    env_file:
+      - production.env
+    environment:
+      - WORKER_NODE=false
+      # let the repo url always end with /
+      - MAVEN_REPO_URL=https://repo1.maven.org/maven2/
+      - RABBITMQ_HOST=rabbitmq_maven_crawler
+      - RABBITMQ_USER=myuser
+      - RABBITMQ_PASS=mypassword
+      - REDIS=redis_maven_crawler
+    networks:
+      - maven-crawler-net
+
+  worker:
+    restart: always
+    image: ghcr.io/anddann/mvn-fingerprint-crawler:2.0.0-SNAPSHOT
+    deploy:
+      replicas: 5
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        window: 120s
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 6g
+      placement:
+        constraints: [node.hostname != heap-snapshots]
+    depends_on:
+      - maven-central-producer
+      - rabbitmq_maven_crawler
+      - redis_maven_crawler
+    env_file:
+      - production.env
+    environment:
+      - WORKER_NODE=true
+      - RABBITMQ_HOST=rabbitmq_maven_crawler
+      - RABBITMQ_USER=myuser
+      - RABBITMQ_PASS=mypassword
+      - REDIS=redis_maven_crawler
+    networks:
+      - maven-crawler-net
+
+volumes:
+  central-index-data:
+
+networks:
+  maven-crawler-net:
+    external: true

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/../commons/de.codeshield.commons.SARIF/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../commons/de.codeshield.commons.SARIF/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../commons/de.codeshield.commons.codemgmt/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../commons/de.codeshield.commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../commons/de.codeshield.commons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-crawler-core/crawler-commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-crawler-core/db-matcher/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-crawler-core/diff-extractor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/fuzzy-entries-isolator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/fuzzy-entries-isolator/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-crawler/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-crawler/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-db-handler/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-db-handler/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-rebundling/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-rebundling/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-scope-finder/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-scope-finder/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../maven-central-index-provider/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sootdiff/src/main/java" charset="UTF-8" />
+  </component>
+</project>
