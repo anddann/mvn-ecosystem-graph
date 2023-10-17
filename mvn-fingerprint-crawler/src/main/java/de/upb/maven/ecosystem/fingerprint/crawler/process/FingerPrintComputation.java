@@ -1,6 +1,7 @@
 package de.upb.maven.ecosystem.fingerprint.crawler.process;
 
-import java.io.BufferedInputStream;
+import com.trendmicro.tlsh.Tlsh;
+import com.trendmicro.tlsh.TlshCreator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -20,9 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.trendmicro.tlsh.Tlsh;
-import com.trendmicro.tlsh.TlshCreator;
 import jnorm.cli.CliHandler;
 import jnorm.cli.Main;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -236,6 +234,8 @@ public class FingerPrintComputation {
                     try {
                       inputStream = Files.newInputStream(x);
                       tlshDigestFor = getTLSHDigestFor(inputStream);
+                    } catch (IllegalStateException ex) {
+                      LOGGER.error("Failed Class: " + className, ex);
                     } finally {
                       if (inputStream != null) {
                         inputStream.close();
