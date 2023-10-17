@@ -193,7 +193,7 @@ public class FingerPrintComputation {
    */
   private static HashMap<String, String[]> run_in_same_thread(
       String classPathEntry, @Nullable String outputDir) {
-    HashMap<String, String[]> computedTLSHs = new HashMap<>();
+    HashMap<String, String[]> computedTLSHandJimpleSHA256 = new HashMap<>();
     try {
       ArrayList<String> args = buildjNormMainArguments(classPathEntry, outputDir);
 
@@ -203,7 +203,6 @@ public class FingerPrintComputation {
       // compute sha256 and tlsh on the jimple files
       // i terate trhough output ir
       // filename to class name
-      HashMap<String, String[]> computedTLSHandJimpleSHA256 = new HashMap<>();
       final Path outputDirPath = Paths.get(outputDir);
       try (Stream<Path> stream = Files.walk(outputDirPath)) {
         stream
@@ -254,7 +253,7 @@ public class FingerPrintComputation {
     } catch (IOException ex) {
 
     }
-    return computedTLSHs;
+    return computedTLSHandJimpleSHA256;
   }
 
   /**
