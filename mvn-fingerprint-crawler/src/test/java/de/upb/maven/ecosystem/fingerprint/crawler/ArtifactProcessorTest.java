@@ -151,8 +151,7 @@ public class ArtifactProcessorTest {
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
 
     final URL url = ArtifactUtils.constructURL(artifactInfo);
-
-    //
+    
     Stopwatch stopwatch = Stopwatch.createStarted();
 
     final MavenArtifactMetadata process = artifactProcessor.process(artifactInfo, 0, url);

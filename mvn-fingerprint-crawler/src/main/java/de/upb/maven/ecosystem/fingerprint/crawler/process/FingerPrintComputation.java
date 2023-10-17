@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.trendmicro.tlsh.Tlsh;
+import com.trendmicro.tlsh.TlshCreator;
 import jnorm.cli.CliHandler;
 import jnorm.cli.Main;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -36,6 +39,7 @@ public class FingerPrintComputation {
       LoggerFactory.getLogger(FingerPrintComputation.class);
   private static ExecutorService newSingleThreadExecutor;
   private Path tmpDir;
+  private static TlshCreator tlshCreator = new TlshCreator();
 
   public static class FingerPrintComputationBuilder {
 
@@ -116,14 +120,18 @@ public class FingerPrintComputation {
     return digest;
   }
 
-  public static String getTLSHDigestFor(InputStream inputStream) {
-    String digest = null;
-    try {
-      digest = new DigestUtils(DigestUtils.getSha256Digest()).digestAsHex(inputStream);
-    } catch (IOException e) {
-      e.printStackTrace();
+  public static String getTLSHDigestFor(InputStream inputStream) throws IOException {
+    tlshCreator.reset();
+    byte[] buf = new byte[1024];
+    int bytesRead = inputStream.read(buf, 0, buf.length);
+    while (bytesRead >= 0) {
+      tlshCreator.update(buf, 0, bytesRead);
+      bytesRead = inputStream.read(buf, 0, buf.length);
     }
-    return digest;
+    inputStream.close();
+    final Tlsh hash = tlshCreator.getHash();
+    tlshCreator.reset();
+    return hash.getEncoded();
   }
 
   // FIXME: move to classpath
@@ -214,15 +222,25 @@ public class FingerPrintComputation {
                             .toString()
                             .replace(".jimple", "")
                             .replace("/", ".");
-
-                    final InputStream inputStream = Files.newInputStream(x);
-                    BufferedInputStream buffInputStr = new BufferedInputStream(inputStream);
-                    // Mark is set on the input stream
-                    buffInputStr.mark(0);
-
-                    final String sha256DigestFor = getSha256DigestFor(buffInputStr);
-                    buffInputStr.reset();
-                    final String tlshDigestFor = getTLSHDigestFor(buffInputStr);
+                    InputStream inputStream = null;
+                    String sha256DigestFor = "";
+                    String tlshDigestFor = "";
+                    try {
+                      inputStream = Files.newInputStream(x);
+                      sha256DigestFor = getSha256DigestFor(inputStream);
+                    } finally {
+                      if (inputStream != null) {
+                        inputStream.close();
+                      }
+                    }
+                    try {
+                      inputStream = Files.newInputStream(x);
+                      tlshDigestFor = getTLSHDigestFor(inputStream);
+                    } finally {
+                      if (inputStream != null) {
+                        inputStream.close();
+                      }
+                    }
 
                     computedTLSHandJimpleSHA256.put(
                         className, new String[] {tlshDigestFor, sha256DigestFor});
