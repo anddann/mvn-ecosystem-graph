@@ -45,7 +45,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>de.upb.maven.ecosystem.graph.redis.Main</mainClass>
+                            <mainClass>de.upb.maven.ecosystem.fingerprint.redis.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -70,21 +70,6 @@
                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>com.coveo</groupId>
-                <artifactId>fmt-maven-plugin</artifactId>
-                <version>${fmt-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>format</id>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>

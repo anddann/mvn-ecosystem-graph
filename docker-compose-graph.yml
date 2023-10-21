@@ -51,6 +51,7 @@ services:
     env_file:
       - production.env
     environment:
+      - INDEXER=MVNGRAPH
       - WORKER_NODE=false
       # let the repo url always end with /
       - MAVEN_REPO_URL=https://repo1.maven.org/maven2/

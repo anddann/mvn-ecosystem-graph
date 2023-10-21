@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntConsumer;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisHandler implements PersistenceHandler {
 
@@ -23,23 +21,7 @@ public class RedisHandler implements PersistenceHandler {
 
   private static RedisHandler instance;
 
-  final JedisPoolConfig poolConfig = buildPoolConfig();
   private final JedisPool jedisPool;
-
-  private JedisPoolConfig buildPoolConfig() {
-    final JedisPoolConfig poolConfig = new JedisPoolConfig();
-    poolConfig.setMaxTotal(128);
-    poolConfig.setMaxIdle(128);
-    poolConfig.setMinIdle(16);
-    poolConfig.setTestOnBorrow(true);
-    poolConfig.setTestOnReturn(true);
-    poolConfig.setTestWhileIdle(true);
-    poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(60).toMillis());
-    poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(30).toMillis());
-    poolConfig.setNumTestsPerEvictionRun(3);
-    poolConfig.setBlockWhenExhausted(true);
-    return poolConfig;
-  }
 
   public static RedisHandler getInstance(String host, String crawlerVersion) {
 
@@ -51,7 +33,7 @@ public class RedisHandler implements PersistenceHandler {
 
   private RedisHandler(String host, String crawlerVersion) {
     this.crawlerVersion = crawlerVersion;
-    jedisPool = new JedisPool(poolConfig, host);
+    jedisPool = new JedisPool(host, 6379);
 
     LOGGER.info("Initialized Redis Connection: " + host);
 

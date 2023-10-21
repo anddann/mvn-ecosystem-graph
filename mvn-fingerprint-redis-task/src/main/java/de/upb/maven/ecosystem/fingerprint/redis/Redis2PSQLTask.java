@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 public class Redis2PSQLTask {
 
@@ -33,30 +32,14 @@ public class Redis2PSQLTask {
   private final JedisPool jedisPool;
   private static Redis2PSQLTask moveRedisToPostgres;
 
-  private Redis2PSQLTask(String url, PostgresDBHandler postgresDBHandler) {
-    JedisPoolConfig poolConfig = buildPoolConfig();
-    jedisPool = new JedisPool(poolConfig, url);
+  private Redis2PSQLTask(String host, PostgresDBHandler postgresDBHandler) {
+    jedisPool = new JedisPool(host, 6379);
     this.postgresDBHandler = postgresDBHandler;
 
     this.mapper = new ObjectMapper();
 
     this.mapper.registerModule(new Hibernate5Module());
     clearAllLocks();
-  }
-
-  private JedisPoolConfig buildPoolConfig() {
-    final JedisPoolConfig poolConfig = new JedisPoolConfig();
-    poolConfig.setMaxTotal(128);
-    poolConfig.setMaxIdle(128);
-    poolConfig.setMinIdle(16);
-    poolConfig.setTestOnBorrow(true);
-    poolConfig.setTestOnReturn(true);
-    poolConfig.setTestWhileIdle(true);
-    poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(60).toMillis());
-    poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(30).toMillis());
-    poolConfig.setNumTestsPerEvictionRun(3);
-    poolConfig.setBlockWhenExhausted(true);
-    return poolConfig;
   }
 
   public static void init(String url, PostgresDBHandler postgresDBHandler) {

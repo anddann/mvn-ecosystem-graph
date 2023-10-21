@@ -2,13 +2,11 @@ package de.upb.maven.ecosystem.persistence.fingerprint;
 
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.ClassFile;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.IntConsumer;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
 
 public interface PersistenceHandler {
@@ -16,24 +14,6 @@ public interface PersistenceHandler {
   int ARTIFACT_NON_EXISTING = -1;
 
   org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PersistenceHandler.class);
-
-  static PersistenceHandler createPersistenceHandler(String redisURL, String crawlerVersion)
-      throws InterruptedException, IOException {
-    if (StringUtils.isBlank(redisURL)) {
-      // create Postgress database connection
-      final SessionFactory databaseConnection =
-          PostgresDBConnector.createDatabaseConnection("artifact-db.cfg.xml");
-      PostgresDBHandler postgresDBHandler =
-          PostgresDBHandler.getInstance(databaseConnection, crawlerVersion);
-      LOGGER.info("Created PostgresDBHandler");
-      return postgresDBHandler;
-    } else {
-      // create redis
-      RedisHandler redisHandler = RedisHandler.getInstance(redisURL, crawlerVersion);
-      LOGGER.info("Created RedisHandler with {}", redisURL);
-      return redisHandler;
-    }
-  }
 
   IntConsumer shutdownHook();
 

@@ -12,9 +12,9 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.hostname == heap-snapshots]
+        constraints: [node.hostname == heap-snapshots-bullseye]
     networks:
-      - maven-crawler-net
+      - maven-postgres-crawler-net
 
 
   redis_maven_crawler:
@@ -23,9 +23,9 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.hostname == heap-snapshots]
+        constraints: [node.hostname == heap-snapshots-bullseye]
     networks:
-      - maven-crawler-net
+      - maven-postgres-crawler-net
 
   redis-task:
     image: ghcr.io/anddann/mvn-fingerprint-redis-task:2.0.0-SNAPSHOT
@@ -35,7 +35,7 @@ services:
     env_file:
       - production.env
     networks:
-      - maven-crawler-net
+      - maven-postgres-crawler-net
 
   maven-central-producer:
     restart: always
@@ -46,13 +46,14 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.hostname == heap-snapshots]
+        constraints: [node.hostname == heap-snapshots-bullseye]
     volumes:
       - central-index-data:/data/
     env_file:
       - production.env
     environment:
       - WORKER_NODE=false
+      - INDEXER=MVNFINGERPRINT
       # let the repo url always end with /
       - MAVEN_REPO_URL=https://repo1.maven.org/maven2/
       - RABBITMQ_HOST=rabbitmq_maven_crawler
@@ -60,7 +61,7 @@ services:
       - RABBITMQ_PASS=mypassword
       - REDIS=redis_maven_crawler
     networks:
-      - maven-crawler-net
+      - maven-postgres-crawler-net
 
   worker:
     restart: always
@@ -74,12 +75,7 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 8G
-        reservations:
-          cpus: '1'
-          memory: 6g
-      placement:
-        constraints: [node.hostname != heap-snapshots]
+          memory: 4G
     depends_on:
       - maven-central-producer
       - rabbitmq_maven_crawler
@@ -93,11 +89,11 @@ services:
       - RABBITMQ_PASS=mypassword
       - REDIS=redis_maven_crawler
     networks:
-      - maven-crawler-net
+      - maven-postgres-crawler-net
 
 volumes:
   central-index-data:
 
 networks:
-  maven-crawler-net:
+  maven-postgres-crawler-net:
     external: true

@@ -1,5 +1,7 @@
 package de.upb.maven.ecosystem.fingerprint.crawler;
 
+import static de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil.getRedisURLFromEnvironment;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,8 +13,9 @@ import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.fingerprint.PersistenceHandler;
-import de.upb.maven.ecosystem.persistence.fingerprint.PostgresDBConnector;
+import de.upb.maven.ecosystem.persistence.fingerprint.RedisHandler;
 import java.io.IOException;
+import java.net.Socket;
 import org.slf4j.LoggerFactory;
 
 public class Main extends AbstractCrawler {
@@ -34,13 +37,32 @@ public class Main extends AbstractCrawler {
     return res;
   }
 
+  private static boolean reachable() {
+    try (Socket ignored = new Socket(getRedisURLFromEnvironment(), 6379)) {
+      return true;
+    } catch (IOException ignored) {
+      return false;
+    }
+  }
+
   @Override
   protected void preFlightCheck() {
     try {
-      PostgresDBConnector.createDatabaseConnection("artifact-db.cfg.xml");
+
+      System.out.println("Check if redis is up and running");
+      boolean redisAvialable = false;
+      while (!redisAvialable) {
+        redisAvialable = reachable();
+        if (!redisAvialable) {
+          System.out.println("redis is not available waiting for sec: " + 30);
+          Thread.sleep(1000 * 30);
+        }
+      }
+
       persistenceHandler =
-          PersistenceHandler.createPersistenceHandler(
-              getRedisURLFromEnvironment(), getCrawlerVersion());
+          RedisHandler.getInstance(getRedisURLFromEnvironment(), getCrawlerVersion());
+      LOGGER.info("Created RedisHandler with {}", getRedisURLFromEnvironment());
+
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed connecting to database", e);
       System.exit(-1);

@@ -64,7 +64,7 @@ public class PostgresDBHandler implements PersistenceHandler {
       session = sessionFactory.openSession();
       final Query<MavenArtifactMetadata> query =
           session.createQuery(
-              "SELECT mvnartifact from de.upb.maven.ecosystem.persistence.fingerprint.model.dao.artifacts.MavenArtifactMetadata mvnartifact where mvnartifact.downloadUrl= :param1");
+              "SELECT mvnartifact from de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata mvnartifact where mvnartifact.downloadUrl= :param1");
       query.setParameter("param1", url);
       query.setMaxResults(1);
       MavenArtifactMetadata mavenArtifactMetadata = query.uniqueResult();

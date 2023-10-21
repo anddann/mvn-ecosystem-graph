@@ -39,8 +39,8 @@ public class Redis2Neo4JDB {
 
   private final DaoMvnArtifactNode doaMvnArtifactNode;
 
-  private Redis2Neo4JDB(String url, DaoMvnArtifactNode doaMvnArtifactNode) {
-    jedisPool = new JedisPool(url, 6379);
+  private Redis2Neo4JDB(String host, DaoMvnArtifactNode doaMvnArtifactNode) {
+    jedisPool = new JedisPool(host, 6379);
     this.doaMvnArtifactNode = doaMvnArtifactNode;
     clearAllLocks();
   }

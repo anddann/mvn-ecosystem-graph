@@ -41,7 +41,8 @@
         <property name="show_sql">false</property>
 
         <!-- Update the schema on startup if necessary -->
-        <property name="hbm2ddl.auto">validate</property>
+       <!--  <property name="hbm2ddl.auto">validate</property> -->
+        <property name="hbm2ddl.auto">update</property>
 
 
         <mapping class="de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav"/>

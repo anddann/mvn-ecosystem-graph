@@ -51,7 +51,6 @@
         <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.13</junit.version>
-        <fmt-maven-plugin.version>2.9</fmt-maven-plugin.version>
     </properties>
 
     <build>
@@ -110,20 +109,6 @@
                     <includeScope>runtime</includeScope>
                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.coveo</groupId>
-                <artifactId>fmt-maven-plugin</artifactId>
-                <version>${fmt-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>format</id>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
