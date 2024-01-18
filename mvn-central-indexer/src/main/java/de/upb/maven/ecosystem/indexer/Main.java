@@ -30,7 +30,8 @@ public class Main extends AbstractCrawler {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private String indexerEnv = System.getenv("INDEXER");
-  private SessionFactory databaseConnection;;
+  private SessionFactory databaseConnection;
+  ;
 
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);
@@ -67,13 +68,15 @@ public class Main extends AbstractCrawler {
   protected void doProducerJob(AMQP.BasicProperties props) throws Exception {
     ArtifactCrawlDecider artifactCrawlDecider = null;
     if (StringUtils.equalsIgnoreCase(indexerEnv, "MVNGRAPH")) {
-      LOGGER.error("No INDEXER PROPERTY Given");
+      LOGGER.error("MVNGRAPH INDEXER PROPERTY given");
 
       final DoaMvnArtifactNodeImpl doaMvnArtifactNode =
           new DoaMvnArtifactNodeImpl(Neo4JConnector.getDriver());
       artifactCrawlDecider = new MvnGraphArtifactDecider(doaMvnArtifactNode);
 
     } else if (StringUtils.equalsIgnoreCase(indexerEnv, "MVNFINGERPRINT")) {
+      LOGGER.error("MVNFINGERPRINT INDEXER PROPERTY given");
+
       artifactCrawlDecider =
           new MvnFingerprintArtifactDecider(
               PostgresDBHandler.getInstance(databaseConnection, getCrawlerVersion()));
