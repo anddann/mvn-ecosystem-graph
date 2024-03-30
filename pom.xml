@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
@@ -28,6 +28,7 @@
         <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
         <docker.image.prefix>ghcr.io/anddann</docker.image.prefix>
         <dockerfile.version>1.4.13</dockerfile.version>
+        <ARCH>arm64v8</ARCH>
     </properties>
 
     <modules>
@@ -196,9 +197,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.10.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -226,6 +227,8 @@
                 <artifactId>jackson-datatype-hibernate5</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 

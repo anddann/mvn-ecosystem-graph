@@ -89,6 +89,7 @@
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <ARCH>${docker.image.arch}</ARCH>
                     </buildArgs>
                 </configuration>
             </plugin>
@@ -139,7 +140,7 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j</artifactId>
-            <version>3.5.30</version>
+            <version>5.18.1</version>
             <scope>test</scope>
         </dependency>
 

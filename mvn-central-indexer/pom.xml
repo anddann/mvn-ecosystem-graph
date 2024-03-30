@@ -48,9 +48,7 @@
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.10</logback.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
-        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>4.13</junit.version>
     </properties>
 
     <build>
@@ -129,6 +127,7 @@
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <ARCH>${docker.image.arch}</ARCH>
                     </buildArgs>
                 </configuration>
             </plugin>
@@ -171,11 +170,10 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
-
 
         <!-- maven indexer dependencies -->
         <dependency>

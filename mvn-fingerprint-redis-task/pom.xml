@@ -88,6 +88,7 @@
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <ARCH>${docker.image.arch}</ARCH>
                     </buildArgs>
                 </configuration>
             </plugin>

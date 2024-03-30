@@ -105,6 +105,7 @@
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <ARCH>${docker.image.arch}</ARCH>
                     </buildArgs>
                 </configuration>
             </plugin>
@@ -178,10 +179,11 @@
 
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>de.upb.maven.ecosystem</groupId>
             <artifactId>commons</artifactId>
