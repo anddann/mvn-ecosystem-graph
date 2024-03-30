@@ -30,8 +30,7 @@ public class Main extends AbstractCrawler {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private String indexerEnv = System.getenv("INDEXER");
-  private SessionFactory databaseConnection;
-  ;
+  private SessionFactory databaseConnection;;
 
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);

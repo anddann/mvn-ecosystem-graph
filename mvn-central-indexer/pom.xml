@@ -22,31 +22,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.maven.indexer</groupId>
-                <artifactId>maven-indexer</artifactId>
-                <version>6.1.1</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
 
     <artifactId>mvn-central-indexer</artifactId>
 
     <properties>
-        <eclipse-sisu.version>0.3.5</eclipse-sisu.version>
-        <guice.version>5.1.0</guice.version>
-        <lucene.version>8.11.1</lucene.version>
-        <maven.version>3.8.4</maven.version>
-        <resolver.version>1.7.3</resolver.version>
-        <archetype.version>3.2.1</archetype.version>
-        <wagon.version>3.5.1</wagon.version>
-        <surefire.version>2.22.2</surefire.version>
-        <slf4j.version>1.7.36</slf4j.version>
-        <logback.version>1.2.10</logback.version>
+          <logback.version>1.2.10</logback.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -57,8 +38,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
             <!-- use own junit , as the general dep crashes -->
@@ -131,6 +112,14 @@
                     </buildArgs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
         </plugins>
 
     </build>
@@ -154,6 +143,28 @@
         </dependency>
 
 
+        <!-- Indexer dependencies -->
+        <dependency>
+            <groupId>org.apache.maven.indexer</groupId>
+            <artifactId>indexer-core</artifactId>
+            <version>7.1.2</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Runtime: DI -->
+        <dependency>
+            <groupId>org.eclipse.sisu</groupId>
+            <artifactId>org.eclipse.sisu.inject</artifactId>
+            <version>0.9.0.M2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+
+        <!-- end indexer dependencies -->
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -176,29 +187,8 @@
         </dependency>
 
         <!-- maven indexer dependencies -->
-        <dependency>
-            <groupId>org.apache.maven.indexer</groupId>
-            <artifactId>indexer-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
-        <!-- For ResourceFetcher implementation, if used -->
-        <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-http-lightweight</artifactId>
-            <version>${wagon.version}</version>
-            <scope>compile</scope>
-        </dependency>
 
-        <!-- Runtime: DI, but using Plexus Shim as we use Wagon -->
-        <dependency>
-            <groupId>org.eclipse.sisu</groupId>
-            <artifactId>org.eclipse.sisu.plexus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
 
 
     </dependencies>

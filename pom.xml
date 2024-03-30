@@ -28,7 +28,7 @@
         <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
         <docker.image.prefix>ghcr.io/anddann</docker.image.prefix>
         <dockerfile.version>1.4.13</dockerfile.version>
-        <ARCH>arm64v8</ARCH>
+        <docker.image.arch>arm64v8</docker.image.arch>
     </properties>
 
     <modules>
@@ -107,8 +107,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
             <plugin>
