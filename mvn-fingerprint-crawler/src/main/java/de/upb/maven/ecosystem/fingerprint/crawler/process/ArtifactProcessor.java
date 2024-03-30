@@ -399,7 +399,7 @@ public class ArtifactProcessor {
     if (licences == null) {
       licences = Sets.newHashSet();
     }
-    try (FileSystem fs = FileSystems.newFileSystem(jarArchive, null)) {
+    try (FileSystem fs = FileSystems.newFileSystem(jarArchive, Collections.emptyMap())) {
       LicenseFileVisitor readZipFileVisitor = new LicenseFileVisitor();
       Path root = fs.getPath("/");
       Files.walkFileTree(root, readZipFileVisitor);

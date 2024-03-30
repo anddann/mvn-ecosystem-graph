@@ -168,7 +168,7 @@ public class SearchLicensesUtility {
    */
   public <T> void searchLicenseFile(
       Path archive, BiConsumer<MavenProject, T> addMethod, T component) {
-    try (FileSystem fs = FileSystems.newFileSystem(archive, null)) {
+    try (FileSystem fs = FileSystems.newFileSystem(archive, Collections.emptyMap())) {
       Path root = fs.getPath("/");
       LicenseFileVisitor readZipFileVisitor = new LicenseFileVisitor();
       Files.walkFileTree(root, readZipFileVisitor);
