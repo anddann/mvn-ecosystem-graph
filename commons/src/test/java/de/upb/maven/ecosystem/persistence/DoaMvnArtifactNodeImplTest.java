@@ -62,7 +62,8 @@ class DoaMvnArtifactNodeImplTest {
   }
 
   private Driver createDriver() {
-    return GraphDatabase.driver(embeddedDatabaseServer.boltURI(), AuthTokens.basic(CREDENTIAL, CREDENTIAL));
+    return GraphDatabase.driver(
+        embeddedDatabaseServer.boltURI(), AuthTokens.basic(CREDENTIAL, CREDENTIAL));
   }
 
   @Test

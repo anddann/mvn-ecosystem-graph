@@ -5,16 +5,14 @@ import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
 import java.io.IOException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 
 public class MavenIndexProducerTest {
 
-  @Test
-  @Ignore // collective cannot be null, this makes testing very hard
+  // @Test
+  // collective cannot be null, this makes testing very hard
   public void perform()
       throws PlexusContainerException, ComponentLookupException, IOException, InterruptedException {
     Driver driver =

@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -18,8 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
@@ -27,8 +26,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
   // 16:29:00.483 [pool-1-thread-21] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
   // org.springframework.cloud:spring-cloud-skipper-autoconfigure:2.5.2-null , failed with ,
-  @Test
-  @Ignore
+  // @Test
   public void unresolvedPropertyInVersion()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -75,7 +73,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   // org.openehealth.ipf.tutorials:ipf-tutorials-iheclient:3.7.3-null , failed with
 
   @Test
-  @Ignore
+  // @Ignore
   public void typoInProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
@@ -117,8 +115,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
   }
 
-  @Test
-  @Ignore
+  // @Test
+  // @Ignore
   public void unresolvableProperty()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -340,8 +338,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * @throws ParserConfigurationException
    * @throws SAXException
    */
-  @Test
-  @Ignore
+  //  @Test
+  // @Ignore
   public void versionInvalid1() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
@@ -373,8 +371,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
   }
 
-  @Test
-  @Ignore
+  //  @Test
+  //  @Ignore
   /**
    * 12:30:36.856 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
    * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2,
@@ -509,8 +507,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * @throws ParserConfigurationException
    * @throws SAXException
    */
-  @Test
-  @Ignore
+  //  @Test
+  //  @Ignore
   public void dependencyWithoutVersion()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -1283,8 +1281,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
   }
 
-  @Test
-  @Ignore
+  //  @Test
+  //  @Ignore
   public void testFailedArtifactsFromFile() throws IOException {
     Driver driver = createDriver();
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -1368,8 +1366,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
   }
 
-  @Test
-  @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
+  //  @Test
+  //  @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
   public void testPropertiesUnresolvable()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -1500,7 +1498,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   @Test
-  @Ignore // the artifact has a strange dependency to a pom, that is also in the dependency mgmt
+  // @Ignore // the artifact has a strange dependency to a pom, that is also in the dependency mgmt
   // section as an import?
   public void freeze() throws IOException {
     //
