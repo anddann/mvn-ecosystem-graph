@@ -40,7 +40,8 @@ public class ArtifactManager {
     }
 
     final MavenArtifactMetadata mavenArtifactMetadata =
-        new ArtifactProcessor(sootTimeOutMS).process(ai, crawledArtifacts, downloadURL);
+        new ArtifactProcessor(this.comTLSH, sootTimeOutMS)
+            .process(ai, crawledArtifacts, downloadURL);
     if (mavenArtifactMetadata == null) {
       return;
     }
