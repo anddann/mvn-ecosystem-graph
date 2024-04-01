@@ -81,6 +81,12 @@
                     </to>
                     <from>
                         <image>openjdk:17-slim</image>
+                        <platforms>
+                            <platform>
+                                <architecture>arm64</architecture>
+                                <os>linux</os>
+                            </platform>
+                        </platforms>
                     </from>
                     <container>
                         <environment>
