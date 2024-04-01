@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.fingerprint.crawler;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactManager;
@@ -22,13 +22,13 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class PostgresDBHandlerTest {
 
   @Test
-  @Ignore
+  @Disabled
   public void testLocalDB() throws IOException {
     CustomArtifactInfo artifactInfo =
         new CustomArtifactInfo(); // this artifact contains multiple classes with the same digest
@@ -48,7 +48,7 @@ public class PostgresDBHandlerTest {
   @Test
   public void createUniqueSHASet() throws IOException {
 
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 50000);
+    ArtifactProcessor artifactProcessor = new ArtifactProcessor(50000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 

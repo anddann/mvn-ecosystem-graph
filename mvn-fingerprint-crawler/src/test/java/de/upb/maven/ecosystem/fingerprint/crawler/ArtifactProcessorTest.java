@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.fingerprint.crawler;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
@@ -14,8 +14,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ArtifactProcessorTest {
 
@@ -172,7 +172,7 @@ public class ArtifactProcessorTest {
   }
 
   @Test
-  @Ignore // licnesne takes foreover
+  @Disabled // licnesne takes foreover
   public void testRandArtefat() throws IOException {
     // https://repo1.maven.org/maven2/com/arpnetworking/metrics/metrics-portal_2.11/0.4.7/
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
@@ -199,7 +199,7 @@ public class ArtifactProcessorTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void testBigArtefact() throws IOException {
     // https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-osgi/1.11.732/aws-java-sdk-osgi-1.11.732.jar
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
@@ -225,7 +225,7 @@ public class ArtifactProcessorTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void heapSpaceArtifact() throws IOException {
 
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);

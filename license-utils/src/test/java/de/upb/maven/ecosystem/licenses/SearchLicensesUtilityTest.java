@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.licenses;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.PomFileUtil;
 import java.nio.file.Path;
@@ -12,7 +12,7 @@ import org.apache.maven.model.License;
 import org.apache.maven.model.Organization;
 import org.apache.maven.project.MavenProject;
 import org.cyclonedx.model.Component;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SearchLicensesUtilityTest {
 

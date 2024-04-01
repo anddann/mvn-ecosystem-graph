@@ -1,5 +1,5 @@
 ARG ARCH
-FROM ${ARCH}openjdk:8-jre
+FROM ${ARCH}openjdk:17-slim
 
 ENTRYPOINT ["/bin/bash", "-c", "exec java -jar /usr/share/myservice/myservice.jar \"$@\"", "bash"]
 

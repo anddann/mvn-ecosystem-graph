@@ -7,19 +7,19 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
-@Ignore
+@Disabled
 public class MergeNodesScript {
-
+  // TODO migrate to new embedded Dataserver Neo4j see other test cases with neo4j-testharness
   @Test
-  @Ignore
+  @Disabled
   public void merge() {
     final Driver driver =
         GraphDatabase.driver(

@@ -1,7 +1,7 @@
 package de.upb.maven.ecosystem.fingerprint.crawler;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactProcessor;
@@ -12,7 +12,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMet
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LicenseProcessorTest {
 

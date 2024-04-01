@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
@@ -73,7 +74,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   // org.openehealth.ipf.tutorials:ipf-tutorials-iheclient:3.7.3-null , failed with
 
   @Test
-  // @Ignore
+  @Disabled
   public void typoInProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
@@ -116,7 +117,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   // @Test
-  // @Ignore
+  @Disabled
   public void unresolvableProperty()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -339,7 +340,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * @throws SAXException
    */
   //  @Test
-  // @Ignore
+  @Disabled
   public void versionInvalid1() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
@@ -372,7 +373,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   //  @Test
-  //  @Ignore
+  //  @Disabled
   /**
    * 12:30:36.856 [pool-1-thread-1] ERROR d.u.m.e.r.Redis2Neo4JDB - Failed to persist
    * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2,
@@ -508,7 +509,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * @throws SAXException
    */
   //  @Test
-  //  @Ignore
+  //  @Disabled
   public void dependencyWithoutVersion()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -1282,7 +1283,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   //  @Test
-  //  @Ignore
+  //  @Disabled
   public void testFailedArtifactsFromFile() throws IOException {
     Driver driver = createDriver();
     DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
@@ -1367,7 +1368,8 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   //  @Test
-  //  @Ignore // a property in the dependency management section cannot be resolved ! Unresolvable!!
+  //  @Disabled // a property in the dependency management section cannot be resolved !
+  // Unresolvable!!
   public void testPropertiesUnresolvable()
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
@@ -1498,7 +1500,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   }
 
   @Test
-  // @Ignore // the artifact has a strange dependency to a pom, that is also in the dependency mgmt
+  @Disabled // the artifact has a strange dependency to a pom, that is also in the dependency mgmt
   // section as an import?
   public void freeze() throws IOException {
     //

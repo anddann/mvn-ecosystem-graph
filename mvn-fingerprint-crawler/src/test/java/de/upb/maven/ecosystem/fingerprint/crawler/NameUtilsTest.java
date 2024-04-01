@@ -1,9 +1,10 @@
 package de.upb.maven.ecosystem.fingerprint.crawler;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import de.upb.maven.ecosystem.fingerprint.crawler.process.NameUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NameUtilsTest {
 
@@ -34,9 +35,13 @@ public class NameUtilsTest {
     assertEquals("java/lang/Object$Ma.class", s);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void toFileName3() {
     String fqnName = "java.lang.Object.myMethod()";
-    String s = NameUtils.toFileName(fqnName);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          String s = NameUtils.toFileName(fqnName);
+        });
   }
 }

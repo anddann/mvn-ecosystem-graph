@@ -291,22 +291,24 @@ public class ArtifactProcessor {
 
   public void processJarContent(Path pathToJar, MavenArtifactMetadata metadata) throws IOException {
     List<String> exceptions = Lists.newArrayList();
-    HashMap<String, String[]> computedTLSHandSHA256 = new HashMap<>();
     Stopwatch stopwatch = Stopwatch.createStarted();
+    HashMap<String, String[]> computedTLSHandSHA256 = new HashMap<>();
 
-    try {
-      FingerPrintComputation.FingerPrintComputationBuilder fpBuilder =
-          new FingerPrintComputation.FingerPrintComputationBuilder(Collections.emptyList());
-      fpBuilder.setSootTimeOut(sootTimeoutSettingMS);
-      FingerPrintComputation fingerPrintComputation = fpBuilder.build();
-      computedTLSHandSHA256 = fingerPrintComputation.invokejNorm(pathToJar);
+    if (computeTLSH) {
+      try {
+        FingerPrintComputation.FingerPrintComputationBuilder fpBuilder =
+            new FingerPrintComputation.FingerPrintComputationBuilder(Collections.emptyList());
+        fpBuilder.setSootTimeOut(sootTimeoutSettingMS);
+        FingerPrintComputation fingerPrintComputation = fpBuilder.build();
+        computedTLSHandSHA256 = fingerPrintComputation.invokejNorm(pathToJar);
 
-      LOGGER.info(
-          "[Stats] jNorm {} took {}", pathToJar.getFileName().toString(), stopwatch.elapsed());
+        LOGGER.info(
+            "[Stats] jNorm {} took {}", pathToJar.getFileName().toString(), stopwatch.elapsed());
 
-    } catch (FingerPrintComputation.SootProcessInteruptedException e) {
-      exceptions.add(e.getClass().getCanonicalName());
-      LOGGER.error("Soot failed with: ", e);
+      } catch (FingerPrintComputation.SootProcessInteruptedException e) {
+        exceptions.add(e.getClass().getCanonicalName());
+        LOGGER.error("Soot failed with: ", e);
+      }
     }
 
     stopwatch.reset();
