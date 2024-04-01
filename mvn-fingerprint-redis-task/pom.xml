@@ -70,25 +70,24 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>${dockerfile.version}</version>
-                <executions>
-                    <execution>
-                        <id>default</id>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.1</version>
                 <configuration>
-                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
-                    <tag>${project.version}</tag>
-                    <buildArgs>
-                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                        <ARCH>${docker.image.arch}</ARCH>
-                    </buildArgs>
+                    <to>
+                        <image>${docker.image.prefix}/${project.artifactId}</image>
+                    </to>
+                    <from>
+                        <image>openjdk:17-slim</image>
+                    </from>
+                    <container>
+                        <environment>
+                            <MAVEN_REPO_URL>https://repo1.maven.org/maven2/</MAVEN_REPO_URL>
+                            <ACTOR_LIMIT>100</ACTOR_LIMIT>
+                            <SOOT_TIMEOUT_MS>300000</SOOT_TIMEOUT_MS>
+                            <SOOT_RUN_OPTION>SAME_PROCESS</SOOT_RUN_OPTION>
+                        </environment>
+                    </container>
                 </configuration>
             </plugin>
         </plugins>
