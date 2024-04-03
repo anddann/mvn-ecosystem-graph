@@ -13,7 +13,7 @@ import de.upb.maven.ecosystem.indexer.producer.MvnFingerprintArtifactDecider;
 import de.upb.maven.ecosystem.indexer.producer.MvnGraphArtifactDecider;
 import de.upb.maven.ecosystem.persistence.fingerprint.PostgresDBConnector;
 import de.upb.maven.ecosystem.persistence.fingerprint.PostgresDBHandler;
-import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -69,8 +69,8 @@ public class Main extends AbstractCrawler {
     if (StringUtils.equalsIgnoreCase(indexerEnv, "MVNGRAPH")) {
       LOGGER.error("MVNGRAPH INDEXER PROPERTY given");
 
-      final DoaMvnArtifactNodeImpl doaMvnArtifactNode =
-          new DoaMvnArtifactNodeImpl(Neo4JConnector.getDriver());
+      final DaoMvnArtifactNodeImpl doaMvnArtifactNode =
+          new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver());
       artifactCrawlDecider = new MvnGraphArtifactDecider(doaMvnArtifactNode);
 
     } else if (StringUtils.equalsIgnoreCase(indexerEnv, "MVNFINGERPRINT")) {

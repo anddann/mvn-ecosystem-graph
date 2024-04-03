@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author adann
  */
-public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
+public class DaoMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DoaMvnArtifactNodeImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DaoMvnArtifactNodeImpl.class);
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static long NEO4J_TRANSACTION_TIMEOUT = -1;
 
@@ -75,7 +75,7 @@ public class DoaMvnArtifactNodeImpl implements DaoMvnArtifactNode {
 
   private final Driver driver;
 
-  public DoaMvnArtifactNodeImpl(Driver driver) {
+  public DaoMvnArtifactNodeImpl(Driver driver) {
     this.driver = driver;
     try {
       this.createConstraintAndIdx();

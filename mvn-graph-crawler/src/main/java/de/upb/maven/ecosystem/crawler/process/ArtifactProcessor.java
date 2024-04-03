@@ -563,7 +563,6 @@ public class ArtifactProcessor {
             mvenartifactinfo.getArtifactVersion(),
             mvenartifactinfo.getClassifier(),
             mvenartifactinfo.getPackaging());
-    mvnArtifactNode.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
 
     addtoWorklist(mvnArtifactNode, RESOLVE_NODE);
 

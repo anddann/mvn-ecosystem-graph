@@ -10,7 +10,7 @@ import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
-import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +61,7 @@ public class Main extends AbstractCrawler {
     try {
       LOGGER.info("[Worker] Received Request");
       ArtifactManager manager =
-          new ArtifactManager(new DoaMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
+          new ArtifactManager(new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
       manager.process(artifactInfo);
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed Crawling  with", e);

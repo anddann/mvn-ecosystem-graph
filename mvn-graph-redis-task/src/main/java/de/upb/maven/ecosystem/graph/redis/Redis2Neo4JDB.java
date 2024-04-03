@@ -1,7 +1,7 @@
 package de.upb.maven.ecosystem.graph.redis;
 
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
@@ -60,7 +60,7 @@ public class Redis2Neo4JDB {
                       AuthTokens.basic(
                           Neo4JConnector.getNeo4jUser(), Neo4JConnector.getNeo4jPASS()));
               driver.verifyConnectivity();
-              moveRedisToNeo4J = new Redis2Neo4JDB(url, new DoaMvnArtifactNodeImpl(driver));
+              moveRedisToNeo4J = new Redis2Neo4JDB(url, new DaoMvnArtifactNodeImpl(driver));
               moveRedisToNeo4J.flush();
               driver.close();
             } catch (Exception e) {

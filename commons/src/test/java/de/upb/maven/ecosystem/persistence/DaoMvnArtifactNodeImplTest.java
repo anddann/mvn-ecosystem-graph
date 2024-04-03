@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.AbstractCrawler;
-import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.MvnArtifactNodeProxy;
 import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
@@ -28,11 +28,11 @@ import org.neo4j.harness.Neo4jBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DoaMvnArtifactNodeImplTest {
+class DaoMvnArtifactNodeImplTest {
 
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
-  private static final Logger logger = LoggerFactory.getLogger(DoaMvnArtifactNodeImplTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DaoMvnArtifactNodeImplTest.class);
 
   private static Neo4j embeddedDatabaseServer;
 
@@ -84,8 +84,8 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
   }
 
   @Test
@@ -97,8 +97,8 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
   }
 
   @Test
@@ -122,8 +122,8 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
   }
 
   @Test
@@ -147,8 +147,8 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
   }
 
   @Test
@@ -160,11 +160,11 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
     // get the node
-    final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+    final Optional<MvnArtifactNode> mvnArtifactNode1 = daoMvnArtifactNodeImpl.get(mvnArtifactNode);
     assertNotNull(mvnArtifactNode1);
     assertTrue(mvnArtifactNode1.isPresent());
   }
@@ -185,11 +185,11 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
     // get the node
-    final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+    final Optional<MvnArtifactNode> mvnArtifactNode1 = daoMvnArtifactNodeImpl.get(mvnArtifactNode);
     assertNotNull(mvnArtifactNode1);
     assertTrue(mvnArtifactNode1.isPresent());
     assertNotNull(mvnArtifactNode1.get().getProperties());
@@ -225,13 +225,13 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
     // get the node and the relationship
 
     final Optional<DependencyRelation> mvnArtifactNode1 =
-        doaMvnArtifactNodeImpl.getRelationship(mvnArtifactNode, depNode);
+        daoMvnArtifactNodeImpl.getRelationship(mvnArtifactNode, depNode);
     assertNotNull(mvnArtifactNode1);
     assertTrue(mvnArtifactNode1.isPresent());
 
@@ -282,12 +282,12 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
     // get the node and the relationship
 
-    final Optional<MvnArtifactNode> mvnArtifactNode1 = doaMvnArtifactNodeImpl.get(mvnArtifactNode);
+    final Optional<MvnArtifactNode> mvnArtifactNode1 = daoMvnArtifactNodeImpl.get(mvnArtifactNode);
     assertNotNull(mvnArtifactNode1);
     assertTrue(mvnArtifactNode1.isPresent());
     final MvnArtifactNode proxyNode = mvnArtifactNode1.get();
@@ -309,11 +309,11 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
-    doaMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
+    daoMvnArtifactNodeImpl.saveOrMerge(mvnArtifactNode);
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             "g", "a", "1.0", null, AbstractCrawler.getCrawlerVersion());
     assertTrue(b);
   }
@@ -329,10 +329,10 @@ class DoaMvnArtifactNodeImplTest {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     final DefaultDirectedGraph<MvnArtifactNode, DependencyRelation> graph =
-        doaMvnArtifactNodeImpl.getGraph(query);
+        daoMvnArtifactNodeImpl.getGraph(query);
 
     // TODO get the jgrapht
     System.out.println(graph);

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.graph.dao.DoaMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -32,10 +32,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -46,7 +46,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setPackaging("jar");
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             artifactInfo.getGroupId(),
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
@@ -66,7 +66,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -78,10 +78,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void typoInProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -92,7 +92,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setPackaging("jar");
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             artifactInfo.getGroupId(),
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
@@ -112,7 +112,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -122,10 +122,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -136,7 +136,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setPackaging("jar");
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             artifactInfo.getGroupId(),
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
@@ -156,7 +156,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -164,10 +164,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void nonTestedJackson() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -178,7 +178,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setPackaging("bundle");
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             artifactInfo.getGroupId(),
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
@@ -198,19 +198,19 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
-    //    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
+    //    process.forEach(y -> daoMvnArtifactNodeImpl.saveOrMerge(y));
   }
 
   @Test
   public void nonTestedJackson2() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -221,7 +221,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setPackaging("jar");
 
     final boolean b =
-        doaMvnArtifactNodeImpl.containsNodeWithVersionGQ(
+        daoMvnArtifactNodeImpl.containsNodeWithVersionGQ(
             artifactInfo.getGroupId(),
             artifactInfo.getArtifactId(),
             artifactInfo.getArtifactVersion(),
@@ -240,10 +240,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
 
-    //    process.forEach(y -> doaMvnArtifactNodeImpl.saveOrMerge(y));
+    //    process.forEach(y -> daoMvnArtifactNodeImpl.saveOrMerge(y));
   }
 
   /**
@@ -253,7 +253,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
    * MvnArtifactNode(resolvingLevel=FULL, crawlerVersion=0.5.2, group=org.dashbuilder,
    * artifact=dashbuilder-displayer-screen, version=7.67.0.Final,
    * repoURL=https://repo1.maven.org/maven2/, scmURL=null, classifier=null, packaging=jar,
-   * properties={}), 02:13:15.280 [pool-1-thread-1] ERROR d.u.m.e.p.d.DoaMvnArtifactNodeImpl - The
+   * properties={}), 02:13:15.280 [pool-1-thread-1] ERROR d.u.m.e.p.d.DaoMvnArtifactNodeImpl - The
    * version is invalid: com.google.gwt:gwt-user:null-null -- null
    */
   @Test
@@ -261,10 +261,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -285,7 +285,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -299,10 +299,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void classifierProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -323,7 +323,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -344,10 +344,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void versionInvalid1() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -368,7 +368,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -385,10 +385,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -409,7 +409,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -428,10 +428,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -452,7 +452,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -468,10 +468,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -492,7 +492,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -514,10 +514,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -538,7 +538,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -559,10 +559,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void test2() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -583,7 +583,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -606,10 +606,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void test3() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -630,7 +630,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -639,10 +639,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -712,7 +712,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     testDependencies(p3);
 
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -721,10 +721,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -746,7 +746,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
 
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -755,10 +755,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -785,10 +785,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -809,7 +809,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -818,11 +818,11 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // write the node with circular reference first into the DB
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -843,7 +843,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -852,9 +852,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -873,7 +873,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -883,9 +883,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     // failed on database?
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -899,7 +899,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
 
     for (MvnArtifactNode node : process) {
@@ -914,11 +914,11 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     //  add the parent before to the database, then the test will fail..
     // if the parent is fetched from the database
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -936,7 +936,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testSerialize(process);
 
       for (MvnArtifactNode node : process) {
-        doaMvnArtifactNodeImpl.saveOrMerge(node);
+        daoMvnArtifactNodeImpl.saveOrMerge(node);
       }
 
       for (MvnArtifactNode node : process) {
@@ -945,7 +945,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -959,7 +959,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
 
     for (MvnArtifactNode node : process) {
@@ -973,9 +973,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -992,7 +992,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -1000,11 +1000,11 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void testWithDBAccess() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1022,7 +1022,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testSerialize(process);
 
       for (MvnArtifactNode node : process) {
-        doaMvnArtifactNodeImpl.saveOrMerge(node);
+        daoMvnArtifactNodeImpl.saveOrMerge(node);
       }
 
       for (MvnArtifactNode node : process) {
@@ -1034,7 +1034,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1061,11 +1061,11 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     Driver driver = createDriver();
     // Created duplicate parent edge
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1083,7 +1083,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testSerialize(process);
 
       for (MvnArtifactNode node : process) {
-        doaMvnArtifactNodeImpl.saveOrMerge(node);
+        daoMvnArtifactNodeImpl.saveOrMerge(node);
       }
 
       for (MvnArtifactNode node : process) {
@@ -1095,7 +1095,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1142,12 +1142,12 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifacts.add("fcrepo-client");
     artifacts.add("fcrepo-build-tools");
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1167,7 +1167,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testSerialize(process);
 
       for (MvnArtifactNode node : process) {
-        doaMvnArtifactNodeImpl.saveOrMerge(node);
+        daoMvnArtifactNodeImpl.saveOrMerge(node);
       }
 
       for (MvnArtifactNode node : process) {
@@ -1179,7 +1179,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1200,7 +1200,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       }
 
       for (MvnArtifactNode node : process) {
-        DoaMvnArtifactNodeImpl.sanityCheck(node);
+        DaoMvnArtifactNodeImpl.sanityCheck(node);
       }
     }
   }
@@ -1209,11 +1209,11 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void failedArtifact() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     {
       // write the node with circular reference first into the DB
       ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+          new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1232,7 +1232,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testSerialize(process);
 
       for (MvnArtifactNode node : process) {
-        doaMvnArtifactNodeImpl.saveOrMerge(node);
+        daoMvnArtifactNodeImpl.saveOrMerge(node);
       }
 
       for (MvnArtifactNode node : process) {
@@ -1253,7 +1253,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // logoutput
     // org.ops4j.pax.web.samples:authentication:2.1.2-null -- Properties not resolved. Invalid State
@@ -1262,7 +1262,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "org.ops4j.pax.web.samples:authentication:2.1.2-null -- Properties not resolved. Invalid State");
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1286,7 +1286,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   //  @Disabled
   public void testFailedArtifactsFromFile() throws IOException {
     Driver driver = createDriver();
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     Path path = Paths.get("../logs_2022_01_21/failed_artifacts.txt");
     ArrayList<String> newFileLines = new ArrayList<>();
     HashSet<String> seenGroups = new HashSet<>();
@@ -1302,7 +1302,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
         }
 
         ArtifactProcessor artifactProcessor =
-            new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+            new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
         CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
         artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1337,14 +1337,14 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
   public void testPropertiesFail() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // logoutput
 
     String[] gav = splitString("io.apiman:apiman-test-policies:1.2.0.Beta2-null");
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1363,7 +1363,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       testDependencies(node);
     }
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 
@@ -1374,7 +1374,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // logoutput
 
@@ -1383,7 +1383,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "org.sakaiproject.delegatedaccess:delegatedaccess-pack:2.1-null -- Properties not resolved. Invalid State");
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1408,7 +1408,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // logoutput
 
@@ -1416,7 +1416,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
         splitString("net.vvakame:blazdb-sqlite:0.2-null -- Properties not resolved. Invalid State");
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1441,7 +1441,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     // logoutput
 
@@ -1450,7 +1450,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "de.hilling.junit.cdi:cdi-test-jee:0.10.2-null -- Invalid State. Unresolved Property: javax.enterprise:cdi-api:${cdi-api.version}\n");
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1479,10 +1479,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1509,10 +1509,10 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     Driver driver = createDriver();
 
-    DoaMvnArtifactNodeImpl doaMvnArtifactNodeImpl = new DoaMvnArtifactNodeImpl(driver);
+    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(doaMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
+        new ArtifactProcessor(daoMvnArtifactNodeImpl, "https://repo1.maven.org/maven2/");
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1528,7 +1528,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     assertFalse(process.isEmpty());
     testSerialize(process);
     for (MvnArtifactNode node : process) {
-      DoaMvnArtifactNodeImpl.sanityCheck(node);
+      DaoMvnArtifactNodeImpl.sanityCheck(node);
     }
   }
 }

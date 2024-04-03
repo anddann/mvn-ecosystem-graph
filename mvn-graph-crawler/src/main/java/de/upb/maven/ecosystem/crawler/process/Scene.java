@@ -1,17 +1,24 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
+import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
+import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -43,6 +50,194 @@ public class Scene {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.repoUrl = repoUrl;
     this.daoMvnArtifactNode = doaArtifactNode;
+  }
+
+  public static class MvnArtifactNodeReference extends MvnArtifactNode {
+
+    private MvnArtifactNode node;
+
+    private boolean isResolved;
+
+    public MvnArtifactNodeReference(MvnArtifactNode node) {
+      this.node = node;
+      this.isResolved = false;
+    }
+
+    public boolean isFullyResolved() {
+      if (isResolved) {
+        return true;
+      }
+      if (node == null) {
+        return false;
+      }
+      boolean fullyResolved =
+          !StringUtils.contains(node.getGroup(), "$")
+              && !StringUtils.contains(node.getArtifact(), "$")
+              && !StringUtils.contains(node.getVersion(), "$");
+      isResolved = true;
+      return fullyResolved;
+    }
+
+    private void resolve() {
+      if (isResolved) {
+        return;
+      } else {
+        // do resolving logic here
+      }
+    }
+
+    @Override
+    public ResolvingLevel getResolvingLevel() {
+      return node.getResolvingLevel();
+    }
+
+    @Override
+    public String getCrawlerVersion() {
+      return node.getCrawlerVersion();
+    }
+
+    @Override
+    public String getGroup() {
+      return node.getGroup();
+    }
+
+    @Override
+    public String getArtifact() {
+      return node.getArtifact();
+    }
+
+    @Override
+    public String getVersion() {
+      return node.getVersion();
+    }
+
+    @Override
+    public String getRepoURL() {
+      return node.getRepoURL();
+    }
+
+    @Override
+    public String getScmURL() {
+      return node.getScmURL();
+    }
+
+    @Override
+    public String getClassifier() {
+      return node.getClassifier();
+    }
+
+    @Override
+    public String getPackaging() {
+      return node.getPackaging();
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+      return node.getProperties();
+    }
+
+    @Override
+    public Optional<MvnArtifactNode> getParent() {
+      return node.getParent();
+    }
+
+    @Override
+    public List<DependencyRelation> getDependencies() {
+      return node.getDependencies();
+    }
+
+    @Override
+    public List<DependencyRelation> getDependencyManagement() {
+      return node.getDependencyManagement();
+    }
+
+    @Override
+    public void setResolvingLevel(ResolvingLevel resolvingLevel) {
+      node.setResolvingLevel(resolvingLevel);
+    }
+
+    @Override
+    public void setCrawlerVersion(String crawlerVersion) {
+      node.setCrawlerVersion(crawlerVersion);
+    }
+
+    @Override
+    public void setGroup(String group) {
+      node.setGroup(group);
+    }
+
+    @Override
+    public void setArtifact(String artifact) {
+      node.setArtifact(artifact);
+    }
+
+    @Override
+    public void setVersion(String version) {
+      node.setVersion(version);
+    }
+
+    @Override
+    public void setRepoURL(String repoURL) {
+      node.setRepoURL(repoURL);
+    }
+
+    @Override
+    public void setScmURL(String scmURL) {
+      node.setScmURL(scmURL);
+    }
+
+    @Override
+    public void setPackaging(String packaging) {
+      node.setPackaging(packaging);
+    }
+
+    @Override
+    public void setProperties(Map<String, String> properties) {
+      node.setProperties(properties);
+    }
+
+    @Override
+    @JsonIgnore
+    public void setDependencies(List<DependencyRelation> dependencies) {
+      node.setDependencies(dependencies);
+    }
+
+    @Override
+    @JsonIgnore
+    public void setDependencyManagement(List<DependencyRelation> dependencyManagement) {
+      node.setDependencyManagement(dependencyManagement);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return node.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+      return node.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return node.toString();
+    }
+
+    @Override
+    @JsonProperty("hashId")
+    public String getHashId() {
+      return node.getHashId();
+    }
+
+    @Override
+    public void setParent(Optional<MvnArtifactNode> parent) {
+      node.setParent(parent);
+    }
+
+    @Override
+    public void setClassifier(String classifier) {
+      node.setClassifier(classifier);
+    }
   }
 
   public static String genId(MvnArtifactNode node) {
@@ -125,6 +320,7 @@ public class Scene {
     mvnArtifactNode.setVersion(version);
     mvnArtifactNode.setClassifier(classifier);
     mvnArtifactNode.setPackaging(packaging);
+    mvnArtifactNode.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
 
     // if not fully resolved properties loopup is wasted
     if (StringUtils.isBlank(groupId)
@@ -156,7 +352,7 @@ public class Scene {
             == MvnArtifactNode.ResolvingLevel.FULL) {
       //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
       // child but still pointing to the "old" unresolved node ... :(
-      // -- same goes obvoiulsy for import nodes... :(
+      // -- same goes obviously for import nodes... :(
 
       nodeToReturn = optionalMvnArtifactNode.get();
       LOGGER.debug(
@@ -165,6 +361,7 @@ public class Scene {
       nodeToReturn = mvnArtifactNode;
     }
     nodesInScene.put(identifier, nodeToReturn);
+    nodeToReturn.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
     return nodeToReturn;
   }
 
