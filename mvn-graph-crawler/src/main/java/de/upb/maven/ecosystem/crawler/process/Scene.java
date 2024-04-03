@@ -1,10 +1,19 @@
 package de.upb.maven.ecosystem.crawler.process;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
+import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,12 +21,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
 
 /**
  * @author adann
@@ -32,10 +35,14 @@ public class Scene {
 
   private final Path TEMP_LOCATION;
   private final String repoUrl;
+  private final DaoMvnArtifactNode daoMvnArtifactNode;
 
-  public Scene(String repoUrl) throws IOException {
+  private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
+
+  public Scene(String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.repoUrl = repoUrl;
+    this.daoMvnArtifactNode = doaArtifactNode;
   }
 
   public static String genId(MvnArtifactNode node) {
@@ -52,9 +59,15 @@ public class Scene {
     return identifier;
   }
 
+  public static String genId(
+      String groupId, String artifact, String version, String classifier, String packaging) {
+    String identifier =
+        groupId + ":" + artifact + ":" + version + "-" + classifier + "-" + packaging;
+    return identifier;
+  }
+
   @NotNull
-  public CustomArtifactInfo getCustomArtifactInfo(
-      MvnArtifactNode mvnArtifactNode) {
+  public CustomArtifactInfo getCustomArtifactInfo(MvnArtifactNode mvnArtifactNode) {
     // Derive pom.xml from info
     CustomArtifactInfo pomInfo = new CustomArtifactInfo();
     pomInfo.setClassifier(mvnArtifactNode.getClassifier());
@@ -66,8 +79,7 @@ public class Scene {
     return pomInfo;
   }
 
-  public Path downloadFilePlainURL(CustomArtifactInfo info)
-      throws IOException {
+  public Path downloadFilePlainURL(CustomArtifactInfo info) throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
 
     URL downloadURL = ArtifactUtils.constructURL(info);
@@ -99,8 +111,61 @@ public class Scene {
     return fileName;
   }
 
-  public void add(MvnArtifactNode mvnArtifactNode, Model model){
+  public void add(MvnArtifactNode mvnArtifactNode, Model model) {
     nodeToModel.put(Scene.genId(mvnArtifactNode), model);
+  }
+
+  public MvnArtifactNode makeNodeRef(
+      String groupId, String artifact, String version, String classifier, String packaging) {
+
+    // only here a call to new is allowed .. the others are look ups
+    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
+    mvnArtifactNode.setGroup(groupId);
+    mvnArtifactNode.setArtifact(artifact);
+    mvnArtifactNode.setVersion(version);
+    mvnArtifactNode.setClassifier(classifier);
+    mvnArtifactNode.setPackaging(packaging);
+
+    // if not fully resolved properties loopup is wasted
+    if (StringUtils.isBlank(groupId)
+        || StringUtils.isBlank(artifact)
+        || StringUtils.isBlank(version)
+        || StringUtils.startsWith(version, "$")) {
+      // not resolved just a dummy refernce that needs to be resolved later
+      return mvnArtifactNode;
+    }
+    String identifier = genId(groupId, artifact, version, classifier, packaging);
+
+    if (nodesInScene.containsKey(identifier)) {
+      return nodesInScene.get(identifier);
+    }
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    MvnArtifactNode nodeToReturn;
+    //
+    final Optional<MvnArtifactNode> optionalMvnArtifactNode =
+        daoMvnArtifactNode.get(mvnArtifactNode);
+    //
+    // problem, when we have a "dangling" node in the db.
+    // 1. we saw the node as a dependency and added it to the db
+    // 2. we return the node here, however, neither its properties nor its dependencies have been
+    // resolved before...
+    // merge with mvnNode - use the shallow info from the database
+    if (optionalMvnArtifactNode.isPresent()
+        && optionalMvnArtifactNode.get().getResolvingLevel()
+            == MvnArtifactNode.ResolvingLevel.FULL) {
+      //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
+      // child but still pointing to the "old" unresolved node ... :(
+      // -- same goes obvoiulsy for import nodes... :(
+
+      nodeToReturn = optionalMvnArtifactNode.get();
+      LOGGER.debug(
+          "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    } else {
+      nodeToReturn = mvnArtifactNode;
+    }
+    nodesInScene.put(identifier, nodeToReturn);
+    return nodeToReturn;
   }
 
   public Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {

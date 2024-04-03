@@ -1,7 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -24,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -53,22 +51,17 @@ public class ArtifactProcessor {
   // worklist 4 - (for dependencies --> that do not come out of the db --> resolve all their direct
   // dependencies)
   private static final int RESOLVE_DIRECT_DEPENDENCIES = 3;
-  private final DaoMvnArtifactNode daoMvnArtifactNode;
-  private final String repoUrl;
+
   private final Deque<MvnArtifactNode>[] worklist = new Deque[4];
 
   private final List<MvnArtifactNode> writeToDBList = new ArrayList<>();
-
-  private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
 
   private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
   private final Scene scene;
 
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
-    this.scene = new Scene(repoUrl);
-    this.daoMvnArtifactNode = doaArtifactNode;
-    this.repoUrl = repoUrl;
+    this.scene = new Scene(repoUrl, doaArtifactNode);
     // FIFO queue
     worklist[RESOLVE_NODE] = new ArrayDeque<>();
     // LIFO
@@ -76,7 +69,6 @@ public class ArtifactProcessor {
     worklist[RESOLVE_IMPORTS] = new ArrayDeque<>();
     worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<>();
   }
-
 
   private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
     String id = Scene.genId(node);
@@ -558,66 +550,6 @@ public class ArtifactProcessor {
     }
   }
 
-  private String genId(
-      String groupId, String artifact, String version, String classifier, String packaging) {
-    String identifier =
-        groupId + ":" + artifact + ":" + version + "-" + classifier + "-" + packaging;
-    return identifier;
-  }
-
-  private MvnArtifactNode makeNodeRef(
-      String groupId, String artifact, String version, String classifier, String packaging) {
-
-    // only here a call to new is allowed .. the others are look ups
-    MvnArtifactNode mvnArtifactNode = new MvnArtifactNode();
-    mvnArtifactNode.setGroup(groupId);
-    mvnArtifactNode.setArtifact(artifact);
-    mvnArtifactNode.setVersion(version);
-    mvnArtifactNode.setClassifier(classifier);
-    mvnArtifactNode.setPackaging(packaging);
-
-    // if not fully resolved properties loopup is wasted
-    if (StringUtils.isBlank(groupId)
-        || StringUtils.isBlank(artifact)
-        || StringUtils.isBlank(version)
-        || StringUtils.startsWith(version, "$")) {
-      // not resolved just a dummy refernce that needs to be resolved later
-      return mvnArtifactNode;
-    }
-    String identifier = genId(groupId, artifact, version, classifier, packaging);
-
-    if (nodesInScene.containsKey(identifier)) {
-      return nodesInScene.get(identifier);
-    }
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    MvnArtifactNode nodeToReturn;
-    //
-    final Optional<MvnArtifactNode> optionalMvnArtifactNode =
-        daoMvnArtifactNode.get(mvnArtifactNode);
-    //
-    // problem, when we have a "dangling" node in the db.
-    // 1. we saw the node as a dependency and added it to the db
-    // 2. we return the node here, however, neither its properties nor its dependencies have been
-    // resolved before...
-    // merge with mvnNode - use the shallow info from the database
-    if (optionalMvnArtifactNode.isPresent()
-        && optionalMvnArtifactNode.get().getResolvingLevel()
-            == MvnArtifactNode.ResolvingLevel.FULL) {
-      //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
-      // child but still pointing to the "old" unresolved node ... :(
-      // -- same goes obvoiulsy for import nodes... :(
-
-      nodeToReturn = optionalMvnArtifactNode.get();
-      LOGGER.debug(
-          "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    } else {
-      nodeToReturn = mvnArtifactNode;
-    }
-    nodesInScene.put(identifier, nodeToReturn);
-    return nodeToReturn;
-  }
-
   @Nullable
   public Collection<MvnArtifactNode> process(CustomArtifactInfo mvenartifactinfo)
       throws IOException {
@@ -625,7 +557,7 @@ public class ArtifactProcessor {
     LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
 
     MvnArtifactNode mvnArtifactNode =
-        makeNodeRef(
+        scene.makeNodeRef(
             mvenartifactinfo.getGroupId(),
             mvenartifactinfo.getArtifactId(),
             mvenartifactinfo.getArtifactVersion(),
@@ -668,7 +600,7 @@ public class ArtifactProcessor {
         if (mavenProjectParent != null) {
           // add the parent
           MvnArtifactNode parent =
-              makeNodeRef(
+              scene.makeNodeRef(
                   mavenProjectParent.getGroupId(),
                   mavenProjectParent.getArtifactId(),
                   mavenProjectParent.getVersion(),
@@ -744,7 +676,7 @@ public class ArtifactProcessor {
 
   private DependencyRelation create(Dependency mavenDep, int position) {
     MvnArtifactNode dependency =
-        makeNodeRef(
+        scene.makeNodeRef(
             mavenDep.getGroupId(),
             mavenDep.getArtifactId(),
             mavenDep.getVersion(),
@@ -788,5 +720,4 @@ public class ArtifactProcessor {
     }
     return dependencyScope;
   }
-
 }
