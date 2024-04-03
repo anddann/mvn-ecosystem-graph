@@ -28,7 +28,7 @@
         <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
         <docker.image.prefix>ghcr.io/anddann</docker.image.prefix>
         <dockerfile.version>1.4.13</dockerfile.version>
-        <docker.image.arch>arm64v8</docker.image.arch>
+        <docker.image.arch>arm64</docker.image.arch>
     </properties>
 
     <modules>

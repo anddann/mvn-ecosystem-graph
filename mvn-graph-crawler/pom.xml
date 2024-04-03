@@ -83,7 +83,7 @@
                         <image>openjdk:17-slim</image>
                         <platforms>
                             <platform>
-                                <architecture>arm64</architecture>
+                                <architecture>${docker.image.arch}</architecture>
                                 <os>linux</os>
                             </platform>
                         </platforms>

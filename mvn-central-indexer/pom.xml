@@ -23,11 +23,10 @@
     </parent>
 
 
-
     <artifactId>mvn-central-indexer</artifactId>
 
     <properties>
-          <logback.version>1.2.10</logback.version>
+        <logback.version>1.2.10</logback.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -101,7 +100,7 @@
                         <image>openjdk:17-slim</image>
                         <platforms>
                             <platform>
-                                <architecture>arm64</architecture>
+                                <architecture>${docker.image.arch}</architecture>
                                 <os>linux</os>
                             </platform>
                         </platforms>
@@ -192,10 +191,7 @@
         </dependency>
 
 
-
         <!-- maven indexer dependencies -->
-
-
 
 
     </dependencies>

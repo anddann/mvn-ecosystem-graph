@@ -3,7 +3,6 @@ package de.upb.maven.ecosystem.crawler.process;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
-import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
@@ -12,7 +11,6 @@ import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -31,23 +29,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
-  private static final int CONNECT_TIMEOUT = 5 * 60000;
-  private static final int READ_TIMEOUT = 5 * 60000;
+
   private static final int RESOLVE_NODE = 0;
   private static final int RESOLVE_PROPERTIES = 1;
   private static final int RESOLVE_IMPORTS = 2;
@@ -56,10 +50,9 @@ public class ArtifactProcessor {
   // worklist 1 - resolve node in FIFO order (starting with child)
   // worklist 2 - resolve properties in LIFO order (starting with parent)
   // worklist 3 - resolve imports in dependency management
-  // worklist 4 - (for dependencies --> that do not came out of the db --> resolve all their direct
+  // worklist 4 - (for dependencies --> that do not come out of the db --> resolve all their direct
   // dependencies)
   private static final int RESOLVE_DIRECT_DEPENDENCIES = 3;
-  private final Path TEMP_LOCATION;
   private final DaoMvnArtifactNode daoMvnArtifactNode;
   private final String repoUrl;
   private final Deque<MvnArtifactNode>[] worklist = new Deque[4];
@@ -68,12 +61,12 @@ public class ArtifactProcessor {
 
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
 
-  private final HashMap<String, Model> nodeToModel = new HashMap<>();
   private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
+  private final Scene scene;
 
   public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
-    TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
+    this.scene = new Scene(repoUrl);
     this.daoMvnArtifactNode = doaArtifactNode;
     this.repoUrl = repoUrl;
     // FIFO queue
@@ -84,44 +77,9 @@ public class ArtifactProcessor {
     worklist[RESOLVE_DIRECT_DEPENDENCIES] = new ArrayDeque<>();
   }
 
-  private Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {
-    Model model = this.nodeToModel.get(genId(mvnArtifactNode));
-    if (model == null) {
-
-      CustomArtifactInfo pomInfo = getCustomArtifactInfo(mvnArtifactNode);
-      Path pomLocation = null;
-      try {
-        pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
-
-        final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
-
-        if (mavenProject != null && mavenProject.getModel() != null) {
-          model = mavenProject.getModel();
-          // add to the hashset - to get profile information later (easily)
-          nodeToModel.put(genId(mvnArtifactNode), model);
-        }
-      } catch (IOException exception) {
-        LOGGER.error("Failed to resolve model for {}", pomInfo);
-      }
-    }
-    return model;
-  }
-
-  @NotNull
-  private CustomArtifactInfo getCustomArtifactInfo(MvnArtifactNode mvnArtifactNode) {
-    // Derive pom.xml from info
-    CustomArtifactInfo pomInfo = new CustomArtifactInfo();
-    pomInfo.setClassifier(mvnArtifactNode.getClassifier());
-    pomInfo.setGroupId(mvnArtifactNode.getGroup());
-    pomInfo.setArtifactId(mvnArtifactNode.getArtifact());
-    pomInfo.setArtifactVersion(mvnArtifactNode.getVersion());
-    pomInfo.setRepoURL(this.repoUrl);
-    pomInfo.setFileExtension("pom");
-    return pomInfo;
-  }
 
   private void addtoWorklist(MvnArtifactNode node, int resolvinglevel) {
-    String id = genId(node);
+    String id = Scene.genId(node);
     final Integer currentResolvingLevel = internalResolvingLevelHashMap.getOrDefault(id, -1);
     if (currentResolvingLevel >= resolvinglevel) {
       return;
@@ -508,7 +466,7 @@ public class ArtifactProcessor {
         } else {
 
           // else we have to check if it defined in a profile
-          final Model model = this.nodeToModelGetOrFetchModel(currentNode);
+          final Model model = this.scene.nodeToModelGetOrFetchModel(currentNode);
           boolean isDirectDependency = mvnArtifactNode.getDependencies().contains(poll);
 
           for (Profile profile : model.getProfiles()) {
@@ -598,20 +556,6 @@ public class ArtifactProcessor {
     if (mvnNode.getParent().isPresent()) {
       addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
     }
-  }
-
-  private String genId(MvnArtifactNode node) {
-    String identifier =
-        node.getGroup()
-            + ":"
-            + node.getArtifact()
-            + ":"
-            + node.getVersion()
-            + "-"
-            + node.getClassifier()
-            + "-"
-            + node.getPackaging();
-    return identifier;
   }
 
   private String genId(
@@ -707,17 +651,17 @@ public class ArtifactProcessor {
   public void addInfoFromPom(MvnArtifactNode mvnArtifactNode) throws IOException {
 
     // Derive pom.xml from info
-    CustomArtifactInfo pomInfo = getCustomArtifactInfo(mvnArtifactNode);
+    CustomArtifactInfo pomInfo = scene.getCustomArtifactInfo(mvnArtifactNode);
     Path pomLocation = null;
     try {
-      pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
+      pomLocation = scene.downloadFilePlainURL(pomInfo);
 
       final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
 
       if (mavenProject != null && mavenProject.getModel() != null) {
         final Model model = mavenProject.getModel();
         // add to the hashset - to get profile information later (easily)
-        nodeToModel.put(genId(mvnArtifactNode), model);
+        scene.add(mvnArtifactNode, model);
 
         final Parent mavenProjectParent = model.getParent();
 
@@ -845,36 +789,4 @@ public class ArtifactProcessor {
     return dependencyScope;
   }
 
-  private Path downloadFilePlainURL(CustomArtifactInfo info, Path downloadFolder)
-      throws IOException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    URL downloadURL = ArtifactUtils.constructURL(info);
-    LOGGER.info("Downloading file from plain url: {}", downloadURL);
-
-    String classifier = "";
-    // handle null values coming from the database, since neo4j does not allow null, we have the
-    // string "null"
-    if (StringUtils.isNotBlank(info.getClassifier())
-        && !StringUtils.equals("null", info.getClassifier())) {
-      classifier = "-" + info.getClassifier();
-    }
-    String jarName =
-        info.getArtifactId()
-            + "-"
-            + info.getArtifactVersion()
-            + classifier
-            + "."
-            + info.getFileExtension();
-    Path fileName = downloadFolder.resolve(jarName);
-    FileUtils.copyURLToFile(downloadURL, fileName.toFile(), CONNECT_TIMEOUT, READ_TIMEOUT);
-    if (!Files.exists(fileName)) {
-      throw new IOException("Failed to download file: " + jarName);
-    }
-    stopwatch.stop();
-
-    LOGGER.info(
-        "[Stats] Downloading {} took {}", fileName.getFileName().toString(), stopwatch.elapsed());
-    return fileName;
-  }
 }
