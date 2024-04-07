@@ -1,7 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Optional;
-import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
@@ -132,12 +131,7 @@ public class ArtifactProcessor {
 
   private DependencyRelation createCopy(DependencyRelation srcDepRelation)
       throws InvocationTargetException, IllegalAccessException {
-    final DependencyRelation newRelation = new DependencyRelation();
-    final MvnArtifactNode newMvnNode = new MvnArtifactNode();
-    BeanUtils.copyProperties(newMvnNode, srcDepRelation.getTgtNode());
-    BeanUtils.copyProperties(newRelation, srcDepRelation);
-    newRelation.setTgtNode(newMvnNode);
-    return newRelation;
+    return scene.createCopy(srcDepRelation);
   }
 
   private void resolveDirectDependencies(MvnArtifactNode mvnArtifactNode) {
@@ -185,6 +179,7 @@ public class ArtifactProcessor {
     dependencyManagementNodesToCheck.add(mvnArtifactNode);
 
     // TODO - refactor
+
     // avoid circles
     HashSet<MvnArtifactNode> alreadyCheckedNodes = new HashSet<>();
     // resolve the properties without a version
@@ -453,7 +448,7 @@ public class ArtifactProcessor {
 
         // check if the artifact is now fully resolved
 
-        if (isFullyResolved(dep)) {
+        if (((Scene.MvnArtifactNodeReference) dep).isFullyResolved()) {
           dependencyPropertiesToResolve.remove(dep);
         } else {
 
@@ -498,7 +493,7 @@ public class ArtifactProcessor {
               // also set the classifier in the dependency relation
               profileDepRelation.setClassifier(resolvedClassifier);
 
-              if (isFullyResolved(profileDep)) {
+              if (((Scene.MvnArtifactNodeReference) profileDep).isFullyResolved()) {
 
                 dependencyPropertiesToResolve.remove(poll);
                 // remove the old one from dependencies
@@ -521,14 +516,6 @@ public class ArtifactProcessor {
       // search in the parent
       currentNode = currentNode.getParent().orNull();
     }
-  }
-
-  private boolean isFullyResolved(MvnArtifactNode dep) {
-    boolean fullyResolved =
-        !StringUtils.contains(dep.getGroup(), "$")
-            && !StringUtils.contains(dep.getArtifact(), "$")
-            && !StringUtils.contains(dep.getVersion(), "$");
-    return fullyResolved;
   }
 
   private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
@@ -556,7 +543,7 @@ public class ArtifactProcessor {
 
     LOGGER.info("Start crawling Artifact: {}", mvenartifactinfo);
 
-    MvnArtifactNode mvnArtifactNode =
+    Scene.MvnArtifactNodeReference mvnArtifactNode =
         scene.makeNodeRef(
             mvenartifactinfo.getGroupId(),
             mvenartifactinfo.getArtifactId(),

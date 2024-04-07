@@ -39,7 +39,7 @@
         <module>mvn-fingerprint-crawler</module>
         <module>mvn-fingerprint-redis-task</module>
         <module>license-utils</module>
-        <!--   <module>effective-pom</module> -->
+         <module>effective-pom</module>
 
     </modules>
 

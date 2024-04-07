@@ -9,10 +9,10 @@ import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +30,7 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author adann
- */
+/** @author adann */
 public class Scene {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -44,12 +43,21 @@ public class Scene {
   private final String repoUrl;
   private final DaoMvnArtifactNode daoMvnArtifactNode;
 
-  private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
+  private final HashMap<String, Scene.MvnArtifactNodeReference> nodesInScene = new HashMap<>();
 
   public Scene(String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.repoUrl = repoUrl;
     this.daoMvnArtifactNode = doaArtifactNode;
+  }
+
+  public DependencyRelation createCopy(DependencyRelation srcDepRelation) throws InvocationTargetException, IllegalAccessException {
+    final DependencyRelation newRelation = new DependencyRelation();
+    final MvnArtifactNode newMvnNode = new MvnArtifactNode();
+    BeanUtils.copyProperties(newMvnNode, srcDepRelation.getTgtNode());
+    BeanUtils.copyProperties(newRelation, srcDepRelation);
+    newRelation.setTgtNode(new MvnArtifactNodeReference(newMvnNode));
+    return newRelation;
   }
 
   public static class MvnArtifactNodeReference extends MvnArtifactNode {
@@ -310,7 +318,7 @@ public class Scene {
     nodeToModel.put(Scene.genId(mvnArtifactNode), model);
   }
 
-  public MvnArtifactNode makeNodeRef(
+  public MvnArtifactNodeReference makeNodeRef(
       String groupId, String artifact, String version, String classifier, String packaging) {
 
     // only here a call to new is allowed .. the others are look ups
@@ -322,47 +330,56 @@ public class Scene {
     mvnArtifactNode.setPackaging(packaging);
     mvnArtifactNode.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
 
-    // if not fully resolved properties loopup is wasted
-    if (StringUtils.isBlank(groupId)
-        || StringUtils.isBlank(artifact)
-        || StringUtils.isBlank(version)
-        || StringUtils.startsWith(version, "$")) {
-      // not resolved just a dummy refernce that needs to be resolved later
-      return mvnArtifactNode;
-    }
-    String identifier = genId(groupId, artifact, version, classifier, packaging);
+    if (!StringUtils.isBlank(groupId)
+        && !StringUtils.isBlank(artifact)
+        && !StringUtils.isBlank(version)
+        && !StringUtils.startsWith(version, "$")) {
 
-    if (nodesInScene.containsKey(identifier)) {
-      return nodesInScene.get(identifier);
+      // we have all info to create a proper reference
+      String identifier = genId(groupId, artifact, version, classifier, packaging);
+
+      // check if already in scen
+      if (nodesInScene.containsKey(identifier)) {
+        return nodesInScene.get(identifier);
+      } else {
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        MvnArtifactNode nodeToReturn;
+        //
+        final Optional<MvnArtifactNode> optionalMvnArtifactNode =
+            daoMvnArtifactNode.get(mvnArtifactNode);
+        //
+        // problem, when we have a "dangling" node in the db.
+        // 1. we saw the node as a dependency and added it to the db
+        // 2. we return the node here, however, neither its properties nor its dependencies have
+        // been
+        // resolved before...
+        // merge with mvnNode - use the shallow info from the database
+        if (optionalMvnArtifactNode.isPresent()
+            && optionalMvnArtifactNode.get().getResolvingLevel()
+                == MvnArtifactNode.ResolvingLevel.FULL) {
+          //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
+          // child but still pointing to the "old" unresolved node ... :(
+          // -- same goes obviously for import nodes... :(
+
+          nodeToReturn = optionalMvnArtifactNode.get();
+          LOGGER.debug(
+              "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        } else {
+          nodeToReturn = mvnArtifactNode;
+        }
+
+        MvnArtifactNodeReference mvnArtifactNodeReference =
+            new MvnArtifactNodeReference(nodeToReturn);
+        nodesInScene.put(identifier, mvnArtifactNodeReference);
+        return mvnArtifactNodeReference;
+      }
     }
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    MvnArtifactNode nodeToReturn;
-    //
-    final Optional<MvnArtifactNode> optionalMvnArtifactNode =
-        daoMvnArtifactNode.get(mvnArtifactNode);
-    //
-    // problem, when we have a "dangling" node in the db.
-    // 1. we saw the node as a dependency and added it to the db
-    // 2. we return the node here, however, neither its properties nor its dependencies have been
-    // resolved before...
-    // merge with mvnNode - use the shallow info from the database
-    if (optionalMvnArtifactNode.isPresent()
-        && optionalMvnArtifactNode.get().getResolvingLevel()
-            == MvnArtifactNode.ResolvingLevel.FULL) {
-      //  if we want to resolve a parent ... the refernce is obvoiusly not updated in the
-      // child but still pointing to the "old" unresolved node ... :(
-      // -- same goes obviously for import nodes... :(
+    MvnArtifactNodeReference mvnArtifactNodeReference =
+        new MvnArtifactNodeReference(mvnArtifactNode);
 
-      nodeToReturn = optionalMvnArtifactNode.get();
-      LOGGER.debug(
-          "[Stats] DB lookup of Artifact took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    } else {
-      nodeToReturn = mvnArtifactNode;
-    }
-    nodesInScene.put(identifier, nodeToReturn);
-    nodeToReturn.setCrawlerVersion(AbstractCrawler.getCrawlerVersion());
-    return nodeToReturn;
+    return mvnArtifactNodeReference;
   }
 
   public Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {
