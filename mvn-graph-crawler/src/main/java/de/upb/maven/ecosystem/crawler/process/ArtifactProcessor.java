@@ -350,7 +350,7 @@ public class ArtifactProcessor {
         final Optional<MvnArtifactNode> parent = currentNode.getParent();
         if (!parent.isPresent()) {
           throw new IllegalStateException(
-              "Parent Properties request, but parent not present. Invalid State");
+              "Parent Properties request, but parent no present. Invalid State");
         }
         nodePropertiesToUse = parent.get();
       }
@@ -381,6 +381,9 @@ public class ArtifactProcessor {
     // re-trigger to resolve recursive-properties
     return resolveProperty(newString, currentNode, mavenpropertiestocheck, resolvedProperties);
   }
+
+
+  // TODO mabye build up the hierachy first (for property resolving), and call merge properties for the node
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
     LOGGER.info("Resolve Properties: {}", mvnArtifactNode);
@@ -459,6 +462,8 @@ public class ArtifactProcessor {
           for (Profile profile : model.getProfiles()) {
             String profileName = profile.getId();
             try {
+              //TODO 2024-04 resolve properties before "creating copy" --> instead get orMakeReference
+
               // copy for each profile
               final DependencyRelation profileDepRelation = createCopy(poll);
               profileDepRelation.setProfile(profileName);
@@ -535,6 +540,7 @@ public class ArtifactProcessor {
     if (mvnNode.getParent().isPresent()) {
       addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
     }
+
   }
 
   @Nullable

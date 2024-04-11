@@ -30,7 +30,9 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-/** @author adann */
+/**
+ * @author adann
+ */
 public class Scene {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -45,13 +47,17 @@ public class Scene {
 
   private final HashMap<String, Scene.MvnArtifactNodeReference> nodesInScene = new HashMap<>();
 
+  private final HashMap<Scene.MvnArtifactNodeReference, Scene.MvnArtifactNodeReference>
+      childParent = new HashMap<>();
+
   public Scene(String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
     TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
     this.repoUrl = repoUrl;
     this.daoMvnArtifactNode = doaArtifactNode;
   }
 
-  public DependencyRelation createCopy(DependencyRelation srcDepRelation) throws InvocationTargetException, IllegalAccessException {
+  public DependencyRelation createCopy(DependencyRelation srcDepRelation)
+      throws InvocationTargetException, IllegalAccessException {
     final DependencyRelation newRelation = new DependencyRelation();
     final MvnArtifactNode newMvnNode = new MvnArtifactNode();
     BeanUtils.copyProperties(newMvnNode, srcDepRelation.getTgtNode());
@@ -249,17 +255,12 @@ public class Scene {
   }
 
   public static String genId(MvnArtifactNode node) {
-    String identifier =
-        node.getGroup()
-            + ":"
-            + node.getArtifact()
-            + ":"
-            + node.getVersion()
-            + "-"
-            + node.getClassifier()
-            + "-"
-            + node.getPackaging();
-    return identifier;
+    return Scene.genId(
+        node.getGroup(),
+        node.getArtifact(),
+        node.getVersion(),
+        node.getClassifier(),
+        node.getPackaging());
   }
 
   public static String genId(
