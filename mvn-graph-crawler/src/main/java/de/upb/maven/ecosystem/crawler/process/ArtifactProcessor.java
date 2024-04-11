@@ -25,7 +25,6 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -382,8 +381,8 @@ public class ArtifactProcessor {
     return resolveProperty(newString, currentNode, mavenpropertiestocheck, resolvedProperties);
   }
 
-
-  // TODO mabye build up the hierachy first (for property resolving), and call merge properties for the node
+  // TODO mabye build up the hierachy first (for property resolving), and call merge properties for
+  // the node
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
     LOGGER.info("Resolve Properties: {}", mvnArtifactNode);
@@ -413,41 +412,24 @@ public class ArtifactProcessor {
     // definition in the child, not the parent, will be the one eventually used.
     // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
     // Thus maybe, we should resolve all parents first and then create an aggregate set of
-    // properties... :(
+    // properties... :( ?? Only the special ones???
 
     MvnArtifactNode currentNode = mvnArtifactNode;
     // sometimes artifacts have a cycles, thus, we break it up here
     HashSet<MvnArtifactNode> workedNodes = new HashSet<>();
     while (currentNode != null && workedNodes.add(currentNode)) {
-      // check for properties
 
+      // check for properties
       Deque<DependencyRelation> workList = new ArrayDeque<>(dependencyPropertiesToResolve);
 
       while (!workList.isEmpty()) {
         final DependencyRelation poll = workList.poll();
         MvnArtifactNode dep = poll.getTgtNode();
 
-        String resolvedVersion =
-            resolveProperty(
-                dep.getVersion(), currentNode, currentNode.getProperties(), new HashSet<>());
-        String resolvedGroup =
-            resolveProperty(
-                dep.getGroup(), currentNode, currentNode.getProperties(), new HashSet<>());
-        String resolvedArtifact =
-            resolveProperty(
-                dep.getArtifact(), currentNode, currentNode.getProperties(), new HashSet<>());
-        String resolvedClassifier =
-            resolveProperty(
-                dep.getClassifier(), currentNode, currentNode.getProperties(), new HashSet<>());
+        resolvePropertiesOfNode(dep, currentNode, currentNode.getProperties() );
 
-        dep.setGroup(resolvedGroup);
-        dep.setArtifact(resolvedArtifact);
-        dep.setVersion(resolvedVersion);
-
-        // safety check - maybe superflous
-        dep.setClassifier(resolvedClassifier);
         // also set the classifier in the dependency relation
-        poll.setClassifier(resolvedClassifier);
+        poll.setClassifier(dep.getClassifier());
 
         // check if the artifact is now fully resolved
 
@@ -462,7 +444,8 @@ public class ArtifactProcessor {
           for (Profile profile : model.getProfiles()) {
             String profileName = profile.getId();
             try {
-              //TODO 2024-04 resolve properties before "creating copy" --> instead get orMakeReference
+              // TODO 2024-04 resolve properties before "creating copy" --> instead get
+              // orMakeReference
 
               // copy for each profile
               final DependencyRelation profileDepRelation = createCopy(poll);
@@ -477,26 +460,10 @@ public class ArtifactProcessor {
               // also add the original properties
               newPros.putAll(currentNode.getProperties());
 
-              resolvedVersion =
-                  resolveProperty(profileDep.getVersion(), currentNode, newPros, new HashSet<>());
-              resolvedGroup =
-                  resolveProperty(profileDep.getGroup(), currentNode, newPros, new HashSet<>());
-              resolvedArtifact =
-                  resolveProperty(profileDep.getArtifact(), currentNode, newPros, new HashSet<>());
+              resolvePropertiesOfNode(profileDep, currentNode, newPros);
 
-              resolvedClassifier =
-                  resolveProperty(
-                      dep.getClassifier(),
-                      currentNode,
-                      currentNode.getProperties(),
-                      new HashSet<>());
-
-              profileDep.setGroup(resolvedGroup);
-              profileDep.setArtifact(resolvedArtifact);
-              profileDep.setVersion(resolvedVersion);
-              profileDep.setClassifier(resolvedClassifier);
               // also set the classifier in the dependency relation
-              profileDepRelation.setClassifier(resolvedClassifier);
+              profileDepRelation.setClassifier(profileDep.getClassifier());
 
               if (((Scene.MvnArtifactNodeReference) profileDep).isFullyResolved()) {
 
@@ -523,6 +490,27 @@ public class ArtifactProcessor {
     }
   }
 
+  private void resolvePropertiesOfNode(MvnArtifactNode depNode, MvnArtifactNode contextNode, Map<String, String> properties4Resolving) {
+    String resolvedVersion =
+        resolveProperty(
+            depNode.getVersion(), contextNode, properties4Resolving, new HashSet<>());
+    String resolvedGroup =
+        resolveProperty(
+            depNode.getGroup(), contextNode, properties4Resolving, new HashSet<>());
+    String resolvedArtifact =
+        resolveProperty(
+            depNode.getArtifact(), contextNode, properties4Resolving, new HashSet<>());
+    String resolvedClassifier =
+        resolveProperty(
+            depNode.getClassifier(), contextNode, properties4Resolving, new HashSet<>());
+
+    depNode.setGroup(resolvedGroup);
+    depNode.setArtifact(resolvedArtifact);
+    depNode.setVersion(resolvedVersion);
+    // safety check - maybe superflous
+    depNode.setClassifier(resolvedClassifier);
+  }
+
   private void resolveNode(MvnArtifactNode mvnNode) throws IOException {
     LOGGER.info("Resolve node: {}", mvnNode);
     // return if it already fully resolved
@@ -540,7 +528,6 @@ public class ArtifactProcessor {
     if (mvnNode.getParent().isPresent()) {
       addtoWorklist(mvnNode.getParent().get(), RESOLVE_NODE);
     }
-
   }
 
   @Nullable

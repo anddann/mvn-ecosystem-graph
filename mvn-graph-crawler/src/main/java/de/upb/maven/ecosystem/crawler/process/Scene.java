@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -30,9 +29,7 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author adann
- */
+/** @author adann */
 public class Scene {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
@@ -386,7 +383,6 @@ public class Scene {
   public Model nodeToModelGetOrFetchModel(MvnArtifactNode mvnArtifactNode) {
     Model model = this.nodeToModel.get(genId(mvnArtifactNode));
     if (model == null) {
-
       CustomArtifactInfo pomInfo = this.getCustomArtifactInfo(mvnArtifactNode);
       Path pomLocation = null;
       try {
