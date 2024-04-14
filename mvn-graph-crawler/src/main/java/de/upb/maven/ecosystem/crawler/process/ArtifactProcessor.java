@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -384,6 +385,29 @@ public class ArtifactProcessor {
   // TODO mabye build up the hierachy first (for property resolving), and call merge properties for
   // the node
 
+  private HashMap<String, String> collectAndMergeProperties(MvnArtifactNode startingNode){
+    HashMap<String, String> mergedProperties  = new HashMap<>();
+    //Lifo - Stack: children are below their parents, thus we pop parents first
+    Stack<MvnArtifactNode> lifoStack = new Stack<>();
+
+    HashSet<MvnArtifactNode> visitedNodes = new HashSet<>();
+    MvnArtifactNode nextNode = startingNode;
+    while(nextNode!=null && visitedNodes.add(nextNode)){
+      lifoStack.add(nextNode);
+      nextNode = nextNode.getParent().orNull();
+    }
+
+    // build up the property map
+    // child properties override parent properties, thus we add parent properties first to the map using the lifo-Stack
+    while (!lifoStack.isEmpty()){
+      MvnArtifactNode pop = lifoStack.pop();
+      final Map<String, String> nodeProperties = pop.getProperties();
+      mergedProperties.putAll(nodeProperties);
+    }
+    return mergedProperties;
+
+  }
+
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
     LOGGER.info("Resolve Properties: {}", mvnArtifactNode);
 
@@ -415,6 +439,10 @@ public class ArtifactProcessor {
     // properties... :( ?? Only the special ones???
 
     MvnArtifactNode currentNode = mvnArtifactNode;
+
+    // collect all properties
+    final HashMap<String, String> mergedProperties = collectAndMergeProperties(currentNode);
+
     // sometimes artifacts have a cycles, thus, we break it up here
     HashSet<MvnArtifactNode> workedNodes = new HashSet<>();
     while (currentNode != null && workedNodes.add(currentNode)) {
