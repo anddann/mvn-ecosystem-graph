@@ -90,7 +90,6 @@
                     </from>
                     <container>
                         <environment>
-                            <MAVEN_REPO_URL>https://repo1.maven.org/maven2/</MAVEN_REPO_URL>
                             <ACTOR_LIMIT>100</ACTOR_LIMIT>
                             <SOOT_TIMEOUT_MS>300000</SOOT_TIMEOUT_MS>
                             <SOOT_RUN_OPTION>SAME_PROCESS</SOOT_RUN_OPTION>

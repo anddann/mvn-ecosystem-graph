@@ -314,20 +314,20 @@ public class ArtifactProcessor {
   }
 
   private String resolveProperty(
-      String prop,
-      final MvnArtifactNode currentNode,
-      Map<String, String> mavenpropertiestocheck,
+      String propertyToResolve,
+      final MvnArtifactNode contextNode,
+      Map<String, String> givenPropertiesInContext,
       HashSet<String> resolvedProperties) {
-    if (StringUtils.isBlank(prop)) {
-      return prop;
+    if (StringUtils.isBlank(propertyToResolve)) {
+      return propertyToResolve;
     }
-    if (resolvedProperties.contains(prop)) {
-      return prop;
+    if (resolvedProperties.contains(propertyToResolve)) {
+      return propertyToResolve;
     }
-    resolvedProperties.add(prop);
+    resolvedProperties.add(propertyToResolve);
 
-    String newString = prop;
-    final Matcher matcher = PROPERTY_PATTERN.matcher(prop);
+    String newString = propertyToResolve;
+    final Matcher matcher = PROPERTY_PATTERN.matcher(propertyToResolve);
     // special handling for the property ${project.version}, ...
     // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
     // One factor to note is that these variables are processed after inheritance as outlined
@@ -335,7 +335,7 @@ public class ArtifactProcessor {
     // child, not the parent, will be the one eventually used.
 
     // add handling for parent properties... of the form ${parent.project.version}
-    MvnArtifactNode nodePropertiesToUse = currentNode;
+    MvnArtifactNode nodePropertiesToUse = contextNode;
 
     while (matcher.find()) {
 
@@ -347,10 +347,10 @@ public class ArtifactProcessor {
         // use the parent for resolving
         porName = porName.replaceFirst(".*parent\\.", "");
 
-        final Optional<MvnArtifactNode> parent = currentNode.getParent();
+        final Optional<MvnArtifactNode> parent = contextNode.getParent();
         if (!parent.isPresent()) {
           throw new IllegalStateException(
-              "Parent Properties request, but parent no present. Invalid State");
+              "Parent Properties request, but no parent present. Invalid State");
         }
         nodePropertiesToUse = parent.get();
       }
@@ -369,20 +369,20 @@ public class ArtifactProcessor {
           || StringUtils.equals(porName, "version")) {
         newString = newString.replace(group, nodePropertiesToUse.getVersion());
       } else {
-        final String s = mavenpropertiestocheck.get(porName);
+        final String s = givenPropertiesInContext.get(porName);
         if (s != null) {
           newString = newString.replace(group, s);
         }
       }
 
       // reset to the original node
-      nodePropertiesToUse = currentNode;
+      nodePropertiesToUse = contextNode;
     }
     // re-trigger to resolve recursive-properties
-    return resolveProperty(newString, currentNode, mavenpropertiestocheck, resolvedProperties);
+    return resolveProperty(newString, contextNode, givenPropertiesInContext, resolvedProperties);
   }
 
-  // TODO mabye build up the hierachy first (for property resolving), and call merge properties for
+  // TODO mabye build up the hierarchy first (for property resolving), and call merge properties for
   // the node
 
   private HashMap<String, String> collectAndMergeProperties(MvnArtifactNode startingNode){

@@ -137,14 +137,16 @@ public abstract class RabbitMQCollective {
   protected void runWorker(Channel channel) throws IOException, TimeoutException {
     DeliverCallback deliverCallback =
         (consumerTag, delivery) -> {
+          String response = new String(delivery.getBody());
           try {
             doWorkerJob(delivery);
+            response += "SUCCESS";
           } catch (Exception e) {
             logger.error("[Worker] job failed...", e);
+            response += " FAILED " + e.getMessage();
           } finally {
             channel.basicPublish(
-                "", delivery.getProperties().getReplyTo(), null, "Polo".getBytes());
-
+                "", delivery.getProperties().getReplyTo(), null, response.getBytes());
             channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             logger.info("[Worker] Send Ack");
           }
@@ -177,6 +179,7 @@ public abstract class RabbitMQCollective {
               String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
               throws UnsupportedEncodingException {
             logger.info("[Producer] Received Ack");
+            logger.info(new String(body));
             response.offer(new String(body, StandardCharsets.UTF_8));
             actor_queue.poll();
             logger.info("[Producer] Removed Element from Queue");
