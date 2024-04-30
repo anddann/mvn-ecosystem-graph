@@ -26,7 +26,6 @@
     <artifactId>mvn-central-indexer</artifactId>
 
     <properties>
-        <logback.version>1.2.10</logback.version>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
