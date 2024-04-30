@@ -382,30 +382,34 @@ public class ArtifactProcessor {
     return resolveProperty(newString, contextNode, givenPropertiesInContext, resolvedProperties);
   }
 
-  // TODO mabye build up the hierarchy first (for property resolving), and call merge properties for
-  // the node
-
-  private HashMap<String, String> collectAndMergeProperties(MvnArtifactNode startingNode){
-    HashMap<String, String> mergedProperties  = new HashMap<>();
-    //Lifo - Stack: children are below their parents, thus we pop parents first
+  /**
+   * Merge the poms' properties according to the maven semantic; child properties override parents'
+   * properties
+   *
+   * @param startingNode
+   * @return
+   */
+  private HashMap<String, String> collectAndMergeProperties(MvnArtifactNode startingNode) {
+    HashMap<String, String> mergedProperties = new HashMap<>();
+    // Lifo - Stack: children are below their parents, thus we pop parents first
     Stack<MvnArtifactNode> lifoStack = new Stack<>();
 
     HashSet<MvnArtifactNode> visitedNodes = new HashSet<>();
     MvnArtifactNode nextNode = startingNode;
-    while(nextNode!=null && visitedNodes.add(nextNode)){
+    while (nextNode != null && visitedNodes.add(nextNode)) {
       lifoStack.add(nextNode);
       nextNode = nextNode.getParent().orNull();
     }
 
     // build up the property map
-    // child properties override parent properties, thus we add parent properties first to the map using the lifo-Stack
-    while (!lifoStack.isEmpty()){
+    // child properties override parent properties, thus we add parent properties first to the map
+    // using the lifo-Stack
+    while (!lifoStack.isEmpty()) {
       MvnArtifactNode pop = lifoStack.pop();
       final Map<String, String> nodeProperties = pop.getProperties();
       mergedProperties.putAll(nodeProperties);
     }
     return mergedProperties;
-
   }
 
   private void resolvePropertiesOfNodes(MvnArtifactNode mvnArtifactNode) {
@@ -431,15 +435,16 @@ public class ArtifactProcessor {
       }
     }
 
-    // TODO: One factor to note is that these variables are processed after inheritance as
+    // One factor to note is that these variables are processed after inheritance as
     // outlined above. This means that if a parent project uses a variable, then its
     // definition in the child, not the parent, will be the one eventually used.
     // https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Project_Inheritance
     // Thus maybe, we should resolve all parents first and then create an aggregate set of
-    // properties... :( ?? Only the special ones???
-
+    // properties...
     MvnArtifactNode currentNode = mvnArtifactNode;
 
+    // TODO: add profile properties here too, and then remove currentNode loop; and check for
+    // duplicate profile nodes before
     // collect all properties
     final HashMap<String, String> mergedProperties = collectAndMergeProperties(currentNode);
 
@@ -454,7 +459,7 @@ public class ArtifactProcessor {
         final DependencyRelation poll = workList.poll();
         MvnArtifactNode dep = poll.getTgtNode();
 
-        resolvePropertiesOfNode(dep, currentNode, currentNode.getProperties() );
+        resolvePropertiesOfNode(dep, currentNode, mergedProperties);
 
         // also set the classifier in the dependency relation
         poll.setClassifier(dep.getClassifier());
@@ -481,14 +486,14 @@ public class ArtifactProcessor {
 
               final MvnArtifactNode profileDep = profileDepRelation.getTgtNode();
 
-              HashMap<String, String> newPros = new HashMap<>();
+              //  add the original properties
+              HashMap<String, String> propertiesWithProfile = new HashMap<>(mergedProperties);
+              // overwrite existing ones with profile ones
               for (Map.Entry<Object, Object> entry : profile.getProperties().entrySet()) {
-                newPros.put(entry.getKey().toString(), entry.getValue().toString());
+                propertiesWithProfile.put(entry.getKey().toString(), entry.getValue().toString());
               }
-              // also add the original properties
-              newPros.putAll(currentNode.getProperties());
 
-              resolvePropertiesOfNode(profileDep, currentNode, newPros);
+              resolvePropertiesOfNode(profileDep, currentNode, propertiesWithProfile);
 
               // also set the classifier in the dependency relation
               profileDepRelation.setClassifier(profileDep.getClassifier());
@@ -518,16 +523,16 @@ public class ArtifactProcessor {
     }
   }
 
-  private void resolvePropertiesOfNode(MvnArtifactNode depNode, MvnArtifactNode contextNode, Map<String, String> properties4Resolving) {
+  private void resolvePropertiesOfNode(
+      MvnArtifactNode depNode,
+      MvnArtifactNode contextNode,
+      Map<String, String> properties4Resolving) {
     String resolvedVersion =
-        resolveProperty(
-            depNode.getVersion(), contextNode, properties4Resolving, new HashSet<>());
+        resolveProperty(depNode.getVersion(), contextNode, properties4Resolving, new HashSet<>());
     String resolvedGroup =
-        resolveProperty(
-            depNode.getGroup(), contextNode, properties4Resolving, new HashSet<>());
+        resolveProperty(depNode.getGroup(), contextNode, properties4Resolving, new HashSet<>());
     String resolvedArtifact =
-        resolveProperty(
-            depNode.getArtifact(), contextNode, properties4Resolving, new HashSet<>());
+        resolveProperty(depNode.getArtifact(), contextNode, properties4Resolving, new HashSet<>());
     String resolvedClassifier =
         resolveProperty(
             depNode.getClassifier(), contextNode, properties4Resolving, new HashSet<>());
