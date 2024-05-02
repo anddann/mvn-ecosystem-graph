@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
-import de.upb.maven.ecosystem.ArtifactUtils;
+import de.upb.maven.ecosystem.DownloadUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
@@ -13,7 +13,6 @@ import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
@@ -38,7 +36,7 @@ public class Scene {
   private static final int CONNECT_TIMEOUT = 5 * 60000;
   private static final int READ_TIMEOUT = 5 * 60000;
 
-  private final Path TEMP_LOCATION;
+  public final Path TEMP_LOCATION;
   private final String repoUrl;
   private final DaoMvnArtifactNode daoMvnArtifactNode;
 
@@ -280,38 +278,6 @@ public class Scene {
     return pomInfo;
   }
 
-  public Path downloadFilePlainURL(CustomArtifactInfo info) throws IOException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    URL downloadURL = ArtifactUtils.constructURL(info);
-    LOGGER.info("Downloading file from plain url: {}", downloadURL);
-
-    String classifier = "";
-    // handle null values coming from the database, since neo4j does not allow null, we have the
-    // string "null"
-    if (StringUtils.isNotBlank(info.getClassifier())
-        && !StringUtils.equals("null", info.getClassifier())) {
-      classifier = "-" + info.getClassifier();
-    }
-    String jarName =
-        info.getArtifactId()
-            + "-"
-            + info.getArtifactVersion()
-            + classifier
-            + "."
-            + info.getFileExtension();
-    Path fileName = this.TEMP_LOCATION.resolve(jarName);
-    FileUtils.copyURLToFile(downloadURL, fileName.toFile(), CONNECT_TIMEOUT, READ_TIMEOUT);
-    if (!Files.exists(fileName)) {
-      throw new IOException("Failed to download file: " + jarName);
-    }
-    stopwatch.stop();
-
-    LOGGER.info(
-        "[Stats] Downloading {} took {}", fileName.getFileName().toString(), stopwatch.elapsed());
-    return fileName;
-  }
-
   public void add(MvnArtifactNode mvnArtifactNode, Model model) {
     nodeToModel.put(Scene.genId(mvnArtifactNode), model);
   }
@@ -386,7 +352,7 @@ public class Scene {
       CustomArtifactInfo pomInfo = this.getCustomArtifactInfo(mvnArtifactNode);
       Path pomLocation = null;
       try {
-        pomLocation = downloadFilePlainURL(pomInfo);
+        pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, this.TEMP_LOCATION);
 
         final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
 

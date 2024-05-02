@@ -3,7 +3,7 @@ package de.upb.maven.ecosystem.fingerprint.crawler.process;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import de.upb.maven.ecosystem.ArtifactUtils;
+import de.upb.maven.ecosystem.DownloadUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.licenses.LicenseFileVisitor;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -42,8 +42,6 @@ import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
-  private static final int CONNECT_TIMEOUT = 5 * 60000;
-  private static final int READ_TIMEOUT = 5 * 60000;
   private final boolean computeTLSH;
 
   private final Path TEMP_LOCATION;
@@ -74,7 +72,7 @@ public class ArtifactProcessor {
       // 2. Download file
       // 2.1 try by URL
       try {
-        jarLocation = downloadFilePlainURL(info, TEMP_LOCATION);
+        jarLocation = DownloadUtils.downloadFilePlainURL(info, TEMP_LOCATION);
       } catch (IOException ex) {
         LOGGER.error("Plain Downloaded file failed with: {}", ex.getMessage());
       }
@@ -172,7 +170,7 @@ public class ArtifactProcessor {
     pomInfo.setFileExtension("pom");
     Path pomLocation = null;
     try {
-      pomLocation = downloadFilePlainURL(pomInfo, TEMP_LOCATION);
+      pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, TEMP_LOCATION);
 
       final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
       if (mavenProject != null) {
@@ -259,34 +257,6 @@ public class ArtifactProcessor {
 
       }
     }
-  }
-
-  private Path downloadFilePlainURL(CustomArtifactInfo info, Path downloadFolder)
-      throws IOException {
-    URL downloadURL = ArtifactUtils.constructURL(info);
-
-    String classifier = "";
-    if (info.getClassifier() != null) {
-      classifier = "-" + info.getClassifier();
-    }
-
-    String jarName =
-        info.getArtifactId()
-            + "-"
-            + info.getArtifactVersion()
-            + classifier
-            + "."
-            + info.getFileExtension();
-    Path fileName = downloadFolder.resolve(jarName);
-
-    FileUtils.copyURLToFile(downloadURL, fileName.toFile(), CONNECT_TIMEOUT, READ_TIMEOUT);
-
-    if (!Files.exists(fileName)) {
-      throw new IOException("Failed to download jar: " + jarName);
-    }
-    LOGGER.info("Downloaded file from plain url: {}", downloadURL);
-
-    return fileName;
   }
 
   public void processJarContent(Path pathToJar, MavenArtifactMetadata metadata) throws IOException {

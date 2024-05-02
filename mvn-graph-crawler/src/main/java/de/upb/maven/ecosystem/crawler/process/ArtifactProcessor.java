@@ -1,6 +1,7 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Optional;
+import de.upb.maven.ecosystem.DownloadUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
@@ -598,7 +599,7 @@ public class ArtifactProcessor {
     CustomArtifactInfo pomInfo = scene.getCustomArtifactInfo(mvnArtifactNode);
     Path pomLocation = null;
     try {
-      pomLocation = scene.downloadFilePlainURL(pomInfo);
+      pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, this.scene.TEMP_LOCATION);
 
       final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
 

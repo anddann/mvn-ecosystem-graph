@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /** @author adann */
 public class ArtifactUtils {
+
   public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
     // CAUTION: the url is not the right download url. The download url ist replaced
     ArrayList<String> res = Lists.newArrayList();
@@ -20,6 +21,11 @@ public class ArtifactUtils {
     if (StringUtils.isNotBlank(info.getClassifier())
         && !StringUtils.equals("null", info.getClassifier())) {
       classifier = "-" + info.getClassifier();
+    }
+
+    if (StringUtils.equalsIgnoreCase(info.getFileExtension(), "pom")) {
+      // no classifier for downloading a pom file (e.g., cut of jar-with-dependencies)
+      classifier = "";
     }
 
     String repoURL = info.getRepoURL();
