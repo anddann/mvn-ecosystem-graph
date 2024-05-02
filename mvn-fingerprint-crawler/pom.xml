@@ -138,6 +138,12 @@
             <artifactId>jnorm-cli</artifactId>
             <groupId>jnorm-oss</groupId>
             <version>1.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- tlsh -->
