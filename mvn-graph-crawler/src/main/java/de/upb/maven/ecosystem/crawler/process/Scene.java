@@ -63,6 +63,10 @@ public class Scene {
 
   public static class MvnArtifactNodeReference extends MvnArtifactNode {
 
+    public MvnArtifactNode getNode() {
+      return node;
+    }
+
     private MvnArtifactNode node;
 
     private boolean isResolved;

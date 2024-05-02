@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.crawler.process;
 import com.google.common.base.Optional;
 import de.upb.maven.ecosystem.DownloadUtils;
 import de.upb.maven.ecosystem.PomFileUtil;
+import de.upb.maven.ecosystem.crawler.process.Scene.MvnArtifactNodeReference;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
@@ -215,9 +216,9 @@ public class ArtifactProcessor {
 
           final DependencyRelation nextDepMgmt = iteratorDepMgmt.next();
           if (StringUtils.equals(
-                  nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
+              nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
               && StringUtils.equals(
-                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
+              nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
               && StringUtils.equals(nextDep.getTgtNode().getPackaging(), nextDepMgmt.getType())) {
             final Deque<DependencyRelation> orDefault =
                 depWithOutVersionDependencyMgmtEdge.computeIfAbsent(
@@ -584,7 +585,16 @@ public class ArtifactProcessor {
 
     LOGGER.info("Done crawling Artifact: {}", mvenartifactinfo);
 
-    return writeToDBList;
+    List<MvnArtifactNode> nonWrapper = new ArrayList<>();
+    //only return the non-wrapper nodes
+    for (MvnArtifactNode nodeForDb : writeToDBList) {
+      if (nodeForDb instanceof MvnArtifactNodeReference) {
+        nonWrapper.add(((MvnArtifactNodeReference) nodeForDb).getNode());
+      } else {
+        nonWrapper.add(nodeForDb);
+      }
+    }
+    return nonWrapper;
   }
 
   /**
