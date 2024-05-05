@@ -3,7 +3,7 @@ package de.upb.maven.ecosystem.fingerprint.crawler.process;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import de.upb.maven.ecosystem.DownloadUtils;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.licenses.LicenseFileVisitor;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -41,22 +41,21 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 public class ArtifactProcessor {
+
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
+  private final ArtifactDownloader artifactDownloader;
   private final boolean computeTLSH;
 
-  private final Path TEMP_LOCATION;
 
   private final long sootTimeoutSettingMS;
 
-  public ArtifactProcessor(boolean computeTLSH, long sootTimeoutSettingMS) throws IOException {
+  public ArtifactProcessor(ArtifactDownloader artifactDownloader, boolean computeTLSH,
+      long sootTimeoutSettingMS) throws IOException {
+    this.artifactDownloader = artifactDownloader;
     this.computeTLSH = computeTLSH;
     this.sootTimeoutSettingMS = sootTimeoutSettingMS;
-    TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
   }
 
-  public ArtifactProcessor(long sootTimeoutSettingMS) throws IOException {
-    this(true, sootTimeoutSettingMS);
-  }
 
   @Nullable
   public MavenArtifactMetadata process(
@@ -72,7 +71,7 @@ public class ArtifactProcessor {
       // 2. Download file
       // 2.1 try by URL
       try {
-        jarLocation = DownloadUtils.downloadFilePlainURL(info, TEMP_LOCATION);
+        jarLocation = artifactDownloader.downloadFilePlainURL(info);
       } catch (IOException ex) {
         LOGGER.error("Plain Downloaded file failed with: {}", ex.getMessage());
       }
@@ -131,18 +130,6 @@ public class ArtifactProcessor {
 
     } catch (IOException | SecurityException e) {
       LOGGER.error("Exception thrown {}, {}", e, e.getStackTrace());
-    } finally {
-      // 5. Delete temp folder contents
-      try {
-        if (jarLocation != null) {
-          Files.delete(jarLocation);
-        }
-        if (TEMP_LOCATION != null) {
-          FileUtils.deleteDirectory(TEMP_LOCATION.toFile());
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
 
     return metadata;
@@ -170,7 +157,7 @@ public class ArtifactProcessor {
     pomInfo.setFileExtension("pom");
     Path pomLocation = null;
     try {
-      pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, TEMP_LOCATION);
+      pomLocation = this.artifactDownloader.downloadFilePlainURL(pomInfo);
 
       final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
       if (mavenProject != null) {

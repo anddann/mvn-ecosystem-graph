@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
 import de.upb.maven.ecosystem.AbstractCrawler;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.QueueNames;
 import de.upb.maven.ecosystem.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -13,6 +14,10 @@ import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author adann
  */
 public class Main extends AbstractCrawler {
+
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   private static final ObjectMapper mapper = new ObjectMapper();
@@ -58,13 +64,19 @@ public class Main extends AbstractCrawler {
 
     CustomArtifactInfo artifactInfo =
         mapper.readValue(delivery.getBody(), CustomArtifactInfo.class);
+    Path tempDirectory = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
+
     try {
+      ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);
       LOGGER.info("[Worker] Received Request");
       ArtifactManager manager =
-          new ArtifactManager(new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
+          new ArtifactManager(artifactDownloader,
+              new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
       manager.process(artifactInfo);
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed Crawling  with", e);
+    } finally {
+      FileUtils.deleteDirectory(tempDirectory.toFile());
     }
   }
 

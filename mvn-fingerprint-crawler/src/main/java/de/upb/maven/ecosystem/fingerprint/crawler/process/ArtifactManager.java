@@ -1,12 +1,17 @@
 package de.upb.maven.ecosystem.fingerprint.crawler.process;
 
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.fingerprint.PersistenceHandler;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +44,26 @@ public class ArtifactManager {
       return;
     }
 
-    final MavenArtifactMetadata mavenArtifactMetadata =
-        new ArtifactProcessor(this.comTLSH, sootTimeOutMS)
-            .process(ai, crawledArtifacts, downloadURL);
-    if (mavenArtifactMetadata == null) {
-      return;
-    }
+    Path tempDirectory = Files.createTempDirectory(
+        RandomStringUtils.randomAlphabetic(10));
 
     try {
+      ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);
+      final MavenArtifactMetadata mavenArtifactMetadata =
+          new ArtifactProcessor(artifactDownloader, this.comTLSH, sootTimeOutMS)
+              .process(ai, crawledArtifacts, downloadURL);
+      LOGGER.info("Done with: {}", mavenArtifactMetadata.getGav());
+
+      if (mavenArtifactMetadata == null) {
+        return;
+      }
+
       persistenceHandler.persist(mavenArtifactMetadata, existingID);
     } catch (IllegalArgumentException e) {
-      LOGGER.error(" Write Artifact" + ai.getArtifactId() + " failed with", e);
+      LOGGER.error(" Write Artifact{} failed with", ai.getArtifactId(), e);
+    } finally {
+      // 5. Delete temp folder contents
+      FileUtils.deleteDirectory(tempDirectory.toFile());
     }
-    LOGGER.info("Done with: " + mavenArtifactMetadata.getGav());
   }
 }

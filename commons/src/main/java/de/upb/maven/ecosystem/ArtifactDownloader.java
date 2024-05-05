@@ -10,14 +10,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
-public class DownloadUtils {
+public class ArtifactDownloader {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DownloadUtils.class);
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactDownloader.class);
 
   private static final int CONNECT_TIMEOUT = 30000;
   private static final int READ_TIMEOUT = 30000;
+  private final Path downloadFolder;
 
-  public static Path downloadFilePlainURL(CustomArtifactInfo info, Path downloadFolder)
+  public ArtifactDownloader(Path downloadFolder){
+    this.downloadFolder = downloadFolder;
+  }
+
+  public Path downloadFilePlainURL(CustomArtifactInfo info)
       throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
 

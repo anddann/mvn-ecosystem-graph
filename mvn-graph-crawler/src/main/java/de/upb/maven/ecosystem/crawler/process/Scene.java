@@ -3,7 +3,7 @@ package de.upb.maven.ecosystem.crawler.process;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
-import de.upb.maven.ecosystem.DownloadUtils;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
@@ -11,12 +11,10 @@ import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
@@ -32,14 +30,14 @@ public class Scene {
   private static final int CONNECT_TIMEOUT = 5 * 60000;
   private static final int READ_TIMEOUT = 5 * 60000;
 
-  public final Path TEMP_LOCATION;
   private final String repoUrl;
   private final DaoMvnArtifactNode daoMvnArtifactNode;
 
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
+  private final ArtifactDownloader artifactDownloader;
 
-  public Scene(String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
-    TEMP_LOCATION = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
+  public Scene(ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
+    this.artifactDownloader = artifactDownloader;
     this.repoUrl = repoUrl;
     this.daoMvnArtifactNode = doaArtifactNode;
   }
@@ -164,7 +162,7 @@ public class Scene {
       CustomArtifactInfo pomInfo = this.getCustomArtifactInfo(mvnArtifactNode);
       Path pomLocation = null;
       try {
-        pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, this.TEMP_LOCATION);
+        pomLocation = artifactDownloader.downloadFilePlainURL(pomInfo);
 
         final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
 

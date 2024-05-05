@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
@@ -21,10 +22,13 @@ import org.slf4j.LoggerFactory;
 public class ArtifactManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactManager.class);
+  private final ArtifactDownloader artifactDownloader;
   private final DaoMvnArtifactNode doaArtifactNode;
   private RedisWriter instance;
 
-  public ArtifactManager(DaoMvnArtifactNode doaArtifactNode) {
+  public ArtifactManager(ArtifactDownloader artifactDownloader,
+      DaoMvnArtifactNode doaArtifactNode) {
+    this.artifactDownloader = artifactDownloader;
     this.doaArtifactNode = doaArtifactNode;
     Objects.requireNonNull(doaArtifactNode);
     if (StringUtils.isNotBlank(System.getenv("REDIS"))) {
@@ -76,7 +80,7 @@ public class ArtifactManager {
     try {
 
       final Collection<MvnArtifactNode> newResolvedNodes =
-          new ArtifactProcessor(doaArtifactNode, ai.getRepoURL()).process(ai);
+          new ArtifactProcessor(artifactDownloader, ai.getRepoURL(), doaArtifactNode).process(ai);
       if (newResolvedNodes != null) {
         LOGGER.info("Writing nodes: #{} to db", newResolvedNodes.size());
 

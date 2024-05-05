@@ -1,7 +1,7 @@
 package de.upb.maven.ecosystem.crawler.process;
 
 import com.google.common.base.Optional;
-import de.upb.maven.ecosystem.DownloadUtils;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
@@ -59,9 +59,12 @@ public class ArtifactProcessor {
   private final HashMap<String, Integer> internalResolvingLevelHashMap = new HashMap<>();
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
   private final Scene scene;
+  private final ArtifactDownloader artifactDownloader;
 
-  public ArtifactProcessor(DaoMvnArtifactNode doaArtifactNode, String repoUrl) throws IOException {
-    this.scene = new Scene(repoUrl, doaArtifactNode);
+  public ArtifactProcessor(ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode)
+      throws IOException {
+    this.artifactDownloader = artifactDownloader;
+    this.scene = new Scene(artifactDownloader, repoUrl, doaArtifactNode);
     // FIFO queue
     worklist[RESOLVE_NODE] = new ArrayDeque<>();
     // LIFO
@@ -215,9 +218,9 @@ public class ArtifactProcessor {
 
           final DependencyRelation nextDepMgmt = iteratorDepMgmt.next();
           if (StringUtils.equals(
-                  nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
+              nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
               && StringUtils.equals(
-                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
+              nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
               && StringUtils.equals(nextDep.getTgtNode().getPackaging(), nextDepMgmt.getType())) {
             final Deque<DependencyRelation> orDefault =
                 depWithOutVersionDependencyMgmtEdge.computeIfAbsent(
@@ -599,7 +602,7 @@ public class ArtifactProcessor {
     CustomArtifactInfo pomInfo = scene.getCustomArtifactInfo(mvnArtifactNode);
     Path pomLocation = null;
     try {
-      pomLocation = DownloadUtils.downloadFilePlainURL(pomInfo, this.scene.TEMP_LOCATION);
+      pomLocation = this.artifactDownloader.downloadFilePlainURL(pomInfo);
 
       final MavenProject mavenProject = PomFileUtil.readPom(pomLocation);
 
