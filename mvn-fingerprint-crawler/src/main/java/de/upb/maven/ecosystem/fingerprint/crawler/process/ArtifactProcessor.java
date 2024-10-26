@@ -30,8 +30,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipError;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Scm;
@@ -46,16 +44,15 @@ public class ArtifactProcessor {
   private final ArtifactDownloader artifactDownloader;
   private final boolean computeTLSH;
 
-
   private final long sootTimeoutSettingMS;
 
-  public ArtifactProcessor(ArtifactDownloader artifactDownloader, boolean computeTLSH,
-      long sootTimeoutSettingMS) throws IOException {
+  public ArtifactProcessor(
+      ArtifactDownloader artifactDownloader, boolean computeTLSH, long sootTimeoutSettingMS)
+      throws IOException {
     this.artifactDownloader = artifactDownloader;
     this.computeTLSH = computeTLSH;
     this.sootTimeoutSettingMS = sootTimeoutSettingMS;
   }
-
 
   @Nullable
   public MavenArtifactMetadata process(

@@ -44,8 +44,7 @@ public class ArtifactManager {
       return;
     }
 
-    Path tempDirectory = Files.createTempDirectory(
-        RandomStringUtils.randomAlphabetic(10));
+    Path tempDirectory = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
 
     try {
       ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);

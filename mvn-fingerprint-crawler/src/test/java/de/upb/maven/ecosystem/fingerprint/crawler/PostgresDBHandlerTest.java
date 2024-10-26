@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.fingerprint.crawler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactManager;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactProcessor;
@@ -14,6 +15,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,7 +50,9 @@ public class PostgresDBHandlerTest {
   @Test
   public void createUniqueSHASet() throws IOException {
 
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(50000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, true, 50000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 

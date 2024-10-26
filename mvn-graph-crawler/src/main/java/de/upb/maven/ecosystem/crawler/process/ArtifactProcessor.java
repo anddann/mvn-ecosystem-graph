@@ -61,7 +61,8 @@ public class ArtifactProcessor {
   private final Scene scene;
   private final ArtifactDownloader artifactDownloader;
 
-  public ArtifactProcessor(ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode)
+  public ArtifactProcessor(
+      ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode)
       throws IOException {
     this.artifactDownloader = artifactDownloader;
     this.scene = new Scene(artifactDownloader, repoUrl, doaArtifactNode);
@@ -218,9 +219,9 @@ public class ArtifactProcessor {
 
           final DependencyRelation nextDepMgmt = iteratorDepMgmt.next();
           if (StringUtils.equals(
-              nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
+                  nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
               && StringUtils.equals(
-              nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
+                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
               && StringUtils.equals(nextDep.getTgtNode().getPackaging(), nextDepMgmt.getType())) {
             final Deque<DependencyRelation> orDefault =
                 depWithOutVersionDependencyMgmtEdge.computeIfAbsent(

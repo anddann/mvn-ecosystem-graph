@@ -70,8 +70,8 @@ public class Main extends AbstractCrawler {
       ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);
       LOGGER.info("[Worker] Received Request");
       ArtifactManager manager =
-          new ArtifactManager(artifactDownloader,
-              new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
+          new ArtifactManager(
+              artifactDownloader, new DaoMvnArtifactNodeImpl(Neo4JConnector.getDriver()));
       manager.process(artifactInfo);
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed Crawling  with", e);

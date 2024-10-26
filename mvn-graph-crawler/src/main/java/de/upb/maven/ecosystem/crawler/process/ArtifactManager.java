@@ -26,8 +26,8 @@ public class ArtifactManager {
   private final DaoMvnArtifactNode doaArtifactNode;
   private RedisWriter instance;
 
-  public ArtifactManager(ArtifactDownloader artifactDownloader,
-      DaoMvnArtifactNode doaArtifactNode) {
+  public ArtifactManager(
+      ArtifactDownloader artifactDownloader, DaoMvnArtifactNode doaArtifactNode) {
     this.artifactDownloader = artifactDownloader;
     this.doaArtifactNode = doaArtifactNode;
     Objects.requireNonNull(doaArtifactNode);

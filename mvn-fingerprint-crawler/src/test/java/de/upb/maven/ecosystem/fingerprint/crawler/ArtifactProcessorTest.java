@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.fingerprint.crawler;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.base.Stopwatch;
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactProcessor;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -10,6 +11,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.ClassFile;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +23,10 @@ public class ArtifactProcessorTest {
 
   @Test
   public void process() throws IOException {
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -58,7 +63,11 @@ public class ArtifactProcessorTest {
 
   @Test
   public void processLog4j() throws IOException {
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -90,8 +99,12 @@ public class ArtifactProcessorTest {
   @Test
   // @Disabled //TODO check why
   public void takesLongTime() throws IOException {
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+
     // https://repo1.maven.org/maven2/uk/ac/open/kmi/iserve/iserve-integrated-engine/2.1.0/iserve-integrated-engine-2.1.0-jar-with-dependencies.jar
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -128,7 +141,10 @@ public class ArtifactProcessorTest {
     final URL url = ArtifactUtils.constructURL(artifactInfo);
 
     Stopwatch stopwatch = Stopwatch.createStarted();
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     final MavenArtifactMetadata process = artifactProcessor.process(artifactInfo, 0, url);
     stopwatch.stop();
@@ -138,7 +154,10 @@ public class ArtifactProcessorTest {
   @Test
   public void testGeneralCrawler() throws IOException {
 
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -174,9 +193,12 @@ public class ArtifactProcessorTest {
 
   @Test
   @Disabled // licnesne takes foreover
-  public void testRandArtefat() throws IOException {
+  public void testRandArtefact() throws IOException {
     // https://repo1.maven.org/maven2/com/arpnetworking/metrics/metrics-portal_2.11/0.4.7/
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -203,7 +225,10 @@ public class ArtifactProcessorTest {
   @Disabled
   public void testBigArtefact() throws IOException {
     // https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-osgi/1.11.732/aws-java-sdk-osgi-1.11.732.jar
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -229,8 +254,10 @@ public class ArtifactProcessorTest {
   @Disabled
   public void heapSpaceArtifact() throws IOException {
 
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(true, 5 * 60 * 1000);
-
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+    ArtifactProcessor artifactProcessor =
+        new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
     // this artifact contains multiple classes with the same digest

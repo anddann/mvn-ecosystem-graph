@@ -36,7 +36,9 @@ public class Scene {
   private final HashMap<String, MvnArtifactNode> nodesInScene = new HashMap<>();
   private final ArtifactDownloader artifactDownloader;
 
-  public Scene(ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode) throws IOException {
+  public Scene(
+      ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode)
+      throws IOException {
     this.artifactDownloader = artifactDownloader;
     this.repoUrl = repoUrl;
     this.daoMvnArtifactNode = doaArtifactNode;

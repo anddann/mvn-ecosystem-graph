@@ -18,12 +18,11 @@ public class ArtifactDownloader {
   private static final int READ_TIMEOUT = 30000;
   private final Path downloadFolder;
 
-  public ArtifactDownloader(Path downloadFolder){
+  public ArtifactDownloader(Path downloadFolder) {
     this.downloadFolder = downloadFolder;
   }
 
-  public Path downloadFilePlainURL(CustomArtifactInfo info)
-      throws IOException {
+  public Path downloadFilePlainURL(CustomArtifactInfo info) throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
 
     URL downloadURL = ArtifactUtils.constructURL(info);

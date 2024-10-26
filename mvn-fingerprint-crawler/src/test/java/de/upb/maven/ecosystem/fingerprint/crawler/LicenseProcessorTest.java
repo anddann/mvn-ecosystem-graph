@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.fingerprint.crawler;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.fingerprint.crawler.process.ArtifactProcessor;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -11,6 +12,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.License;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +20,10 @@ public class LicenseProcessorTest {
 
   @Test
   public void codacyPlugins() throws IOException {
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(false, 5000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+
+    ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -42,7 +47,10 @@ public class LicenseProcessorTest {
 
   @Test
   public void spring() throws IOException {
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(false, 5000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+
+    ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
@@ -64,7 +72,10 @@ public class LicenseProcessorTest {
 
   @Test
   public void rebundledTest() throws IOException {
-    ArtifactProcessor artifactProcessor = new ArtifactProcessor(false, 5000);
+    ArtifactDownloader artifactDownloader =
+        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+
+    ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 

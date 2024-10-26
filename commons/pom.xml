@@ -14,6 +14,7 @@
 
     <artifactId>commons</artifactId>
 
+
     <dependencies>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -43,7 +44,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
 
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.1.2-jre</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
         <dependency>
@@ -88,14 +88,14 @@
         <dependency>
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
-            <version>5.18.0</version>
+            <version>${neo4j-java-driver.version}</version>
         </dependency>
 
         <!-- embedded db for testing -->
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>
-            <version>5.18.1</version>
+            <version>${neo4j-java-driver.version}</version>
             <scope>test</scope>
         </dependency>
 
