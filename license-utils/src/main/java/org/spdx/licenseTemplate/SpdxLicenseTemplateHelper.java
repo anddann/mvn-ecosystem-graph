@@ -50,7 +50,7 @@ public class SpdxLicenseTemplateHelper {
    */
   public static void parseTemplate(
       String licenseTemplate, ILicenseTemplateOutputHandler templateOutputHandler)
-      throws LicenseTemplateRuleException, LicenseParserException, org.spdx.licenseTemplate.LicenseParserException {
+      throws LicenseTemplateRuleException, LicenseParserException {
     Matcher ruleMatcher = RULE_PATTERN.matcher(licenseTemplate);
     int end = 0;
     int optionalNestLevel = 0;
@@ -110,7 +110,7 @@ public class SpdxLicenseTemplateHelper {
     HtmlTemplateOutputHandler htmlOutput = new HtmlTemplateOutputHandler();
     try {
       parseTemplate(licenseTemplate, htmlOutput);
-    } catch (LicenseParserException | org.spdx.licenseTemplate.LicenseParserException e) {
+    } catch (LicenseParserException  e) {
       throw new LicenseTemplateRuleException("Parsing error parsing license template", e);
     }
     return htmlOutput.getHtml();
@@ -128,7 +128,7 @@ public class SpdxLicenseTemplateHelper {
     TextTemplateOutputHandler textOutput = new TextTemplateOutputHandler();
     try {
       parseTemplate(template, textOutput);
-    } catch (LicenseParserException | org.spdx.licenseTemplate.LicenseParserException e) {
+    } catch (LicenseParserException  e) {
       throw new LicenseTemplateRuleException("Parsing error parsing license template", e);
     }
     return textOutput.getText();

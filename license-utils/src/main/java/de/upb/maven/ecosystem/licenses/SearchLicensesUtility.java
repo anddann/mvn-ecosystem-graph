@@ -8,6 +8,10 @@ import de.upb.maven.ecosystem.licenses.spdx.SPDXLicensesJSON;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -45,6 +49,7 @@ public class SearchLicensesUtility {
   private final HashSet<String> LICENCES_NAMES = new HashSet<>();
   private final HashMap<String, String> LICENCE_NAME_TO_ID = new HashMap<>();
   private ListedLicenses listedLicenses;
+  private static ObjectMapper OBJECTMAPPER = new ObjectMapper();
 
   private SearchLicensesUtility() {
     initSpdxLicenseInformation();
@@ -81,11 +86,17 @@ public class SearchLicensesUtility {
     // TODO: migrate to ListedLicenses.getListedLicenses().getSpdxListedLicenseIds()
     listedLicenses = ListedLicenses.getListedLicenses();
 
-    WebTarget path = SPDX_ENDPOINT.path("licenses/licenses.json");
 
     SPDXLicensesJSON jsonMap = null;
     try {
-      jsonMap = path.request(MediaType.APPLICATION_JSON_TYPE).get(SPDXLicensesJSON.class);
+
+      HttpRequest request = HttpRequest.newBuilder()
+          .uri(SPDX_ENDPOINT.path("licenses/licenses.json").getUri()).header("accept", "application/json")
+          .GET()
+          .build();
+      HttpResponse<String> response = HttpClient.newHttpClient().send(request, BodyHandlers.ofString());
+      response.body();
+      jsonMap =  OBJECTMAPPER.readValue(response.body(), SPDXLicensesJSON.class);
 
       if (jsonMap == null) {
         LOGGER.error("Could not read SPDX Document Information");
