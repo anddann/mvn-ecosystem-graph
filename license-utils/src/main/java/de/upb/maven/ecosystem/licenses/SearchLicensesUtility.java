@@ -8,6 +8,9 @@ import de.upb.maven.ecosystem.licenses.spdx.SPDXLicensesJSON;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -23,9 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.License;
 import org.apache.maven.model.Model;
@@ -35,14 +35,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.rdfparser.license.ListedLicenses;
 
-/** Requires internet connection to function */
+/**
+ * Requires internet connection to function
+ */
 public class SearchLicensesUtility {
 
   public static final String NOASSERTION = "NOASSERTION";
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchLicensesUtility.class);
 
-  public static javax.ws.rs.client.WebTarget SPDX_ENDPOINT =
-      ClientBuilder.newBuilder().build().target("https://spdx.org");
+  public static URI SPDX_ENDPOINT;
+
+  static {
+    try {
+      SPDX_ENDPOINT = new URI("https://spdx.org");
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   private static SearchLicensesUtility instance;
   private final HashSet<String> UPPER_CASE_SpdxListedLicenseIds = new HashSet<>();
@@ -86,17 +95,17 @@ public class SearchLicensesUtility {
     // TODO: migrate to ListedLicenses.getListedLicenses().getSpdxListedLicenseIds()
     listedLicenses = ListedLicenses.getListedLicenses();
 
-
     SPDXLicensesJSON jsonMap = null;
     try {
 
       HttpRequest request = HttpRequest.newBuilder()
-          .uri(SPDX_ENDPOINT.path("licenses/licenses.json").getUri()).header("accept", "application/json")
+          .uri(SPDX_ENDPOINT.resolve("licenses/licenses.json")).header("accept", "application/json")
           .GET()
           .build();
-      HttpResponse<String> response = HttpClient.newHttpClient().send(request, BodyHandlers.ofString());
+      HttpResponse<String> response = HttpClient.newHttpClient()
+          .send(request, BodyHandlers.ofString());
       response.body();
-      jsonMap =  OBJECTMAPPER.readValue(response.body(), SPDXLicensesJSON.class);
+      jsonMap = OBJECTMAPPER.readValue(response.body(), SPDXLicensesJSON.class);
 
       if (jsonMap == null) {
         LOGGER.error("Could not read SPDX Document Information");
