@@ -2,7 +2,7 @@ package de.upb.maven.ecosystem.persistence.fingerprint;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class RedisHandler implements PersistenceHandler {
     LOGGER.info("Initialized Redis Connection: " + host);
 
     this.mapper = new ObjectMapper();
-    this.mapper.registerModule(new Hibernate5Module());
+    this.mapper.registerModule(new Hibernate6Module());
   }
 
   @Override

@@ -1,7 +1,7 @@
 package de.upb.maven.ecosystem.fingerprint.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import de.upb.maven.ecosystem.persistence.fingerprint.PostgresDBHandler;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class Redis2PSQLTask {
 
     this.mapper = new ObjectMapper();
 
-    this.mapper.registerModule(new Hibernate5Module());
+    this.mapper.registerModule(new Hibernate6Module());
     clearAllLocks();
   }
 

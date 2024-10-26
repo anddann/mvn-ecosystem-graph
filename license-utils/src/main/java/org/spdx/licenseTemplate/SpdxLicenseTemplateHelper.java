@@ -18,7 +18,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+
+import org.jsoup.safety.Safelist;
 import org.spdx.rdfparser.license.LicenseParserException;
 
 // adann
@@ -38,18 +39,18 @@ public class SpdxLicenseTemplateHelper {
       Pattern.compile(START_RULE + "\\s*((beginOptional|endOptional|var)(.|\\s)*?)\\s*" + END_RULE);
   private static final int SPACES_PER_TAB = 5;
   private static final int MAX_TABS = 4;
-  private static final int[] PIXELS_PER_TAB = new int[] {20, 40, 60, 70};
+  private static final int[] PIXELS_PER_TAB = new int[]{20, 40, 60, 70};
 
   /**
    * Parses the license template calling the templateOutputHandler for any text and rules found
    *
-   * @param licenseTemplate License template to be parsed
+   * @param licenseTemplate       License template to be parsed
    * @param templateOutputHandler Handles the text, optional text, and variable rules text found
    * @throws LicenseParserException
    */
   public static void parseTemplate(
       String licenseTemplate, ILicenseTemplateOutputHandler templateOutputHandler)
-      throws LicenseTemplateRuleException, LicenseParserException {
+      throws LicenseTemplateRuleException, LicenseParserException, org.spdx.licenseTemplate.LicenseParserException {
     Matcher ruleMatcher = RULE_PATTERN.matcher(licenseTemplate);
     int end = 0;
     int optionalNestLevel = 0;
@@ -109,7 +110,7 @@ public class SpdxLicenseTemplateHelper {
     HtmlTemplateOutputHandler htmlOutput = new HtmlTemplateOutputHandler();
     try {
       parseTemplate(licenseTemplate, htmlOutput);
-    } catch (LicenseParserException e) {
+    } catch (LicenseParserException | org.spdx.licenseTemplate.LicenseParserException e) {
       throw new LicenseTemplateRuleException("Parsing error parsing license template", e);
     }
     return htmlOutput.getHtml();
@@ -127,7 +128,7 @@ public class SpdxLicenseTemplateHelper {
     TextTemplateOutputHandler textOutput = new TextTemplateOutputHandler();
     try {
       parseTemplate(template, textOutput);
-    } catch (LicenseParserException e) {
+    } catch (LicenseParserException | org.spdx.licenseTemplate.LicenseParserException e) {
       throw new LicenseTemplateRuleException("Parsing error parsing license template", e);
     }
     return textOutput.getText();
@@ -146,7 +147,7 @@ public class SpdxLicenseTemplateHelper {
   /**
    * Escapes and formats text
    *
-   * @param text unformatted text
+   * @param text        unformatted text
    * @param inParagraph true if inside a paragraph tag
    * @return
    */
@@ -156,8 +157,7 @@ public class SpdxLicenseTemplateHelper {
   }
 
   /**
-   * Adds HTML formatting <br>
-   * and
+   * Adds HTML formatting <br> and
    *
    * <p>
    *
@@ -169,12 +169,11 @@ public class SpdxLicenseTemplateHelper {
   }
 
   /**
-   * Adds HTML formatting <br>
-   * and
+   * Adds HTML formatting <br> and
    *
    * <p>
    *
-   * @param text unformatted text
+   * @param text        unformatted text
    * @param inParagraph true if inside a paragraph tag
    * @return
    */
@@ -255,8 +254,7 @@ public class SpdxLicenseTemplateHelper {
   }
 
   /**
-   * Converts an HTML string to text preserving line breaks for <br>
-   * tags
+   * Converts an HTML string to text preserving line breaks for <br> tags
    *
    * @param html
    * @return
@@ -264,7 +262,9 @@ public class SpdxLicenseTemplateHelper {
   // complete overvwrite - by addan
   // fixme: make this a PR for https://github.com/spdx/tools/blob/master/pom.xml
   public static String htmlToText(String html) {
-    if (html == null) return html;
+    if (html == null) {
+      return html;
+    }
     Document document = Jsoup.parse(html);
     document.outputSettings(
         new Document.OutputSettings()
@@ -272,6 +272,6 @@ public class SpdxLicenseTemplateHelper {
     document.select("br").append("\\n");
     document.select("p").prepend("\\n\\n");
     String s = document.html().replaceAll("\\\\n", "\n");
-    return Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+    return Jsoup.clean(s, "", Safelist.none(), new Document.OutputSettings().prettyPrint(false));
   }
 }

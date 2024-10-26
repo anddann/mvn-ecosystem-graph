@@ -14,7 +14,7 @@
   <properties>
     <revision>2.0.0-SNAPSHOT</revision>
 
-    <jackson.version>2.15.2</jackson.version>
+    <jackson.version>2.15.4</jackson.version>
     <enforced-maven-version>3.6.1</enforced-maven-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
@@ -39,6 +39,8 @@
     <dockerfile.version>1.4.13</dockerfile.version>
     <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
     <jib-maven-plugin.version>3.4.1</jib-maven-plugin.version>
+    <slf4j-api.version>2.0.16</slf4j-api.version>
+    <logback-classic.version>1.5.12</logback-classic.version>
   </properties>
 
   <modules>
@@ -194,17 +196,17 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.13</version>
+      <version>${slf4j-api.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.5.6</version>
+      <version>${logback-classic.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.5.6</version>
+      <version>${logback-classic.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -251,7 +253,7 @@
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-hibernate5</artifactId>
+        <artifactId>jackson-datatype-hibernate6</artifactId>
         <version>${jackson.version}</version>
       </dependency>
 
