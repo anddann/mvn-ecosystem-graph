@@ -17,8 +17,10 @@ services:
       - crawler-net
 
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     restart: always
+    # do not persist the redis cache
+    command: [ "redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru", "--save ''" ]
     deploy:
       mode: global
     networks:

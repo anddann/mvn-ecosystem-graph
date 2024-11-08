@@ -11,19 +11,17 @@ services:
       - RABBITMQ_DEFAULT_PASS=mypassword
     deploy:
       mode: global
-      placement:
-        constraints: [node.hostname == heap-snapshots-bullseye]
     networks:
       - maven-postgres-crawler-net
 
 
   redis_maven_crawler:
-    image: redis:alpine
+    image: redis:7-alpine
+    # do not persist the redis cache
+    command: [ "redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru", "--save ''" ]
     restart: always
     deploy:
       mode: global
-      placement:
-        constraints: [node.hostname == heap-snapshots-bullseye]
     networks:
       - maven-postgres-crawler-net
 
@@ -46,7 +44,7 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.hostname == heap-snapshots-bullseye]
+        constraints: [ node.hostname == heap-snapshots-bullseye ]
     volumes:
       - central-index-data:/data/
     env_file:
