@@ -17,7 +17,7 @@
       <fileNamePattern>logs/application_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
       <timeBasedFileNamingAndTriggeringPolicy
-        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
         <maxFileSize>5MB</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
       <!-- keep 30 days' worth of history -->
