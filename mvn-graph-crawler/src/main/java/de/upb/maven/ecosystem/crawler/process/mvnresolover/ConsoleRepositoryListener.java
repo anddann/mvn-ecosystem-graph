@@ -1,103 +1,128 @@
 package de.upb.maven.ecosystem.crawler.process.mvnresolover;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
+import java.io.PrintStream;
+
+import org.eclipse.aether.AbstractRepositoryListener;
 import org.eclipse.aether.RepositoryEvent;
-import org.eclipse.aether.RepositoryListener;
 
-public class ConsoleRepositoryListener implements
-    RepositoryListener {
+import static java.util.Objects.requireNonNull;
 
-  @Override
-  public void artifactDescriptorInvalid(RepositoryEvent repositoryEvent) {
+/**
+ * A simplistic repository listener that logs events to the console.
+ */
+public class ConsoleRepositoryListener extends AbstractRepositoryListener {
 
+  private final PrintStream out;
+
+  public ConsoleRepositoryListener() {
+    this(null);
   }
 
-  @Override
-  public void artifactDescriptorMissing(RepositoryEvent repositoryEvent) {
-
+  public ConsoleRepositoryListener(PrintStream out) {
+    this.out = (out != null) ? out : System.out;
   }
 
-  @Override
-  public void metadataInvalid(RepositoryEvent repositoryEvent) {
-
+  public void artifactDeployed(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Deployed " + event.getArtifact() + " to " + event.getRepository());
   }
 
-  @Override
-  public void artifactResolving(RepositoryEvent repositoryEvent) {
-
+  public void artifactDeploying(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Deploying " + event.getArtifact() + " to " + event.getRepository());
   }
 
-  @Override
-  public void artifactResolved(RepositoryEvent repositoryEvent) {
-
+  public void artifactDescriptorInvalid(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Invalid artifact descriptor for " + event.getArtifact() + ": "
+        + event.getException().getMessage());
   }
 
-  @Override
-  public void metadataResolving(RepositoryEvent repositoryEvent) {
-
+  public void artifactDescriptorMissing(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Missing artifact descriptor for " + event.getArtifact());
   }
 
-  @Override
-  public void metadataResolved(RepositoryEvent repositoryEvent) {
-
+  public void artifactInstalled(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Installed " + event.getArtifact() + " to " + event.getFile());
   }
 
-  @Override
-  public void artifactDownloading(RepositoryEvent repositoryEvent) {
-
+  public void artifactInstalling(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Installing " + event.getArtifact() + " to " + event.getFile());
   }
 
-  @Override
-  public void artifactDownloaded(RepositoryEvent repositoryEvent) {
-
+  public void artifactResolved(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Resolved artifact " + event.getArtifact() + " from " + event.getRepository());
   }
 
-  @Override
-  public void metadataDownloading(RepositoryEvent repositoryEvent) {
-
+  public void artifactDownloading(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Downloading artifact " + event.getArtifact() + " from " + event.getRepository());
   }
 
-  @Override
-  public void metadataDownloaded(RepositoryEvent repositoryEvent) {
-
+  public void artifactDownloaded(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Downloaded artifact " + event.getArtifact() + " from " + event.getRepository());
   }
 
-  @Override
-  public void artifactInstalling(RepositoryEvent repositoryEvent) {
-
+  public void artifactResolving(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Resolving artifact " + event.getArtifact());
   }
 
-  @Override
-  public void artifactInstalled(RepositoryEvent repositoryEvent) {
-
+  public void metadataDeployed(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Deployed " + event.getMetadata() + " to " + event.getRepository());
   }
 
-  @Override
-  public void metadataInstalling(RepositoryEvent repositoryEvent) {
-
+  public void metadataDeploying(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Deploying " + event.getMetadata() + " to " + event.getRepository());
   }
 
-  @Override
-  public void metadataInstalled(RepositoryEvent repositoryEvent) {
-
+  public void metadataInstalled(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Installed " + event.getMetadata() + " to " + event.getFile());
   }
 
-  @Override
-  public void artifactDeploying(RepositoryEvent repositoryEvent) {
-
+  public void metadataInstalling(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Installing " + event.getMetadata() + " to " + event.getFile());
   }
 
-  @Override
-  public void artifactDeployed(RepositoryEvent repositoryEvent) {
-
+  public void metadataInvalid(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Invalid metadata " + event.getMetadata());
   }
 
-  @Override
-  public void metadataDeploying(RepositoryEvent repositoryEvent) {
-
+  public void metadataResolved(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Resolved metadata " + event.getMetadata() + " from " + event.getRepository());
   }
 
-  @Override
-  public void metadataDeployed(RepositoryEvent repositoryEvent) {
-
+  public void metadataResolving(RepositoryEvent event) {
+    requireNonNull(event, "event cannot be null");
+    out.println("Resolving metadata " + event.getMetadata() + " from " + event.getRepository());
   }
 }
