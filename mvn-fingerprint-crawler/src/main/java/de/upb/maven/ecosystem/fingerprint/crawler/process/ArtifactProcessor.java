@@ -13,6 +13,8 @@ import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.Gav;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.License;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.zip.ZipError;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
@@ -271,22 +274,19 @@ public class ArtifactProcessor {
     Set<ClassFile> classFiles = new HashSet<>();
 
     // would it make sense to load the jar into memory before reading its content?
-    try (JarFile jarFile = new JarFile(pathToJar.toFile())) {
-      Enumeration<JarEntry> entries = jarFile.entries();
-
-      while (entries.hasMoreElements()) {
-        JarEntry jarEntry = entries.nextElement();
+    try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(pathToJar))) {
+      JarEntry jarEntry;
+      while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
         if (jarEntry.isDirectory()) {
           continue;
         }
         String fileName = jarEntry.getName();
         if (fileName.endsWith("pom.xml")) {
-
-          try (InputStream inputStream = jarFile.getInputStream(jarEntry);
-              InputStream pomStream = new BufferedInputStream(inputStream)) {
-
+          try {
+            byte[] byteArray = copyStream(jarInputStream);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
             Gav gav = new Gav();
-            final MavenProject mavenProject = PomFileUtil.readPom(pomStream);
+            final MavenProject mavenProject = PomFileUtil.readPom(byteArrayInputStream);
             if (mavenProject != null) {
               gav.setGroupId(mavenProject.getGroupId());
               gav.setArtifactId(mavenProject.getArtifactId());
@@ -317,10 +317,13 @@ public class ArtifactProcessor {
           String sha = FingerPrintComputation.getSHA(computedTLSHandSHA256, fileName);
           clsF.setJimpleSha256(sha);
 
-          try (InputStream inputStream = jarFile.getInputStream(jarEntry);
-              InputStream classStream = new BufferedInputStream(inputStream)) {
-            String sha256 = FingerPrintComputation.getSha256DigestFor(classStream);
+          try  {
+            byte[] byteArray = copyStream(jarInputStream);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
+            String sha256 = FingerPrintComputation.getSha256DigestFor(byteArrayInputStream);
             clsF.setSha256(sha256);
+          }catch (IOException ex){
+
           }
           classFiles.add(clsF);
         }
@@ -347,6 +350,20 @@ public class ArtifactProcessor {
     metadata.setEmbeddedGavs(embeddedGavs);
     metadata.setCrawlingExceptions(exceptions);
   }
+
+  private static byte[] copyStream(InputStream inputStream) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    byte[] buffer = new byte[4 * 1024];
+    int n;
+
+    while ((n = inputStream.read(buffer)) > -1) {
+      baos.write(buffer, 0, n);
+    }
+    baos.close();
+
+    return baos.toByteArray();
+  }
+
 
   private void searchForLicenseFiles(Path jarArchive, MavenArtifactMetadata metadata) {
     LOGGER.info("Start searching for licenses");

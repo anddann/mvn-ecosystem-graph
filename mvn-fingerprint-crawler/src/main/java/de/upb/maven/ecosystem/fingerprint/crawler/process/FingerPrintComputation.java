@@ -42,7 +42,8 @@ public class FingerPrintComputation {
   public static class FingerPrintComputationBuilder {
 
     Collection<Path> classPathEntries;
-    @NotNull long sootTimeoutSettingMS = 5 * 60 * 1000;
+    @NotNull
+    long sootTimeoutSettingMS = 5 * 60 * 1000;
 
     public FingerPrintComputationBuilder(Collection<Path> classPathEntries) {
       this.classPathEntries = classPathEntries;
@@ -101,7 +102,8 @@ public class FingerPrintComputation {
   public static String getSha256DigestFor(Path key) {
     String digest = null;
     try {
-      digest = new DigestUtils(DigestUtils.getSha256Digest()).digestAsHex(key.toFile());
+      digest = new DigestUtils(DigestUtils.getSha256Digest()).digestAsHex(
+          Files.newInputStream(key));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -242,7 +244,7 @@ public class FingerPrintComputation {
                     }
 
                     computedTLSHandJimpleSHA256.put(
-                        className, new String[] {tlshDigestFor, sha256DigestFor});
+                        className, new String[]{tlshDigestFor, sha256DigestFor});
 
                   } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -382,6 +384,7 @@ public class FingerPrintComputation {
   }
 
   public static class SootProcessInteruptedException extends Exception {
+
     public SootProcessInteruptedException(Exception e) {
       super(e);
     }
