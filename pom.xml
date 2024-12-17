@@ -51,7 +51,7 @@
     <module>mvn-fingerprint-crawler</module>
     <module>mvn-fingerprint-redis-task</module>
     <module>license-utils</module>
- <!--   <module>effective-pom</module> -->
+    <!--   <module>effective-pom</module> -->
 
   </modules>
 
@@ -214,6 +214,8 @@
       <artifactId>annotations</artifactId>
       <version>24.0.0</version>
     </dependency>
+
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -256,7 +258,11 @@
         <artifactId>jackson-datatype-hibernate6</artifactId>
         <version>${jackson.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.google.jimfs</groupId>
+        <artifactId>jimfs</artifactId>
+        <version>1.3.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

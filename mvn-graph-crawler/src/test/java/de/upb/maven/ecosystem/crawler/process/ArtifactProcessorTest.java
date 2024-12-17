@@ -35,7 +35,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -83,7 +83,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -129,7 +129,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -173,7 +173,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -219,7 +219,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -275,7 +275,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -315,7 +315,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -363,7 +363,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -408,7 +408,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -454,7 +454,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -497,7 +497,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -546,7 +546,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -594,7 +594,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -644,7 +644,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -680,7 +680,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -765,7 +765,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -802,7 +802,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -835,7 +835,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -872,7 +872,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     // write the node with circular reference first into the DB
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -907,7 +907,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -941,7 +941,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -977,7 +977,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1007,7 +1007,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     }
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1040,7 +1040,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1072,7 +1072,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1105,7 +1105,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1139,7 +1139,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1172,7 +1172,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1227,7 +1227,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1262,7 +1262,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1300,7 +1300,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
-          new ArtifactDownloader(Files.createTempDirectory("dummy"));
+          new ArtifactDownloader();
       ArtifactProcessor artifactProcessor =
           new ArtifactProcessor(
               artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1352,7 +1352,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "org.ops4j.pax.web.samples:authentication:2.1.2-null -- Properties not resolved. Invalid State");
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1395,7 +1395,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
         }
 
         ArtifactDownloader artifactDownloader =
-            new ArtifactDownloader(Files.createTempDirectory("dummy"));
+            new ArtifactDownloader();
         ArtifactProcessor artifactProcessor =
             new ArtifactProcessor(
                 artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1440,7 +1440,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     String[] gav = splitString("io.apiman:apiman-test-policies:1.2.0.Beta2-null");
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1482,7 +1482,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "org.sakaiproject.delegatedaccess:delegatedaccess-pack:2.1-null -- Properties not resolved. Invalid State");
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1518,7 +1518,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
         splitString("net.vvakame:blazdb-sqlite:0.2-null -- Properties not resolved. Invalid State");
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1555,7 +1555,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
             "de.hilling.junit.cdi:cdi-test-jee:0.10.2-null -- Invalid State. Unresolved Property: javax.enterprise:cdi-api:${cdi-api.version}\n");
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1590,7 +1590,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
@@ -1623,7 +1623,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(
             artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);

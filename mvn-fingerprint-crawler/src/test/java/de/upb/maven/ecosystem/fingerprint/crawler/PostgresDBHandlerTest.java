@@ -51,7 +51,7 @@ public class PostgresDBHandlerTest {
   public void createUniqueSHASet() throws IOException {
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, true, 50000);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();

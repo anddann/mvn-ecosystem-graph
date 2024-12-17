@@ -140,7 +140,6 @@
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <version>1.3.0</version>
         </dependency>
 
       <!-- alternative maven resolver -->

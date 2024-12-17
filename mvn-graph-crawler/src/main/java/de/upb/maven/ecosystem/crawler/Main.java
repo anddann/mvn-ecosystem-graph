@@ -3,6 +3,8 @@ package de.upb.maven.ecosystem.crawler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
 import de.upb.maven.ecosystem.AbstractCrawler;
@@ -14,6 +16,7 @@ import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
@@ -64,8 +67,9 @@ public class Main extends AbstractCrawler {
 
     CustomArtifactInfo artifactInfo =
         mapper.readValue(delivery.getBody(), CustomArtifactInfo.class);
-    Path tempDirectory = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
-
+    FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
+    Path dummyInMem = fs.getPath("dummyInMem");
+    Path tempDirectory = Files.createDirectory(dummyInMem);
     try {
       ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);
       LOGGER.info("[Worker] Received Request");

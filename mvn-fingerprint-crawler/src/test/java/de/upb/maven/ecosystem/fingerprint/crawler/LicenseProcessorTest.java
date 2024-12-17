@@ -21,7 +21,7 @@ public class LicenseProcessorTest {
   @Test
   public void codacyPlugins() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
 
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 
@@ -48,7 +48,7 @@ public class LicenseProcessorTest {
   @Test
   public void spring() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
 
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 
@@ -73,7 +73,7 @@ public class LicenseProcessorTest {
   @Test
   public void rebundledTest() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
 
     ArtifactProcessor artifactProcessor = new ArtifactProcessor(artifactDownloader, false, 5000);
 

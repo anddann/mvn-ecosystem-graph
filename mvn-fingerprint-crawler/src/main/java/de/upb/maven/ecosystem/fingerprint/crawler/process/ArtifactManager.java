@@ -1,5 +1,7 @@
 package de.upb.maven.ecosystem.fingerprint.crawler.process;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -7,6 +9,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.PersistenceHandler;
 import de.upb.maven.ecosystem.persistence.fingerprint.model.dao.MavenArtifactMetadata;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -43,8 +46,9 @@ public class ArtifactManager {
       LOGGER.info("Skipping url {}, already present and update in database", downloadURL);
       return;
     }
-
-    Path tempDirectory = Files.createTempDirectory(RandomStringUtils.randomAlphabetic(10));
+    FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
+    Path dummyInMem = fs.getPath("dummyInMem");
+    Path tempDirectory = Files.createDirectory(dummyInMem);
 
     try {
       ArtifactDownloader artifactDownloader = new ArtifactDownloader(tempDirectory);

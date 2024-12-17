@@ -24,7 +24,7 @@ public class ArtifactProcessorTest {
   @Test
   public void process() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
@@ -64,7 +64,7 @@ public class ArtifactProcessorTest {
   @Test
   public void processLog4j() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
 
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
@@ -100,7 +100,7 @@ public class ArtifactProcessorTest {
   // @Disabled //TODO check why
   public void takesLongTime() throws IOException {
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
 
     // https://repo1.maven.org/maven2/uk/ac/open/kmi/iserve/iserve-integrated-engine/2.1.0/iserve-integrated-engine-2.1.0-jar-with-dependencies.jar
     ArtifactProcessor artifactProcessor =
@@ -142,7 +142,7 @@ public class ArtifactProcessorTest {
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
@@ -155,7 +155,7 @@ public class ArtifactProcessorTest {
   public void testGeneralCrawler() throws IOException {
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
@@ -196,7 +196,7 @@ public class ArtifactProcessorTest {
   public void testRandArtefact() throws IOException {
     // https://repo1.maven.org/maven2/com/arpnetworking/metrics/metrics-portal_2.11/0.4.7/
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
@@ -226,7 +226,7 @@ public class ArtifactProcessorTest {
   public void testBigArtefact() throws IOException {
     // https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-osgi/1.11.732/aws-java-sdk-osgi-1.11.732.jar
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
 
@@ -255,7 +255,7 @@ public class ArtifactProcessorTest {
   public void heapSpaceArtifact() throws IOException {
 
     ArtifactDownloader artifactDownloader =
-        new ArtifactDownloader(Files.createTempDirectory("dummy"));
+        new ArtifactDownloader();
     ArtifactProcessor artifactProcessor =
         new ArtifactProcessor(artifactDownloader, true, 5 * 60 * 1000);
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
