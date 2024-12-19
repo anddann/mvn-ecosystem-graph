@@ -193,7 +193,7 @@ public class FingerPrintComputation {
    * @return a map of FQN -> TLSH hashes.
    * @throws SootProcessInteruptedException
    */
-  private static HashMap<String, String[]> run_in_same_thread(
+  private static HashMap<String, String[]> runjNorm(
       String classPathEntry, @Nullable String outputDir) {
     HashMap<String, String[]> computedTLSHandJimpleSHA256 = new HashMap<>();
     try {
@@ -267,7 +267,7 @@ public class FingerPrintComputation {
    * @return
    * @throws SootProcessInteruptedException
    */
-  private static HashMap<String, String[]> invokeSameProcess(
+  private static HashMap<String, String[]> invokejNormInSameProcess(
       Path pathToJar, long sootTimeout, String outputFolder) throws SootProcessInteruptedException {
 
     if (newSingleThreadExecutor == null) {
@@ -275,7 +275,7 @@ public class FingerPrintComputation {
     }
     Callable<HashMap<String, String[]>> task =
         () ->
-            FingerPrintComputation.run_in_same_thread(
+            FingerPrintComputation.runjNorm(
                 pathToJar.toAbsolutePath().toString(), outputFolder);
     Future<HashMap<String, String[]>> future = newSingleThreadExecutor.submit(task);
     try {
@@ -353,7 +353,7 @@ public class FingerPrintComputation {
     HashMap<String, String[]> computedTLSHandJimpleSHA256 = new HashMap<>();
 
     computedTLSHandJimpleSHA256 =
-        invokeSameProcess(
+        invokejNormInSameProcess(
             pathToJar, this.sootTimeoutSetting, this.tmpDir.toAbsolutePath().toString());
 
     this.computedTLSHandJimpleSHA256.putAll(computedTLSHandJimpleSHA256);
