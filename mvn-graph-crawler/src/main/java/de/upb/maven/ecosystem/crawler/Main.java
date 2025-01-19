@@ -17,10 +17,11 @@ import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +81,30 @@ public class Main extends AbstractCrawler {
     } catch (Exception e) {
       LOGGER.error("[Worker] Failed Crawling  with", e);
     } finally {
-      FileUtils.deleteDirectory(tempDirectory.toFile());
+      deleteFolder(tempDirectory);
     }
+  }
+
+  protected void deleteFolder(Path pathToBeDeleted) throws IOException {
+
+    Files.walkFileTree(pathToBeDeleted,
+        new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult postVisitDirectory(
+              Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(
+              Path file, BasicFileAttributes attrs)
+              throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
+        });
+
   }
 
   @Override
