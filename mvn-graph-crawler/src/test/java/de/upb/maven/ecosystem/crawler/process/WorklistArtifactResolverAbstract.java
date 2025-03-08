@@ -37,10 +37,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @Disabled
-public abstract class ArtifactProcessorAbstract {
+public abstract class WorklistArtifactResolverAbstract {
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
-  protected static final Logger logger = LoggerFactory.getLogger(ArtifactProcessorTest.class);
+  protected static final Logger logger = LoggerFactory.getLogger(WorklistArtifactResolverTest.class);
   private static final boolean runEmbedded = true;
   private static Path databasePath;
   private static GraphDatabaseService databaseService;

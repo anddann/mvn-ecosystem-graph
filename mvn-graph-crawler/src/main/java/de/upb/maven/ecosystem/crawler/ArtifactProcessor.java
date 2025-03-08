@@ -1,17 +1,21 @@
-package de.upb.maven.ecosystem.crawler.process;
+package de.upb.maven.ecosystem.crawler;
 
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
-import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.ArtifactUtils;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -19,16 +23,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArtifactManager {
+public class ArtifactProcessor {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactManager.class);
-  private final ArtifactDownloader artifactDownloader;
+  private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
   private final DaoMvnArtifactNode doaArtifactNode;
   private RedisWriter instance;
 
-  public ArtifactManager(
-      ArtifactDownloader artifactDownloader, DaoMvnArtifactNode doaArtifactNode) {
-    this.artifactDownloader = artifactDownloader;
+  public ArtifactProcessor(
+      DaoMvnArtifactNode doaArtifactNode)
+      throws IOException {
     this.doaArtifactNode = doaArtifactNode;
     Objects.requireNonNull(doaArtifactNode);
     if (StringUtils.isNotBlank(System.getenv("REDIS"))) {
@@ -71,6 +74,8 @@ public class ArtifactManager {
 
     LOGGER.debug("[Stats] DB lookup took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
+    WorklistArtifactResolver worklistArtifactResolver = new WorklistArtifactResolver(
+         ai.getRepoURL(), doaArtifactNode);
     stopwatch.reset();
     LOGGER.info(
         "Processing Artifact: {}:{}:{}",
@@ -80,7 +85,7 @@ public class ArtifactManager {
     try {
 
       final Collection<MvnArtifactNode> newResolvedNodes =
-          new ArtifactProcessor(artifactDownloader, ai.getRepoURL(), doaArtifactNode).process(ai);
+          worklistArtifactResolver.process(ai);
       if (newResolvedNodes != null) {
         LOGGER.info("Writing nodes: #{} to db", newResolvedNodes.size());
 
@@ -133,6 +138,10 @@ public class ArtifactManager {
         LOGGER.error("Could not write failed_artifacts file", e);
       }
       LOGGER.info("[Stats] Writing to files took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    } finally {
+      worklistArtifactResolver.cleanup();
     }
   }
+
+
 }

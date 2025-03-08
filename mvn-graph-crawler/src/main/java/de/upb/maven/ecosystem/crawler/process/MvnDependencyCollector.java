@@ -1,6 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process;
 
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.Booter;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.aether.Booter;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession.CloseableSession;
 import org.eclipse.aether.artifact.Artifact;

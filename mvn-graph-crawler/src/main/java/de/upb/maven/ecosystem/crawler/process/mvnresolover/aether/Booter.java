@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.crawler.process.mvnresolover;
+package de.upb.maven.ecosystem.crawler.process.mvnresolover.aether;
 
 
 import java.io.IOException;

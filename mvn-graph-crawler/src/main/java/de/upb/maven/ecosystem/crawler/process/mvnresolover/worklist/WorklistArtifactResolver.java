@@ -1,8 +1,12 @@
-package de.upb.maven.ecosystem.crawler.process;
+package de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist;
 
 import com.google.common.base.Optional;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
+import de.upb.maven.ecosystem.crawler.process.Scene;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.ArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
@@ -10,8 +14,12 @@ import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,9 +44,10 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
-public class ArtifactProcessor {
+public class WorklistArtifactResolver implements ArtifactResolver {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(
+      WorklistArtifactResolver.class);
 
   private static final int RESOLVE_NODE = 0;
   private static final int RESOLVE_PROPERTIES = 1;
@@ -60,11 +69,16 @@ public class ArtifactProcessor {
   private final Pattern PROPERTY_PATTERN = Pattern.compile("(\\$\\{[^\\}]+\\})");
   private final Scene scene;
   private final ArtifactDownloader artifactDownloader;
+  private final Path tempDirectory;
 
-  public ArtifactProcessor(
-      ArtifactDownloader artifactDownloader, String repoUrl, DaoMvnArtifactNode doaArtifactNode)
+  public WorklistArtifactResolver(
+      String repoUrl, DaoMvnArtifactNode doaArtifactNode)
       throws IOException {
-    this.artifactDownloader = artifactDownloader;
+    FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
+    Path dummyInMem = fs.getPath("dummyInMem");
+    tempDirectory = Files.createDirectory(dummyInMem);
+    this.artifactDownloader = new ArtifactDownloader(tempDirectory);
+
     this.scene = new Scene(artifactDownloader, repoUrl, doaArtifactNode);
     // FIFO queue
     worklist[RESOLVE_NODE] = new ArrayDeque<>();
@@ -219,9 +233,9 @@ public class ArtifactProcessor {
 
           final DependencyRelation nextDepMgmt = iteratorDepMgmt.next();
           if (StringUtils.equals(
-                  nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
+              nextDep.getTgtNode().getGroup(), nextDepMgmt.getTgtNode().getGroup())
               && StringUtils.equals(
-                  nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
+              nextDep.getTgtNode().getArtifact(), nextDepMgmt.getTgtNode().getArtifact())
               && StringUtils.equals(nextDep.getTgtNode().getPackaging(), nextDepMgmt.getType())) {
             final Deque<DependencyRelation> orDefault =
                 depWithOutVersionDependencyMgmtEdge.computeIfAbsent(
@@ -568,6 +582,7 @@ public class ArtifactProcessor {
     }
   }
 
+  @Override
   @Nullable
   public Collection<MvnArtifactNode> process(CustomArtifactInfo mvenartifactinfo)
       throws IOException {
@@ -736,5 +751,37 @@ public class ArtifactProcessor {
       }
     }
     return dependencyScope;
+  }
+
+  public void cleanup() {
+    try {
+      deleteFolder(tempDirectory);
+    } catch (IOException e) {
+
+      LOGGER.error("Failed to cleanup dir", e);
+    }
+
+  }
+
+  protected void deleteFolder(Path pathToBeDeleted) throws IOException {
+
+    Files.walkFileTree(pathToBeDeleted,
+        new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult postVisitDirectory(
+              Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(
+              Path file, BasicFileAttributes attrs)
+              throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
+        });
+
   }
 }

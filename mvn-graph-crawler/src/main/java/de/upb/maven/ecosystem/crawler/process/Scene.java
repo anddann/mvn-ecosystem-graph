@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /** @author adann */
 public class Scene {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(WorklistArtifactResolver.class);
   private final HashMap<String, Model> nodeToModel = new HashMap<>();
 
   private static final int CONNECT_TIMEOUT = 5 * 60000;

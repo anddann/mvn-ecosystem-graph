@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactDownloader;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
+import de.upb.maven.ecosystem.crawler.process.mvnresolover.ArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
-public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
+public class WorklistArtifactResolverTest extends WorklistArtifactResolverAbstract {
 
   // 16:29:00.483 [pool-1-thread-21] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
   // org.springframework.cloud:spring-cloud-skipper-autoconfigure:2.5.2-null , failed with ,
@@ -36,9 +38,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -58,7 +60,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     assertFalse(b);
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -84,9 +86,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -106,7 +108,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     assertFalse(b);
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -130,9 +132,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -152,7 +154,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     assertFalse(b);
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -174,9 +176,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -196,7 +198,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     assertFalse(b);
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -220,9 +222,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -242,7 +244,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     assertFalse(b);
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -276,9 +278,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -288,7 +290,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -316,9 +318,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -328,7 +330,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -364,9 +366,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -376,7 +378,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -409,9 +411,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -421,7 +423,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -455,9 +457,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -467,7 +469,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -498,9 +500,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -510,7 +512,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -547,9 +549,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -559,7 +561,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -595,9 +597,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -607,7 +609,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -645,9 +647,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -657,7 +659,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -681,9 +683,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -693,7 +695,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -766,9 +768,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -778,7 +780,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -803,9 +805,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -815,7 +817,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -836,9 +838,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -848,7 +850,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -873,9 +875,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     // write the node with circular reference first into the DB
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -885,7 +887,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
     assertNotNull(process);
     assertFalse(process.isEmpty());
@@ -908,9 +910,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -920,7 +922,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
@@ -942,9 +944,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -954,7 +956,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
@@ -978,9 +980,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -990,7 +992,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("pom");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
       assertNotNull(process);
       assertFalse(process.isEmpty());
@@ -1008,9 +1010,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1020,7 +1022,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("pom");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
@@ -1041,9 +1043,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1053,7 +1055,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     testSerialize(process);
 
     for (MvnArtifactNode node : process) {
@@ -1073,9 +1075,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1085,7 +1087,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
       assertNotNull(process);
       assertFalse(process.isEmpty());
@@ -1106,9 +1108,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1118,7 +1120,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(1, process.size());
@@ -1140,9 +1142,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1152,7 +1154,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
       assertNotNull(process);
       assertFalse(process.isEmpty());
@@ -1173,9 +1175,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1185,7 +1187,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("pom");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
       assertNotNull(process);
       assertFalse(process.isEmpty());
       assertEquals(2, process.size());
@@ -1228,9 +1230,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
 
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1242,7 +1244,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("pom");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
       assertNotNull(process);
       assertFalse(process.isEmpty());
@@ -1263,9 +1265,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // resolve a node that references the recursive node
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
       ;
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
@@ -1276,7 +1278,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
       assertNotNull(process);
       assertFalse(process.isEmpty());
       //  assertEquals(3, process.size());
@@ -1301,9 +1303,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       // write the node with circular reference first into the DB
       ArtifactDownloader artifactDownloader =
           new ArtifactDownloader();
-      ArtifactProcessor artifactProcessor =
-          new ArtifactProcessor(
-              artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+      ArtifactResolver artifactResolver =
+          new WorklistArtifactResolver(
+              "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
       CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
       artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1313,7 +1315,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
       artifactInfo.setFileExtension("jar");
       artifactInfo.setPackaging("jar");
 
-      final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+      final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
 
       assertNotNull(process);
       assertFalse(process.isEmpty());
@@ -1353,9 +1355,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1365,7 +1367,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
@@ -1396,9 +1398,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
         ArtifactDownloader artifactDownloader =
             new ArtifactDownloader();
-        ArtifactProcessor artifactProcessor =
-            new ArtifactProcessor(
-                artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+        ArtifactResolver artifactResolver =
+            new WorklistArtifactResolver(
+                "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
         CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
         artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1415,7 +1417,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
         try {
 
-          final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+          final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
         } catch (Exception ex) {
           newFileLines.add(failedGav + " --  " + ex.getMessage());
         }
@@ -1441,9 +1443,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1453,7 +1455,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
@@ -1483,9 +1485,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1495,7 +1497,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
@@ -1519,9 +1521,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1531,7 +1533,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     assertFalse(process.isEmpty());
     testSerialize(process);
@@ -1556,9 +1558,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1568,7 +1570,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     // TODO add more semantic checks
     assertFalse(process.isEmpty());
@@ -1591,9 +1593,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1603,7 +1605,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     // TODO add more semantic checks
     assertFalse(process.isEmpty());
@@ -1624,9 +1626,9 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
 
     ArtifactDownloader artifactDownloader =
         new ArtifactDownloader();
-    ArtifactProcessor artifactProcessor =
-        new ArtifactProcessor(
-            artifactDownloader, "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
+    ArtifactResolver artifactResolver =
+        new WorklistArtifactResolver(
+            "https://repo1.maven.org/maven2/", daoMvnArtifactNodeImpl);
 
     CustomArtifactInfo artifactInfo = new CustomArtifactInfo();
     artifactInfo.setRepoURL("https://repo1.maven.org/maven2/");
@@ -1636,7 +1638,7 @@ public class ArtifactProcessorTest extends ArtifactProcessorAbstract {
     artifactInfo.setFileExtension("jar");
     artifactInfo.setPackaging("jar");
 
-    final Collection<MvnArtifactNode> process = artifactProcessor.process(artifactInfo);
+    final Collection<MvnArtifactNode> process = artifactResolver.process(artifactInfo);
     assertNotNull(process);
     // TODO add more semantic checks
     assertFalse(process.isEmpty());
