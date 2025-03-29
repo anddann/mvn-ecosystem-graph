@@ -1,11 +1,11 @@
-package de.upb.maven.ecosystem.crawler.process;
+package de.upb.maven.ecosystem.crawler.process.mvnresolver.worklist;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactDownloader;
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.ArtifactResolver;
+import de.upb.maven.ecosystem.crawler.process.AbstractArtifactResolverTest;
+import de.upb.maven.ecosystem.crawler.process.mvnresolver.ArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
-public class WorklistArtifactResolverTest extends WorklistArtifactResolverAbstract {
+public class WorklisttArtifactResolverTest extends AbstractArtifactResolverTest {
 
   // 16:29:00.483 [pool-1-thread-21] ERROR d.u.m.e.c.p.ArtifactManager - Crawling of artifact:
   // org.springframework.cloud:spring-cloud-skipper-autoconfigure:2.5.2-null , failed with ,

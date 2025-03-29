@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.crawler.process.mvnresolover.aether;
+package de.upb.maven.ecosystem.crawler.process.mvnresolver.aether;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

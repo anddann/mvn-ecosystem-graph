@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.crawler.process.mvnresolover.aether;
+package de.upb.maven.ecosystem.crawler.process.mvnresolver.aether;
 
 
 import java.io.IOException;
@@ -25,18 +25,10 @@ public class Booter {
 
   public static final String SUPPLIER = "supplier";
 
-  public static final String SISU = "sisu";
 
   public static final DependencyGraphDumper DUMPER_SOUT = new DependencyGraphDumper(
       System.out::println);
 
-  public static String selectFactory(String[] args) {
-    if (args == null || args.length == 0) {
-      return SUPPLIER;
-    } else {
-      return args[0];
-    }
-  }
 
   public static RepositorySystem newRepositorySystem(final String factory) {
     switch (factory) {

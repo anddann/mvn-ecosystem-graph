@@ -1,4 +1,4 @@
-package de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist;
+package de.upb.maven.ecosystem.crawler.process.mvnresolver.worklist;
 
 import com.google.common.base.Optional;
 import com.google.common.jimfs.Configuration;
@@ -6,7 +6,7 @@ import com.google.common.jimfs.Jimfs;
 import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
 import de.upb.maven.ecosystem.crawler.process.Scene;
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.ArtifactResolver;
+import de.upb.maven.ecosystem.crawler.process.mvnresolver.ArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.common.DependencyScope;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
@@ -72,7 +72,7 @@ public class WorklistArtifactResolver implements ArtifactResolver {
   private final Path tempDirectory;
 
   public WorklistArtifactResolver(
-      String repoUrl, DaoMvnArtifactNode doaArtifactNode)
+      final String repoUrl, final DaoMvnArtifactNode doaArtifactNode)
       throws IOException {
     FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
     Path dummyInMem = fs.getPath("dummyInMem");

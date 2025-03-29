@@ -5,7 +5,7 @@ import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactDownloader;
 import de.upb.maven.ecosystem.PomFileUtil;
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
+import de.upb.maven.ecosystem.crawler.process.mvnresolver.worklist.WorklistArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.graph.model.DependencyRelation;
@@ -120,7 +120,7 @@ public class Scene {
       // we have all info to create a proper reference
       String identifier = genId(groupId, artifact, version, classifier, packaging);
 
-      // check if already in scen
+      // check if already in scene
       if (nodesInScene.containsKey(identifier)) {
         return nodesInScene.get(identifier);
       } else {

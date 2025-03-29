@@ -3,19 +3,15 @@ package de.upb.maven.ecosystem.crawler;
 import com.google.common.base.Stopwatch;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.ArtifactUtils;
-import de.upb.maven.ecosystem.crawler.process.mvnresolover.worklist.WorklistArtifactResolver;
+import de.upb.maven.ecosystem.crawler.process.mvnresolver.worklist.WorklistArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
 import de.upb.maven.ecosystem.persistence.graph.RedisWriter;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +24,7 @@ public class ArtifactProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactProcessor.class);
   private final DaoMvnArtifactNode doaArtifactNode;
   private RedisWriter instance;
+  private WorklistArtifactResolver worklistArtifactResolver;
 
   public ArtifactProcessor(
       DaoMvnArtifactNode doaArtifactNode)
@@ -74,8 +71,9 @@ public class ArtifactProcessor {
 
     LOGGER.debug("[Stats] DB lookup took: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
-    WorklistArtifactResolver worklistArtifactResolver = new WorklistArtifactResolver(
-         ai.getRepoURL(), doaArtifactNode);
+    this.worklistArtifactResolver = new WorklistArtifactResolver(
+        ai.getRepoURL(), doaArtifactNode);
+    WorklistArtifactResolver worklistArtifactResolver = this.worklistArtifactResolver;
     stopwatch.reset();
     LOGGER.info(
         "Processing Artifact: {}:{}:{}",

@@ -2,6 +2,7 @@ package de.upb.maven.ecosystem.crawler.process;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.upb.maven.ecosystem.crawler.process.mvnresolver.worklist.WorklisttArtifactResolverTest;
 import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import de.upb.maven.ecosystem.persistence.redis.RedisSerializerUtil;
 import java.io.File;
@@ -37,10 +38,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @Disabled
-public abstract class WorklistArtifactResolverAbstract {
+public abstract class AbstractArtifactResolverTest {
   public static final String LISTEN_ADDRESS = "localhost:7687";
   public static final String CREDENTIAL = "neo4j";
-  protected static final Logger logger = LoggerFactory.getLogger(WorklistArtifactResolverTest.class);
+  protected static final Logger logger = LoggerFactory.getLogger(WorklisttArtifactResolverTest.class);
   private static final boolean runEmbedded = true;
   private static Path databasePath;
   private static GraphDatabaseService databaseService;
