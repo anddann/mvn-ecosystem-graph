@@ -24,7 +24,6 @@ public class AetherArtifactResolverTest extends AbstractArtifactResolverTest {
   public void classifierProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
-    DaoMvnArtifactNodeImpl daoMvnArtifactNodeImpl = new DaoMvnArtifactNodeImpl(driver);
     ArtifactResolver artifactResolver =
         new AetherArtifactResolver();
 
