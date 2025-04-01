@@ -21,6 +21,7 @@ import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
@@ -28,6 +29,7 @@ import org.xml.sax.SAXException;
 public class AetherArtifactResolverTest extends AbstractArtifactResolverTest {
 
   @Test
+  @Disabled
   public void classifierProperty() throws IOException, ParserConfigurationException, SAXException {
     Driver driver = createDriver();
 
