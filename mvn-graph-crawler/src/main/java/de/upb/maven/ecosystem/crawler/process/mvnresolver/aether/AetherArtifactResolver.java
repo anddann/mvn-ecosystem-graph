@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession.CloseableSession;
@@ -85,18 +86,19 @@ public class AetherArtifactResolver implements ArtifactResolver {
       }
       // add the properties
       rootNode.setProperties(newPros);
-
+      List<DependencyRelation> dependencyRelationList = new ArrayList<>();
       for (int i = 0; i < descriptorResult.getDependencies().size(); i++) {
         Dependency dependency = descriptorResult.getDependencies().get(i);
-        System.out.println(dependency);
         MvnArtifactNode depNode = createFrom(dependency);
-        generatedNodes.add(depNode);
 
         DependencyRelation dependencyRelation = new DependencyRelation();
         dependencyRelation.setPosition(i);
         dependencyRelation.setTgtNode(depNode);
         dependencyRelation.setScope(DependencyScope.COMPILE);
+        dependencyRelationList.add(dependencyRelation);
+
       }
+      rootNode.setDependencies(dependencyRelationList);
     } catch (ArtifactDescriptorException e) {
       throw new RuntimeException(e);
     }
