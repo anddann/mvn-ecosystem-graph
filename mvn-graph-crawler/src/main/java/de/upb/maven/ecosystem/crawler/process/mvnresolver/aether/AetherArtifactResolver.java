@@ -1,5 +1,6 @@
 package de.upb.maven.ecosystem.crawler.process.mvnresolver.aether;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.maven.ecosystem.AbstractCrawler;
 import de.upb.maven.ecosystem.crawler.process.mvnresolver.ArtifactResolver;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
@@ -26,6 +27,8 @@ public class AetherArtifactResolver implements ArtifactResolver {
 
   private static RepositorySystem repositorySystemInstance;
   private static CloseableSession repositorySystemSession;
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 
   private static CloseableSession getRepositorySystemSession() {
@@ -78,7 +81,7 @@ public class AetherArtifactResolver implements ArtifactResolver {
       HashMap<String, String> newPros = new HashMap<>();
 
       for (Map.Entry<String, Object> entry : descriptorResult.getProperties().entrySet()) {
-        newPros.put(entry.getKey().toString(), entry.getValue().toString());
+        newPros.put(entry.getKey(), OBJECT_MAPPER.writeValueAsString(entry.getValue()));
       }
       // add the properties
       rootNode.setProperties(newPros);

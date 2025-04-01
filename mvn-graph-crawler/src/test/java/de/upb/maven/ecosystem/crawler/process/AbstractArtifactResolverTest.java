@@ -97,7 +97,7 @@ public abstract class AbstractArtifactResolverTest {
         embeddedDatabaseServer.boltURI(), AuthTokens.basic(CREDENTIAL, CREDENTIAL));
   }
 
-  public void testDependencies(MvnArtifactNode artifactNode)
+  public void  testDependencies(MvnArtifactNode artifactNode)
       throws IOException, SAXException, ParserConfigurationException {
     String fileName =
         artifactNode.getGroup()
