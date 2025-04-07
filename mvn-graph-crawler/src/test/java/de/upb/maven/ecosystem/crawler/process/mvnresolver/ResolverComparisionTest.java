@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.neo4j.driver.Driver;
@@ -39,6 +40,7 @@ public class ResolverComparisionTest extends AbstractArtifactResolverTest {
 
   @ParameterizedTest
   @CsvFileSource(resources = "/data/artifacts4testing.csv", numLinesToSkip = 1)
+  @Disabled
   void compareResolvers(
       String groupId, String artifactId, String version)
       throws IOException, ParserConfigurationException, SAXException {

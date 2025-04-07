@@ -3,6 +3,7 @@ package de.upb.maven.ecosystem.indexer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Guice;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
 import de.upb.maven.ecosystem.AbstractCrawler;
@@ -16,6 +17,7 @@ import de.upb.maven.ecosystem.persistence.fingerprint.PostgresDBHandler;
 import de.upb.maven.ecosystem.persistence.graph.dao.DaoMvnArtifactNodeImpl;
 import de.upb.maven.ecosystem.persistence.graph.dao.Neo4JConnector;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.sisu.space.BeanScanning;
 import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +28,13 @@ import org.slf4j.LoggerFactory;
  * @author adann
  */
 public class Main extends AbstractCrawler {
+
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private String indexerEnv = System.getenv("INDEXER");
-  private SessionFactory databaseConnection;;
+  private SessionFactory databaseConnection;
+  ;
 
   public Main() {
     super(QueueNames.MVN_INDEX_QUEUE_NAME);
@@ -83,9 +87,11 @@ public class Main extends AbstractCrawler {
       LOGGER.error("No INDEXER PROPERTY Given");
       return;
     }
-
-    final MavenIndexProducer basicUsageExample = new MavenIndexProducer(this, artifactCrawlDecider);
-    basicUsageExample.perform(props);
+    final com.google.inject.Module app = org.eclipse.sisu.launch.Main.wire(BeanScanning.INDEX);
+    MavenIndexProducer instance = Guice.createInjector(app).getInstance(MavenIndexProducer.class);
+    instance.setCollective(this);
+    instance.setArtifactCrawlDecider(artifactCrawlDecider);
+    instance.perform(props);
   }
 
   @Override
