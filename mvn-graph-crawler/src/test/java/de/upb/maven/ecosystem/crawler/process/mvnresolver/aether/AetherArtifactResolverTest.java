@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.xml.sax.SAXException;
 
+// Maven Resolver Dependencies msut be updated to version 4.0.*; however they do not work with the indexer dependencies
 public class AetherArtifactResolverTest extends AbstractArtifactResolverTest {
 
   @Test
@@ -61,6 +62,7 @@ public class AetherArtifactResolverTest extends AbstractArtifactResolverTest {
 
 
   @Test
+  @Disabled
   public void plainTest() throws ArtifactDescriptorException {
     try (RepositorySystem system = Booter.newRepositorySystem(Booter.SUPPLIER);
         CloseableSession session =
@@ -82,6 +84,7 @@ public class AetherArtifactResolverTest extends AbstractArtifactResolverTest {
   }
 
   @Test
+  @Disabled
   public void plainTest2() throws ArtifactDescriptorException {
     try (RepositorySystem system = Booter.newRepositorySystem(Booter.SUPPLIER);
         CloseableSession session =
