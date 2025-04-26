@@ -11,6 +11,9 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <properties>
+    <maven.model.version>3.9.9</maven.model.version>
+  </properties>
 
   <artifactId>commons</artifactId>
 
@@ -86,6 +89,8 @@
       <artifactId>neo4j-java-driver</artifactId>
       <version>${neo4j-java-driver.version}</version>
     </dependency>
+
+
 
     <!-- embedded db for testing -->
     <dependency>

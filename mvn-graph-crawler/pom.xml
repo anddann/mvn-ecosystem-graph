@@ -12,6 +12,9 @@
 
   <artifactId>mvn-graph-crawler</artifactId>
 
+  <properties>
+    <maven.model.version>4.0.0-rc-3</maven.model.version>
+  </properties>
 
   <build>
     <plugins>
@@ -142,16 +145,6 @@
       <artifactId>jimfs</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-model</artifactId>
-      <version>4.0.0-rc-1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>4.0.0-rc-1</version>
-    </dependency>
 
     <!-- alternative maven resolver -->
 

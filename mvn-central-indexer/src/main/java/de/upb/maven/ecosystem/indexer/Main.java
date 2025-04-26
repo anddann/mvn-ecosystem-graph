@@ -87,10 +87,8 @@ public class Main extends AbstractCrawler {
       LOGGER.error("No INDEXER PROPERTY Given");
       return;
     }
-    final com.google.inject.Module app = org.eclipse.sisu.launch.Main.wire(BeanScanning.INDEX);
-    MavenIndexProducer instance = Guice.createInjector(app).getInstance(MavenIndexProducer.class);
-    instance.setCollective(this);
-    instance.setArtifactCrawlDecider(artifactCrawlDecider);
+    MavenIndexProducer instance = new MavenIndexProducer(this, artifactCrawlDecider);
+
     instance.perform(props);
   }
 

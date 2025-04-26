@@ -28,7 +28,10 @@
     <properties>
         <enforced-maven-version>3.6.1</enforced-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.model.version>3.9.9</maven.model.version>
+
     </properties>
+
 
     <build>
         <plugins>
@@ -115,16 +118,7 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>3.9.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>3.9.9</version>
-        </dependency>
+
 
         <!-- Indexer dependencies -->
         <dependency>

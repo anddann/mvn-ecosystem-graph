@@ -83,17 +83,16 @@ public class MavenIndexProducer {
 
   // ==
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static String MAVEN_REPO_URL;
 
   static {
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
-  private RabbitMQCollective collective;
+  private final RabbitMQCollective collective;
   private final Indexer indexer;
   private final IndexUpdater indexUpdater;
   // private final Wagon httpWagon;
-  private ArtifactCrawlDecider artifactCrawlDecider;
+  private final ArtifactCrawlDecider artifactCrawlDecider;
   private final Components components;
   private IndexingContext centralContext;
 
@@ -113,7 +112,7 @@ public class MavenIndexProducer {
 
   public static String getMavenRepoURL() {
     String res = System.getenv("MAVEN_REPO_URL");
-    LOGGER.info("MAVEN_REPO_URL Index: {}", MAVEN_REPO_URL);
+    LOGGER.info("MAVEN_REPO_URL Index: {}", res);
     if (res == null || res.isEmpty()) {
       return "https://repo1.maven.org/maven2/";
     } else {
@@ -218,7 +217,7 @@ public class MavenIndexProducer {
             customArtifactInfo.setBundleLicense(ai.getBundleLicense());
             customArtifactInfo.setLicenseUrl(ai.getBundleDocUrl());
             customArtifactInfo.setDistribution(ai.getRemoteUrl());
-            customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
+            customArtifactInfo.setRepoURL(getMavenRepoURL());
             customArtifactInfo.setPackaging(ai.getPackaging());
 
             if (ArtifactUtils.ignoredArtifactType(customArtifactInfo)) {
@@ -311,14 +310,6 @@ public class MavenIndexProducer {
     return null;
   }
 
-  public void setCollective(RabbitMQCollective collective) {
-    this.collective = collective;
-  }
-
-  public void setArtifactCrawlDecider(
-      ArtifactCrawlDecider artifactCrawlDecider) {
-    this.artifactCrawlDecider = artifactCrawlDecider;
-  }
 
   private static class Java11HttpClient implements ResourceFetcher {
 
