@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: de.codeshield.depscan:frontend-datamodel:1.6-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/frontend-datamodel/1.6-SNAPSHOT/frontend-datamodel-1.6-20200604.094940-88.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/frontend-datamodel/1.6-SNAPSHOT/frontend-datamodel-1.6-20200604.094940-88-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/depscan/frontend-datamodel/1.6-SNAPSHOT/frontend-datamodel-1.6-20200604.094940-88-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

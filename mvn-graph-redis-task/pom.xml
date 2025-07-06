@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>de.upb.maven.ecosystem</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mvn-graph-redis-task</artifactId>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>de.upb.maven.ecosystem.graph.redis.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <useBaseVersion>false</useBaseVersion>
+                    <overWriteReleases>false</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <includeScope>runtime</includeScope>
+                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <to>
+                        <image>${docker.image.prefix}/${project.artifactId}</image>
+                    </to>
+                    <from>
+                        <image>openjdk:17-slim</image>
+                        <platforms>
+                            <platform>
+                                <architecture>arm64</architecture>
+                                <os>linux</os>
+                            </platform>
+                        </platforms>
+                    </from>
+                    <container>
+                        <environment>
+                            <ACTOR_LIMIT>100</ACTOR_LIMIT>
+                            <SOOT_TIMEOUT_MS>300000</SOOT_TIMEOUT_MS>
+                            <SOOT_RUN_OPTION>SAME_PROCESS</SOOT_RUN_OPTION>
+                        </environment>
+                    </container>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.upb.maven.ecosystem</groupId>
+            <artifactId>commons</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.maven.shared</groupId>
+                    <artifactId>file-management</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+
+
+    </dependencies>
+
+</project>

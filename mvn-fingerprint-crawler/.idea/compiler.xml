@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="db-matcher" />
+        <module name="fuzzy-entries-isolator" />
+        <module name="diff-extractor" />
+        <module name="mvn-central-crawler" />
+        <module name="MavenIndexerService" />
+        <module name="vulnerability-scope-finder" />
+        <module name="SARIF" />
+        <module name="sootdiff" />
+        <module name="resources" />
+        <module name="commons" />
+        <module name="vulnerability-db-handler" />
+        <module name="vulnerability-rebundling" />
+        <module name="vulnerability-crawler" />
+        <module name="crawler-commons" />
+        <module name="codemgmt" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="aggregtor" target="1.8" />
+      <module name="codemgmt" target="1.8" />
+      <module name="commons" target="1.8" />
+      <module name="crawler-commons" target="1.8" />
+      <module name="crawler-core-aggregtor" target="1.8" />
+      <module name="cve-crawler" target="1.8" />
+      <module name="datamodel" target="1.8" />
+      <module name="db-matcher" target="1.8" />
+      <module name="depscan-parent" target="1.8" />
+      <module name="diff-extractor" target="1.8" />
+      <module name="fingerprinter" target="1.8" />
+      <module name="fuzzy-entries-isolator" target="1.8" />
+      <module name="MavenIndexerService" target="1.8" />
+      <module name="mvn-central-crawler" target="1.8" />
+      <module name="parent" target="1.8" />
+      <module name="pomparser" target="1.8" />
+      <module name="resources" target="1.8" />
+      <module name="SARIF" target="1.8" />
+      <module name="soot" target="1.8" />
+      <module name="sootdiff" target="1.8" />
+      <module name="vulnerability-analyzer" target="1.8" />
+      <module name="vulnerability-crawler" target="1.8" />
+      <module name="vulnerability-db-handler" target="1.8" />
+      <module name="vulnerability-rebundling" target="1.8" />
+      <module name="vulnerability-scope-finder" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: de.codeshield.commons:codemgmt:0.3.3-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/codemgmt/0.3.3-SNAPSHOT/codemgmt-0.3.3-20201028.133523-2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/codemgmt/0.3.3-SNAPSHOT/codemgmt-0.3.3-20201028.133523-2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/codemgmt/0.3.3-SNAPSHOT/codemgmt-0.3.3-20201028.133523-2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

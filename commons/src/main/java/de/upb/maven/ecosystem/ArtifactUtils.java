@@ -3,13 +3,15 @@ package de.upb.maven.ecosystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.model.MvnArtifactNode;
+import de.upb.maven.ecosystem.persistence.graph.model.MvnArtifactNode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
+/** @author adann */
 public class ArtifactUtils {
+
   public static URL constructURL(CustomArtifactInfo info) throws MalformedURLException {
     // CAUTION: the url is not the right download url. The download url ist replaced
     ArrayList<String> res = Lists.newArrayList();
@@ -19,6 +21,11 @@ public class ArtifactUtils {
     if (StringUtils.isNotBlank(info.getClassifier())
         && !StringUtils.equals("null", info.getClassifier())) {
       classifier = "-" + info.getClassifier();
+    }
+
+    if (StringUtils.equalsIgnoreCase(info.getFileExtension(), "pom")) {
+      // no classifier for downloading a pom file (e.g., cut of jar-with-dependencies)
+      classifier = "";
     }
 
     String repoURL = info.getRepoURL();
@@ -52,8 +59,9 @@ public class ArtifactUtils {
     return constructURL(customArtifactInfo);
   }
 
-  public static boolean ignoreArtifact(CustomArtifactInfo ai) {
-    // FIXME -- I gues we should only handle artifacts witch classifier =null
+  public static boolean ignoredArtifactType(CustomArtifactInfo ai) {
+    //  we should only handle artifacts with classifier =null for dependency resolving
+    // ignore src, test JARs
     return StringUtils.isNotBlank(ai.getClassifier());
   }
 }

@@ -1,0 +1,1080 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:fix" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:feature" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:fix" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:feature" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="daa8c308-4cda-48e4-ae08-388ec28dfb5e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/codeshield/depscan/mavencrawler/util/scripts/ManualAddDependencies.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="module" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Arquillian JUnit Test Class" />
+        <option value="Enum" />
+        <option value="Python Script" />
+        <option value="Interface" />
+        <option value="JUnit4 Test Class" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../depscan-cve-crawler" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="ProjectId" id="1YdB7WkkOXai5OulJjAhfBZeokZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="TODO_SCOPE" value="All Places" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit4" />
+    <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.Arquillian JUnit4" value="" />
+    <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit4" value="" />
+    <property name="jdk.selected.PYTHON_MODULE" value="Python 3.7 (codeshied_code)" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-crawler/src/test/java" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../depscan-crawler-core/db-matcher/src/main/java/de/codeshield/depscan/db" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="project.propCompiler" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer" />
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer.nvd_cvesearch" />
+      <recent name="de.codeshield.depscan.vulnerablity.db" />
+      <recent name="de.codeshield.depscan.db.nvd_cvesearch" />
+    </key>
+    <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="TestCVE" />
+      <recent name="de.codeshield.crawler.Utils" />
+      <recent name="de.codeshield.depscan.mavencrawler.worker.process.persistence.PersistenceHandler" />
+      <recent name="de.codeshield.depscan.fingerprinter.DiffNameToJimpleNameUtil" />
+      <recent name="de.codeshield.depscan.mavencrawler.process.DBTestUtils" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer" />
+      <recent name="de.codeshield.depscan.vulnerability.crawler" />
+      <recent name="de.codeshield.depscan.mavencrawler" />
+      <recent name="de.codeshield.depscan.datamodel.vulnerability" />
+      <recent name="de.codeshield.depscan.mavencrawler.worker" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <recent name="de.codeshield.depscan.vulnerability.crawler.producer" />
+      <recent name="de.codeshield.depscan.vulnerablity.db" />
+      <recent name="de.codeshield.depscan.mavencrawler.worker.process" />
+      <recent name="de.codeshield.depscan.cve.crawler.worker" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../depscan-crawler-core/db-matcher/src/main/java/de/codeshield/depscan/db" />
+      <recent name="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/datamodel" />
+      <recent name="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/tests" />
+      <recent name="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/infrastructure" />
+      <recent name="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/datamodel" />
+      <recent name="$PROJECT_DIR$/../depscan-crawler-core/datamodel/src" />
+      <recent name="$PROJECT_DIR$/../depscan-crawler-core/diff-extractor/src/test/resources/org/springframework/webflow/mvc/view" />
+      <recent name="$PROJECT_DIR$/../depscan-crawler-core/fingerprinter/src/test/resources" />
+    </key>
+    <key name="ExtractSuperBase.RECENT_KEYS">
+      <recent name="de.codeshield.depscan.vulnerablity.db" />
+      <recent name="de.codeshield.depscan.cve.analyzer.worker" />
+      <recent name="de.codeshield.depscan.mavencrawler.worker.process" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.NVDParserTest.reconcileVersionRanges">
+    <configuration name="Main2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.fingerprinter.Main" />
+      <module name="fingerprinter" />
+      <option name="PROGRAM_PARAMETERS" value="-jarFile $USER_HOME$/achilles_test/achilles_testcases/5_rand-gav_md_uber-jar_repack-classes/franken3.jar -outputFile $USER_HOME$/Desktop/out1a.tmp" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.fingerprinter.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CPEToProductDescriptorTest.convertCpe23Uri" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vulnerability-crawler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.CPEToProductDescriptorTest" />
+      <option name="METHOD_NAME" value="convertCpe23Uri" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NVDParserTest.createVersionRange1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vulnerability-crawler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.NVDParserTest" />
+      <option name="METHOD_NAME" value="createVersionRange1" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NVDParserTest.reconcileVersionRanges" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vulnerability-crawler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.NVDParserTest" />
+      <option name="METHOD_NAME" value="reconcileVersionRanges" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NVDParserTest.reconcileVersionRangesFail" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vulnerability-crawler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.NVDParserTest" />
+      <option name="METHOD_NAME" value="reconcileVersionRangesFail" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NVDServiceRestConnectorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vulnerability-crawler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd" />
+      <option name="MAIN_CLASS_NAME" value="de.codeshield.depscan.vulnerability.crawler.producer.nvd.NVDServiceRestConnectorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="App" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="MavenIndexerService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="de.codeshield.depscan.mavenindexerservice.App" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main2" />
+      <item itemvalue="JUnit.CPEToProductDescriptorTest.convertCpe23Uri" />
+      <item itemvalue="JUnit.NVDServiceRestConnectorTest" />
+      <item itemvalue="JUnit.NVDParserTest.createVersionRange1" />
+      <item itemvalue="JUnit.NVDParserTest.reconcileVersionRangesFail" />
+      <item itemvalue="JUnit.NVDParserTest.reconcileVersionRanges" />
+      <item itemvalue="Spring Boot.App" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.NVDParserTest.reconcileVersionRanges" />
+        <item itemvalue="JUnit.NVDParserTest.reconcileVersionRangesFail" />
+        <item itemvalue="JUnit.NVDParserTest.createVersionRange1" />
+        <item itemvalue="JUnit.NVDServiceRestConnectorTest" />
+        <item itemvalue="JUnit.CPEToProductDescriptorTest.convertCpe23Uri" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="daa8c308-4cda-48e4-ae08-388ec28dfb5e" name="Default Changelist" comment="" />
+      <created>1583262423322</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1583262423322</updated>
+      <workItem from="1583262424845" duration="226000" />
+      <workItem from="1583310010677" duration="1045000" />
+      <workItem from="1583311490120" duration="3656000" />
+      <workItem from="1583321952442" duration="7090000" />
+      <workItem from="1583491897352" duration="869000" />
+      <workItem from="1583680294581" duration="227000" />
+      <workItem from="1583681748727" duration="647000" />
+      <workItem from="1583686508779" duration="1180000" />
+      <workItem from="1583698435406" duration="5316000" />
+      <workItem from="1583776313169" duration="577000" />
+      <workItem from="1583931421320" duration="2908000" />
+      <workItem from="1583938278943" duration="763000" />
+      <workItem from="1583945214909" duration="3099000" />
+      <workItem from="1584021198608" duration="1045000" />
+      <workItem from="1584022410499" duration="20347000" />
+      <workItem from="1584130631372" duration="321000" />
+      <workItem from="1584183450511" duration="2129000" />
+      <workItem from="1584193499985" duration="423000" />
+      <workItem from="1584270149228" duration="2301000" />
+      <workItem from="1584281043146" duration="844000" />
+      <workItem from="1584282369063" duration="3285000" />
+      <workItem from="1584356365576" duration="500000" />
+      <workItem from="1584357358612" duration="430000" />
+      <workItem from="1584377359951" duration="1270000" />
+      <workItem from="1584443276956" duration="783000" />
+      <workItem from="1584445474827" duration="266000" />
+      <workItem from="1584448850985" duration="17000" />
+      <workItem from="1584526354520" duration="282000" />
+      <workItem from="1584646573208" duration="741000" />
+      <workItem from="1584648908824" duration="317000" />
+      <workItem from="1584696072269" duration="1530000" />
+      <workItem from="1584701291346" duration="617000" />
+      <workItem from="1584704059680" duration="1884000" />
+      <workItem from="1584709806519" duration="228000" />
+      <workItem from="1584712046418" duration="10122000" />
+      <workItem from="1584826566389" duration="647000" />
+      <workItem from="1584894169775" duration="1306000" />
+      <workItem from="1584896333647" duration="4624000" />
+      <workItem from="1584961774211" duration="2846000" />
+      <workItem from="1584980968671" duration="2848000" />
+      <workItem from="1585047999073" duration="59000" />
+      <workItem from="1585048572575" duration="88000" />
+      <workItem from="1585062255718" duration="1162000" />
+      <workItem from="1585066356734" duration="1260000" />
+      <workItem from="1585143426173" duration="287000" />
+      <workItem from="1585215985323" duration="763000" />
+      <workItem from="1585224953349" duration="881000" />
+      <workItem from="1585337459085" duration="88000" />
+      <workItem from="1585342671098" duration="187000" />
+      <workItem from="1585343348894" duration="688000" />
+      <workItem from="1585357309994" duration="86000" />
+      <workItem from="1585388226167" duration="44000" />
+      <workItem from="1585392494064" duration="9000" />
+      <workItem from="1585418611944" duration="37000" />
+      <workItem from="1585485543293" duration="474000" />
+      <workItem from="1585554577812" duration="183000" />
+      <workItem from="1585575188689" duration="204000" />
+      <workItem from="1585580360499" duration="95000" />
+      <workItem from="1585581427031" duration="1576000" />
+      <workItem from="1585583832387" duration="99000" />
+      <workItem from="1585585125256" duration="556000" />
+      <workItem from="1585848473977" duration="647000" />
+      <workItem from="1585849149477" duration="7883000" />
+      <workItem from="1585921677403" duration="12532000" />
+      <workItem from="1585955848910" duration="1498000" />
+      <workItem from="1586019000028" duration="124000" />
+      <workItem from="1586019391846" duration="55000" />
+      <workItem from="1586082814607" duration="52000" />
+      <workItem from="1586178836556" duration="18710000" />
+      <workItem from="1586253529806" duration="42281000" />
+      <workItem from="1586373573662" duration="1950000" />
+      <workItem from="1586428798824" duration="1497000" />
+      <workItem from="1586802657880" duration="835000" />
+      <workItem from="1586865054692" duration="3342000" />
+      <workItem from="1586939324643" duration="3590000" />
+      <workItem from="1586989948148" duration="10000" />
+      <workItem from="1586990703403" duration="11000" />
+      <workItem from="1586991725191" duration="8000" />
+      <workItem from="1587024496409" duration="28000" />
+      <workItem from="1587033280363" duration="42000" />
+      <workItem from="1587056088628" duration="1848000" />
+      <workItem from="1587133760463" duration="415000" />
+      <workItem from="1587152586842" duration="1243000" />
+      <workItem from="1587544212814" duration="49341000" />
+      <workItem from="1587737306377" duration="6000" />
+      <workItem from="1587739129864" duration="5272000" />
+      <workItem from="1587756535707" duration="442000" />
+      <workItem from="1587976987770" duration="3182000" />
+      <workItem from="1587980501784" duration="2343000" />
+      <workItem from="1588002299222" duration="60008000" />
+      <workItem from="1588359676892" duration="469000" />
+      <workItem from="1588411710338" duration="676000" />
+      <workItem from="1588414794963" duration="8000" />
+      <workItem from="1588422173268" duration="2759000" />
+      <workItem from="1588429763342" duration="14928000" />
+      <workItem from="1588526853976" duration="841000" />
+      <workItem from="1588581884307" duration="21147000" />
+      <workItem from="1588766904450" duration="2776000" />
+      <workItem from="1588859717394" duration="6888000" />
+      <workItem from="1588934886280" duration="15720000" />
+      <workItem from="1589218116105" duration="40370000" />
+      <workItem from="1589472355101" duration="11779000" />
+      <workItem from="1589740624253" duration="46715000" />
+      <workItem from="1590247451668" duration="655000" />
+      <workItem from="1590248714839" duration="802000" />
+      <workItem from="1590315944610" duration="3307000" />
+      <workItem from="1590410263258" duration="45000" />
+      <workItem from="1590411145401" duration="22379000" />
+      <workItem from="1590565682875" duration="29598000" />
+      <workItem from="1590657464569" duration="7376000" />
+      <workItem from="1590752418740" duration="2572000" />
+      <workItem from="1590755974566" duration="842000" />
+      <workItem from="1591087667951" duration="1193000" />
+      <workItem from="1591204581251" duration="892000" />
+      <workItem from="1591208528248" duration="25000" />
+      <workItem from="1591611132738" duration="10000" />
+      <workItem from="1591612043302" duration="138000" />
+      <workItem from="1591612717178" duration="796000" />
+      <workItem from="1591613781942" duration="5058000" />
+      <workItem from="1591631436667" duration="2162000" />
+      <workItem from="1591635992110" duration="1452000" />
+      <workItem from="1591951941374" duration="652000" />
+      <workItem from="1592816006743" duration="186000" />
+      <workItem from="1592836586643" duration="27000" />
+      <workItem from="1594915518326" duration="7607000" />
+      <workItem from="1595176720071" duration="23315000" />
+      <workItem from="1595339877577" duration="55853000" />
+      <workItem from="1607615252022" duration="1110000" />
+    </task>
+    <task id="LOCAL-00439" summary="add cve-crawler and analyzer">
+      <created>1590424217557</created>
+      <option name="number" value="00439" />
+      <option name="presentableId" value="LOCAL-00439" />
+      <option name="project" value="LOCAL" />
+      <updated>1590424217557</updated>
+    </task>
+    <task id="LOCAL-00440" summary="add architecture diag for crawler">
+      <created>1590424270757</created>
+      <option name="number" value="00440" />
+      <option name="presentableId" value="LOCAL-00440" />
+      <option name="project" value="LOCAL" />
+      <updated>1590424270757</updated>
+    </task>
+    <task id="LOCAL-00441" summary="add parser and crawler for cve-search">
+      <created>1590485612898</created>
+      <option name="number" value="00441" />
+      <option name="presentableId" value="LOCAL-00441" />
+      <option name="project" value="LOCAL" />
+      <updated>1590485612898</updated>
+    </task>
+    <task id="LOCAL-00442" summary="update docker file">
+      <created>1590487371927</created>
+      <option name="number" value="00442" />
+      <option name="presentableId" value="LOCAL-00442" />
+      <option name="project" value="LOCAL" />
+      <updated>1590487371927</updated>
+    </task>
+    <task id="LOCAL-00443" summary="write failed and parsed vulnerabilities to the database">
+      <created>1590493633527</created>
+      <option name="number" value="00443" />
+      <option name="presentableId" value="LOCAL-00443" />
+      <option name="project" value="LOCAL" />
+      <updated>1590493633527</updated>
+    </task>
+    <task id="LOCAL-00444" summary="code clean up">
+      <created>1590502687263</created>
+      <option name="number" value="00444" />
+      <option name="presentableId" value="LOCAL-00444" />
+      <option name="project" value="LOCAL" />
+      <updated>1590502687263</updated>
+    </task>
+    <task id="LOCAL-00445" summary="clean up code">
+      <created>1590505178305</created>
+      <option name="number" value="00445" />
+      <option name="presentableId" value="LOCAL-00445" />
+      <option name="project" value="LOCAL" />
+      <updated>1590505178305</updated>
+    </task>
+    <task id="LOCAL-00446" summary="fix crawler and added test cases">
+      <created>1590506663510</created>
+      <option name="number" value="00446" />
+      <option name="presentableId" value="LOCAL-00446" />
+      <option name="project" value="LOCAL" />
+      <updated>1590506663510</updated>
+    </task>
+    <task id="LOCAL-00447" summary="clean up dirty_structure">
+      <created>1590575452994</created>
+      <option name="number" value="00447" />
+      <option name="presentableId" value="LOCAL-00447" />
+      <option name="project" value="LOCAL" />
+      <updated>1590575452994</updated>
+    </task>
+    <task id="LOCAL-00448" summary="add parser and custom headers">
+      <created>1590596333451</created>
+      <option name="number" value="00448" />
+      <option name="presentableId" value="LOCAL-00448" />
+      <option name="project" value="LOCAL" />
+      <updated>1590596333451</updated>
+    </task>
+    <task id="LOCAL-00449" summary="fix error handling">
+      <created>1590657606679</created>
+      <option name="number" value="00449" />
+      <option name="presentableId" value="LOCAL-00449" />
+      <option name="project" value="LOCAL" />
+      <updated>1590657606679</updated>
+    </task>
+    <task id="LOCAL-00450" summary="fix error handling">
+      <created>1590662894887</created>
+      <option name="number" value="00450" />
+      <option name="presentableId" value="LOCAL-00450" />
+      <option name="project" value="LOCAL" />
+      <updated>1590662894887</updated>
+    </task>
+    <task id="LOCAL-00451" summary="rm parent from sootdiff to avoid version clash">
+      <created>1590755115606</created>
+      <option name="number" value="00451" />
+      <option name="presentableId" value="LOCAL-00451" />
+      <option name="project" value="LOCAL" />
+      <updated>1590755115606</updated>
+    </task>
+    <task id="LOCAL-00452" summary="fix dependency">
+      <created>1590755358988</created>
+      <option name="number" value="00452" />
+      <option name="presentableId" value="LOCAL-00452" />
+      <option name="project" value="LOCAL" />
+      <updated>1590755358989</updated>
+    </task>
+    <task id="LOCAL-00453" summary="fix mvn properites and removed parrent">
+      <created>1590756078013</created>
+      <option name="number" value="00453" />
+      <option name="presentableId" value="LOCAL-00453" />
+      <option name="project" value="LOCAL" />
+      <updated>1590756078013</updated>
+    </task>
+    <task id="LOCAL-00454" summary="fix deps">
+      <created>1590756210772</created>
+      <option name="number" value="00454" />
+      <option name="presentableId" value="LOCAL-00454" />
+      <option name="project" value="LOCAL" />
+      <updated>1590756210772</updated>
+    </task>
+    <task id="LOCAL-00455" summary="fix pom file and deps">
+      <created>1590756494748</created>
+      <option name="number" value="00455" />
+      <option name="presentableId" value="LOCAL-00455" />
+      <option name="project" value="LOCAL" />
+      <updated>1590756494748</updated>
+    </task>
+    <task id="LOCAL-00456" summary="new overview">
+      <created>1595243819582</created>
+      <option name="number" value="00456" />
+      <option name="presentableId" value="LOCAL-00456" />
+      <option name="project" value="LOCAL" />
+      <updated>1595243819583</updated>
+    </task>
+    <task id="LOCAL-00457" summary="move to backend-datamodel 2.0.0 - SNAPSHOT">
+      <created>1595257288921</created>
+      <option name="number" value="00457" />
+      <option name="presentableId" value="LOCAL-00457" />
+      <option name="project" value="LOCAL" />
+      <updated>1595257288921</updated>
+    </task>
+    <task id="LOCAL-00458" summary="migrate to new datamodel">
+      <created>1595257635847</created>
+      <option name="number" value="00458" />
+      <option name="presentableId" value="LOCAL-00458" />
+      <option name="project" value="LOCAL" />
+      <updated>1595257635847</updated>
+    </task>
+    <task id="LOCAL-00459" summary="renamed to more meaningful name">
+      <created>1595257683926</created>
+      <option name="number" value="00459" />
+      <option name="presentableId" value="LOCAL-00459" />
+      <option name="project" value="LOCAL" />
+      <updated>1595257683926</updated>
+    </task>
+    <task id="LOCAL-00460" summary="migrate to dbHandler">
+      <created>1595261136448</created>
+      <option name="number" value="00460" />
+      <option name="presentableId" value="LOCAL-00460" />
+      <option name="project" value="LOCAL" />
+      <updated>1595261136448</updated>
+    </task>
+    <task id="LOCAL-00461" summary="migrate to new datamodel">
+      <created>1595261564856</created>
+      <option name="number" value="00461" />
+      <option name="presentableId" value="LOCAL-00461" />
+      <option name="project" value="LOCAL" />
+      <updated>1595261564856</updated>
+    </task>
+    <task id="LOCAL-00462" summary="migrate to new db">
+      <created>1595261819241</created>
+      <option name="number" value="00462" />
+      <option name="presentableId" value="LOCAL-00462" />
+      <option name="project" value="LOCAL" />
+      <updated>1595261819241</updated>
+    </task>
+    <task id="LOCAL-00463" summary="fix version numbering and nameing in crawler core">
+      <created>1595322168921</created>
+      <option name="number" value="00463" />
+      <option name="presentableId" value="LOCAL-00463" />
+      <option name="project" value="LOCAL" />
+      <updated>1595322168921</updated>
+    </task>
+    <task id="LOCAL-00464" summary="add test file">
+      <created>1595322220720</created>
+      <option name="number" value="00464" />
+      <option name="presentableId" value="LOCAL-00464" />
+      <option name="project" value="LOCAL" />
+      <updated>1595322220721</updated>
+    </task>
+    <task id="LOCAL-00465" summary="add test resource">
+      <created>1595322237449</created>
+      <option name="number" value="00465" />
+      <option name="presentableId" value="LOCAL-00465" />
+      <option name="project" value="LOCAL" />
+      <updated>1595322237449</updated>
+    </task>
+    <task id="LOCAL-00466" summary="delete old code and migrate to dbhandler">
+      <created>1595322338354</created>
+      <option name="number" value="00466" />
+      <option name="presentableId" value="LOCAL-00466" />
+      <option name="project" value="LOCAL" />
+      <updated>1595322338354</updated>
+    </task>
+    <task id="LOCAL-00467" summary="add test case for checkout repo failure">
+      <created>1595332771834</created>
+      <option name="number" value="00467" />
+      <option name="presentableId" value="LOCAL-00467" />
+      <option name="project" value="LOCAL" />
+      <updated>1595332771834</updated>
+    </task>
+    <task id="LOCAL-00468" summary="use new depscan datamodel">
+      <created>1595343588169</created>
+      <option name="number" value="00468" />
+      <option name="presentableId" value="LOCAL-00468" />
+      <option name="project" value="LOCAL" />
+      <updated>1595343588169</updated>
+    </task>
+    <task id="LOCAL-00469" summary="use new depscan datamodel">
+      <created>1595343605840</created>
+      <option name="number" value="00469" />
+      <option name="presentableId" value="LOCAL-00469" />
+      <option name="project" value="LOCAL" />
+      <updated>1595343605840</updated>
+    </task>
+    <task id="LOCAL-00470" summary="migrate to new fingerprint code">
+      <created>1595347116328</created>
+      <option name="number" value="00470" />
+      <option name="presentableId" value="LOCAL-00470" />
+      <option name="project" value="LOCAL" />
+      <updated>1595347116328</updated>
+    </task>
+    <task id="LOCAL-00471" summary="enrich existing vulnerabilities with cve data">
+      <created>1595348860166</created>
+      <option name="number" value="00471" />
+      <option name="presentableId" value="LOCAL-00471" />
+      <option name="project" value="LOCAL" />
+      <updated>1595348860166</updated>
+    </task>
+    <task id="LOCAL-00472" summary="use sootdiff version as timestamp">
+      <created>1595349827745</created>
+      <option name="number" value="00472" />
+      <option name="presentableId" value="LOCAL-00472" />
+      <option name="project" value="LOCAL" />
+      <updated>1595349827745</updated>
+    </task>
+    <task id="LOCAL-00473" summary="improve db handling">
+      <created>1595349869204</created>
+      <option name="number" value="00473" />
+      <option name="presentableId" value="LOCAL-00473" />
+      <option name="project" value="LOCAL" />
+      <updated>1595349869204</updated>
+    </task>
+    <task id="LOCAL-00474" summary="use sootdiff version as stamp">
+      <created>1595349895392</created>
+      <option name="number" value="00474" />
+      <option name="presentableId" value="LOCAL-00474" />
+      <option name="project" value="LOCAL" />
+      <updated>1595349895392</updated>
+    </task>
+    <task id="LOCAL-00475" summary="add sootdiffversion and improve db handling">
+      <created>1595350535063</created>
+      <option name="number" value="00475" />
+      <option name="presentableId" value="LOCAL-00475" />
+      <option name="project" value="LOCAL" />
+      <updated>1595350535063</updated>
+    </task>
+    <task id="LOCAL-00476" summary="fix test cases">
+      <created>1595410444077</created>
+      <option name="number" value="00476" />
+      <option name="presentableId" value="LOCAL-00476" />
+      <option name="project" value="LOCAL" />
+      <updated>1595410444077</updated>
+    </task>
+    <task id="LOCAL-00477" summary="fix style">
+      <created>1595411097517</created>
+      <option name="number" value="00477" />
+      <option name="presentableId" value="LOCAL-00477" />
+      <option name="project" value="LOCAL" />
+      <updated>1595411097517</updated>
+    </task>
+    <task id="LOCAL-00478" summary="add test">
+      <created>1595417338021</created>
+      <option name="number" value="00478" />
+      <option name="presentableId" value="LOCAL-00478" />
+      <option name="project" value="LOCAL" />
+      <updated>1595417338021</updated>
+    </task>
+    <task id="LOCAL-00479" summary="add test cases">
+      <created>1595418046270</created>
+      <option name="number" value="00479" />
+      <option name="presentableId" value="LOCAL-00479" />
+      <option name="project" value="LOCAL" />
+      <updated>1595418046270</updated>
+    </task>
+    <task id="LOCAL-00480" summary="add cve-deteails from cve-search">
+      <created>1595426707932</created>
+      <option name="number" value="00480" />
+      <option name="presentableId" value="LOCAL-00480" />
+      <option name="project" value="LOCAL" />
+      <updated>1595426707932</updated>
+    </task>
+    <task id="LOCAL-00481" summary="update existing cve in database">
+      <created>1595430379072</created>
+      <option name="number" value="00481" />
+      <option name="presentableId" value="LOCAL-00481" />
+      <option name="project" value="LOCAL" />
+      <updated>1595430379072</updated>
+    </task>
+    <task id="LOCAL-00482" summary="parse plain NVD CVEs to vulnerabilities">
+      <created>1595514539699</created>
+      <option name="number" value="00482" />
+      <option name="presentableId" value="LOCAL-00482" />
+      <option name="project" value="LOCAL" />
+      <updated>1595514539699</updated>
+    </task>
+    <task id="LOCAL-00483" summary="merge version ranges in nvd parser">
+      <created>1595516132863</created>
+      <option name="number" value="00483" />
+      <option name="presentableId" value="LOCAL-00483" />
+      <option name="project" value="LOCAL" />
+      <updated>1595516132864</updated>
+    </task>
+    <task id="LOCAL-00484" summary="add update function to db handler">
+      <created>1595595448738</created>
+      <option name="number" value="00484" />
+      <option name="presentableId" value="LOCAL-00484" />
+      <option name="project" value="LOCAL" />
+      <updated>1595595448738</updated>
+    </task>
+    <task id="LOCAL-00485" summary="new nvd crawler">
+      <created>1595595465360</created>
+      <option name="number" value="00485" />
+      <option name="presentableId" value="LOCAL-00485" />
+      <option name="project" value="LOCAL" />
+      <updated>1595595465360</updated>
+    </task>
+    <task id="LOCAL-00486" summary="add tests">
+      <created>1595598720674</created>
+      <option name="number" value="00486" />
+      <option name="presentableId" value="LOCAL-00486" />
+      <option name="project" value="LOCAL" />
+      <updated>1595598720674</updated>
+    </task>
+    <task id="LOCAL-00487" summary="add further unit tests">
+      <created>1595600027192</created>
+      <option name="number" value="00487" />
+      <option name="presentableId" value="LOCAL-00487" />
+      <option name="project" value="LOCAL" />
+      <updated>1595600027192</updated>
+    </task>
+    <option name="localTasksCounter" value="488" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:/Users/adann/codeshield/depscan-crawler-core/datamodel" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="2">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:/Users/adann/codeshield/commons/de.codeshield.commons.codemgmt" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="3">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:/Users/adann/codeshield/depscan-cve-crawler/cve-db-parser/tests" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="4">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$/../depscan-cve-crawler" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="1" value="TOOL_WINDOW" />
+        <entry key="2" value="TOOL_WINDOW" />
+        <entry key="3" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <MESSAGE value="fix version numbering and nameing in crawler core" />
+    <MESSAGE value="add test file" />
+    <MESSAGE value="add test resource" />
+    <MESSAGE value="delete old code and migrate to dbhandler" />
+    <MESSAGE value="add test case for checkout repo failure" />
+    <MESSAGE value="use new depscan datamodel" />
+    <MESSAGE value="migrate to new fingerprint code" />
+    <MESSAGE value="enrich existing vulnerabilities with cve data" />
+    <MESSAGE value="use sootdiff version as timestamp" />
+    <MESSAGE value="improve db handling" />
+    <MESSAGE value="use sootdiff version as stamp" />
+    <MESSAGE value="add sootdiffversion and improve db handling" />
+    <MESSAGE value="fix test cases" />
+    <MESSAGE value="add test" />
+    <MESSAGE value="add test cases" />
+    <MESSAGE value="add cve-deteails from cve-search" />
+    <MESSAGE value="update existing cve in database" />
+    <MESSAGE value="parse plain NVD CVEs to vulnerabilities" />
+    <MESSAGE value="merge version ranges in nvd parser" />
+    <MESSAGE value="fix style" />
+    <MESSAGE value="adapt cve reast connectr" />
+    <MESSAGE value="add update function to db handler" />
+    <MESSAGE value="new nvd crawler" />
+    <MESSAGE value="add tests" />
+    <MESSAGE value="add further unit tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="add further unit tests" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="744" y="351" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1607616957493">
+      <screen x="0" y="23" width="2560" height="1333" />
+    </state>
+    <state x="744" y="351" key="#com.intellij.execution.impl.EditConfigurationsDialog/-1440.0.1440.900/0.23.2560.1333@0.23.2560.1333" timestamp="1607616957493" />
+    <state x="945" y="327" width="670" height="676" key="search.everywhere.popup" timestamp="1607616370097">
+      <screen x="0" y="23" width="2560" height="1333" />
+    </state>
+    <state x="945" y="327" width="670" height="676" key="search.everywhere.popup/-1440.0.1440.900/0.23.2560.1333@0.23.2560.1333" timestamp="1607616370097" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/tests/test_simpleParsing.py</url>
+          <line>22</line>
+          <option name="timeStamp" value="143" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/tests/test_simpleParsing.py</url>
+          <line>27</line>
+          <option name="timeStamp" value="144" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/tests/test_simpleParsing.py</url>
+          <line>34</line>
+          <option name="timeStamp" value="147" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/tests/test_simpleParsing.py</url>
+          <line>36</line>
+          <option name="timeStamp" value="148" />
+        </line-breakpoint>
+        <line-breakpoint suspend="THREAD" type="python-line">
+          <url>file:///usr/local/Cellar/python/3.7.7/Frameworks/Python.framework/Versions/3.7/lib/python3.7/urllib/request.py</url>
+          <line>382</line>
+          <option name="timeStamp" value="158" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/datamodel/CVEEntry.py</url>
+          <line>71</line>
+          <option name="timeStamp" value="159" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <condition expression="&quot;bugzilla&quot; in url" language="Python" />
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/parser/ReferenceParser.py</url>
+          <line>75</line>
+          <option name="timeStamp" value="179" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <condition expression="&quot;bugzilla&quot; in url" language="Python" />
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/parser/ReferenceParser.py</url>
+          <line>59</line>
+          <option name="timeStamp" value="180" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <condition expression="&quot;https://bugzilla.redhat.com/show_bug.cgi?id=1051277&quot; in link_target" language="Python" />
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/parser/ReferenceParser.py</url>
+          <line>88</line>
+          <option name="timeStamp" value="182" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/parser/ReferenceParser.py</url>
+          <line>47</line>
+          <option name="timeStamp" value="184" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser/cvelib/parser/ReferenceParser.py</url>
+          <line>90</line>
+          <option name="timeStamp" value="190" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/de/codeshield/depscan/mavencrawler/worker/ArtifactProcessorTest.java</url>
+          <line>117</line>
+          <option name="timeStamp" value="191" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/de/codeshield/depscan/mavencrawler/worker/ArtifactProcessorTest.java</url>
+          <line>146</line>
+          <option name="timeStamp" value="192" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-crawler/src/test/java/de/codeshield/depscan/vulnerability/crawler/producer/csv/CollectCSVJobTest.java</url>
+          <line>19</line>
+          <option name="timeStamp" value="193" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-analyzer/src/test/java/de/codeshield/depscan/cve/analyzer/worker/VulnerabilityProcessorMVNBuildFailTest.java</url>
+          <line>55</line>
+          <option name="timeStamp" value="194" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../commons/de.codeshield.commons.codemgmt/src/main/java/de/codeshield/commons/checkout/GitRepository.java</url>
+          <line>89</line>
+          <option name="timeStamp" value="195" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../commons/de.codeshield.commons.codemgmt/src/main/java/de/codeshield/commons/checkout/GitRepository.java</url>
+          <line>90</line>
+          <option name="timeStamp" value="196" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../commons/de.codeshield.commons.codemgmt/src/main/java/de/codeshield/commons/checkout/GitRepository.java</url>
+          <line>83</line>
+          <option name="timeStamp" value="197" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-crawler-core/db-matcher/src/test/java/de/codeshield/depscan/db/nvd_cvesearch/CVESearchRestConnectorTest.java</url>
+          <line>16</line>
+          <option name="timeStamp" value="198" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-crawler-core/db-matcher/src/test/java/de/codeshield/depscan/db/nvd_cvesearch/CVESearchRestConnectorTest.java</url>
+          <line>10</line>
+          <option name="timeStamp" value="199" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-crawler/src/test/java/de/codeshield/depscan/vulnerability/crawler/producer/nvd_cvesearch/CVESearchRestConnectorTest.java</url>
+          <line>43</line>
+          <option name="timeStamp" value="201" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-db-handler/src/test/java/de/codeshield/depscan/vulnerablity/db/PostgresDBHandlerTest.java</url>
+          <line>199</line>
+          <option name="timeStamp" value="202" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../depscan-cve-crawler/vulnerability-db-handler/src/main/java/de/codeshield/depscan/vulnerablity/db/PostgresDBHandler.java</url>
+          <line>184</line>
+          <option name="timeStamp" value="203" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo typeName="org.apache.maven.index.ArtifactInfo" fieldName="packaging" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="tests">
+        <watch expression="visited.__len__()" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/cve_maven_crawler$Unittests_for_tests_test_simpleParsing_ParserTestSuite_test_urlParsing1.coverage" NAME="Unittests for tests.test_simpleParsing.ParserTestSuite.test_urlParsing1 Coverage Results" MODIFIED="1590503850262" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+    <SUITE FILE_PATH="coverage/cve_crawler$main.coverage" NAME="main Coverage Results" MODIFIED="1585926356469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Nextcloud/stats_mvn_crawler/quick_stats" />
+    <SUITE FILE_PATH="coverage/cve_maven_crawler$Unittests_in_test_CVERepoSVNApache_py.coverage" NAME="Unittests in test_CVERepoSVNApache.py Coverage Results" MODIFIED="1590503805499" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+    <SUITE FILE_PATH="coverage/cve_maven_crawler$Unittests_in_test_simpleParsing_py.coverage" NAME="Unittests in test_simpleParsing.py Coverage Results" MODIFIED="1590506579779" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+    <SUITE FILE_PATH="coverage/cve_maven_crawler$Unittests_for_tests_test_simpleParsing_ParserTestSuite.coverage" NAME="Unittests for tests.test_simpleParsing.ParserTestSuite Coverage Results" MODIFIED="1590600262638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+    <SUITE FILE_PATH="coverage/cve_maven_crawler$parseVulnerability.coverage" NAME="parseVulnerability Coverage Results" MODIFIED="1590505158508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../depscan-cve-crawler/cve-db-parser" />
+  </component>
+</project>

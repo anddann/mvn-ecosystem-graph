@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: de.codeshield.commons:commons:0.2.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/commons/0.2.0-SNAPSHOT/commons-0.2.0-20200609.104244-71.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/commons/0.2.0-SNAPSHOT/commons-0.2.0-20200609.104244-71-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/codeshield/commons/commons/0.2.0-SNAPSHOT/commons-0.2.0-20200609.104244-71-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.kohsuke:github-api:1.115">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/kohsuke/github-api/1.115/github-api-1.115.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/kohsuke/github-api/1.115/github-api-1.115-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/kohsuke/github-api/1.115/github-api-1.115-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

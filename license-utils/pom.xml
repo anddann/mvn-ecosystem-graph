@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>de.upb.maven.ecosystem</groupId>
+    <artifactId>parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>license-utils</artifactId>
+
+
+  <dependencies>
+
+    <!-- use maven core to extract license info from poms -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>3.6.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.spdx</groupId>
+      <artifactId>spdx-tools</artifactId>
+      <version>2.2.8</version>
+    </dependency>
+
+
+    <!-- old dependency to SPDX Dataformat
+    <dependency>
+        <groupId>org.spdx</groupId>
+        <artifactId>spdx-maven-plugin</artifactId>
+        <version>0.7.4</version>
+        <exclusions>
+            <exclusion>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+-->
+    <!-- dependency to CycloneDX Dataformat -->
+    <dependency>
+      <groupId>org.cyclonedx</groupId>
+      <artifactId>cyclonedx-core-java</artifactId>
+      <version>2.7.0</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>de.upb.maven.ecosystem</groupId>
+      <artifactId>commons</artifactId>
+      <version>${revision}</version>
+      <scope>compile</scope>
+    </dependency>
+
+  </dependencies>
+</project>

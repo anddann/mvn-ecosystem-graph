@@ -1,22 +1,34 @@
 package de.upb.maven.ecosystem.indexer.producer;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
+import com.google.inject.Guice;
+import com.google.inject.Module;
 import com.rabbitmq.client.AMQP;
 import de.upb.maven.ecosystem.ArtifactUtils;
 import de.upb.maven.ecosystem.RabbitMQCollective;
 import de.upb.maven.ecosystem.msg.CustomArtifactInfo;
-import de.upb.maven.ecosystem.persistence.dao.DaoMvnArtifactNode;
-import de.upb.maven.ecosystem.persistence.dao.Neo4JConnector;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -39,19 +51,12 @@ import org.apache.maven.index.updater.IndexUpdateRequest;
 import org.apache.maven.index.updater.IndexUpdateResult;
 import org.apache.maven.index.updater.IndexUpdater;
 import org.apache.maven.index.updater.ResourceFetcher;
-import org.apache.maven.index.updater.WagonHelper;
-import org.apache.maven.wagon.Wagon;
-import org.apache.maven.wagon.events.TransferEvent;
-import org.apache.maven.wagon.events.TransferListener;
-import org.apache.maven.wagon.observers.AbstractTransferListener;
-import org.codehaus.plexus.DefaultContainerConfiguration;
-import org.codehaus.plexus.DefaultPlexusContainer;
-import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.eclipse.sisu.launch.Main;
+import org.eclipse.sisu.space.BeanScanning;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
+import javax.inject.Inject;
+
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -68,7 +73,9 @@ import org.slf4j.LoggerFactory;
  * the License.
  */
 
-/** Collection of some use cases. */
+/**
+ * Collection of some use cases.
+ */
 public class MavenIndexProducer {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MavenIndexProducer.class);
@@ -76,76 +83,66 @@ public class MavenIndexProducer {
 
   // ==
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static String MAVEN_REPO_URL;
 
   static {
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
   private final RabbitMQCollective collective;
-  private final PlexusContainer plexusContainer;
   private final Indexer indexer;
   private final IndexUpdater indexUpdater;
-  private final Wagon httpWagon;
-  private final DaoMvnArtifactNode doaMvnArtifactNode;
+  // private final Wagon httpWagon;
+  private final ArtifactCrawlDecider artifactCrawlDecider;
+  private final Components components;
   private IndexingContext centralContext;
 
-  public MavenIndexProducer(RabbitMQCollective collective, DaoMvnArtifactNode doaMvnArtifactNode)
-      throws PlexusContainerException, ComponentLookupException {
-    this.doaMvnArtifactNode = doaMvnArtifactNode;
-    initMavenRepoUrl();
+
+  @Inject
+  public MavenIndexProducer(RabbitMQCollective collective,
+      ArtifactCrawlDecider artifactCrawlDecider) {
     this.collective = collective;
+    this.artifactCrawlDecider = artifactCrawlDecider;
+    final Module app = Main.wire(BeanScanning.INDEX);
 
-    // here we create Plexus container, the Maven default IoC container
-    // Plexus falls outside of MI scope, just accept the fact that
-    // MI is a Plexus component ;)
-    // If needed more info, ask on Maven Users list or Plexus Users list
-    // google is your friend!
-    final DefaultContainerConfiguration config = new DefaultContainerConfiguration();
-    config.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
-    this.plexusContainer = new DefaultPlexusContainer(config);
-
-    // lookup the indexer components from plexus
-    this.indexer = plexusContainer.lookup(Indexer.class);
-    this.indexUpdater = plexusContainer.lookup(IndexUpdater.class);
-    // lookup wagon used to remotely fetch index
-    this.httpWagon = plexusContainer.lookup(Wagon.class, "https");
+    this.components = Guice.createInjector(app).getInstance(Components.class);
+    this.indexer = components.indexer;
+    this.indexUpdater = components.indexUpdater;
   }
 
-  public void initMavenRepoUrl() {
+
+  public static String getMavenRepoURL() {
     String res = System.getenv("MAVEN_REPO_URL");
+    LOGGER.info("MAVEN_REPO_URL Index: {}", res);
     if (res == null || res.isEmpty()) {
-      MAVEN_REPO_URL = "https://repo1.maven.org/maven2/";
+      return "https://repo1.maven.org/maven2/";
     } else {
-      MAVEN_REPO_URL = res;
+      return res;
     }
-    LOGGER.info("MAVEN_REPO_URL Index: {}", MAVEN_REPO_URL);
   }
 
   public void perform(AMQP.BasicProperties props)
-      throws IOException, ComponentLookupException, InterruptedException {
+      throws IOException, InterruptedException {
     // Files where local cache is (if any) and Lucene Index should be located
-    File centralLocalCache = new File("/tmp/target/central-cache");
-    File centralIndexDir = new File("/tmp/target/central-index");
+    File centralLocalCache = new File("target/central-cache");
+    File centralIndexDir = new File("target/central-index");
 
     // Creators we want to use (search for fields it defines)
     List<IndexCreator> indexers = new ArrayList<>();
-    indexers.add(plexusContainer.lookup(IndexCreator.class, "min"));
-    indexers.add(plexusContainer.lookup(IndexCreator.class, "jarContent"));
-    indexers.add(plexusContainer.lookup(IndexCreator.class, "maven-plugin"));
+    indexers.add(components.jarFileContentsIndexCreator);
+    indexers.add(components.minimalArtifactInfoIndexCreator);
+    indexers.add(components.mavenPluginArtifactInfoIndexCreator);
 
     // Create context for central repository index
-    centralContext =
-        indexer.createIndexingContext(
-            "central-context",
-            "central",
-            centralLocalCache,
-            centralIndexDir,
-            MAVEN_REPO_URL,
-            null,
-            true,
-            true,
-            indexers);
+    centralContext = indexer.createIndexingContext(
+        "central-context",
+        "central",
+        centralLocalCache,
+        centralIndexDir,
+        getMavenRepoURL(),
+        null,
+        true,
+        true,
+        indexers);
 
     LOGGER.info("START with index");
     // Update the index (incremental update will happen if this is not 1st run and files are not
@@ -156,43 +153,32 @@ public class MavenIndexProducer {
     // week, but
     // other index sources might have different index publishing frequency.
     // Preferred frequency is once a week.
-    if (true) {
-      LOGGER.info("Updating Index...");
-      LOGGER.info("This might take a while on first run, so please be patient!");
-      // Create ResourceFetcher implementation to be used with IndexUpdateRequest
-      // Here, we use Wagon based one as shorthand, but all we need is a ResourceFetcher
-      // implementation
-      TransferListener listener =
-          new AbstractTransferListener() {
-            public void transferStarted(TransferEvent transferEvent) {
-              LOGGER.info("Downloading " + transferEvent.getResource().getName());
-            }
 
-            public void transferProgress(TransferEvent transferEvent, byte[] buffer, int length) {}
+    Instant updateStart = Instant.now();
+    System.out.println("Updating Index...");
+    System.out.println("This might take a while on first run, so please be patient!");
 
-            public void transferCompleted(TransferEvent transferEvent) {
-              LOGGER.info("Done Downloading");
-            }
-          };
-      ResourceFetcher resourceFetcher =
-          new WagonHelper.WagonFetcher(httpWagon, listener, null, null);
-
-      Date centralContextCurrentTimestamp = centralContext.getTimestamp();
-      IndexUpdateRequest updateRequest = new IndexUpdateRequest(centralContext, resourceFetcher);
-      IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
-      if (updateResult.isFullUpdate()) {
-        LOGGER.info("Full update happened!");
-      } else if (updateResult.getTimestamp().equals(centralContextCurrentTimestamp)) {
-        LOGGER.info("No update needed, index is up to date!");
-      } else {
-        LOGGER.info(
-            "Incremental update happened, change covered "
-                + centralContextCurrentTimestamp
-                + " - "
-                + updateResult.getTimestamp()
-                + " period.");
-      }
+    Date centralContextCurrentTimestamp = centralContext.getTimestamp();
+    IndexUpdateRequest updateRequest =
+        new IndexUpdateRequest(centralContext, new Java11HttpClient());
+    IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
+    if (updateResult.isFullUpdate()) {
+      System.out.println("Full update happened!");
+    } else if (updateResult.getTimestamp().equals(centralContextCurrentTimestamp)) {
+      System.out.println("No update needed, index is up to date!");
+    } else {
+      System.out.println(
+          "Incremental update happened, change covered "
+              + centralContextCurrentTimestamp
+              + " - "
+              + updateResult.getTimestamp()
+              + " period.");
     }
+
+    System.out.println(
+        "Finished in " + Duration.between(updateStart, Instant.now()).getSeconds() + " sec");
+    System.out.println();
+
     LOGGER.info("END");
     LOGGER.info("Using index");
     LOGGER.info("===========");
@@ -221,11 +207,6 @@ public class MavenIndexProducer {
           if (ai != null && fileExtToUse != null) {
             crawledArtifacts++;
 
-            //            if (!(StringUtils.equals("com.fasterxml.jackson.core", ai.getGroupId())
-            //                && StringUtils.equals("jackson-annotations", ai.getArtifactId()))) {
-            //              continue;
-            //            }
-
             // convert
             CustomArtifactInfo customArtifactInfo = new CustomArtifactInfo();
             customArtifactInfo.setArtifactId(ai.getArtifactId());
@@ -236,10 +217,10 @@ public class MavenIndexProducer {
             customArtifactInfo.setBundleLicense(ai.getBundleLicense());
             customArtifactInfo.setLicenseUrl(ai.getBundleDocUrl());
             customArtifactInfo.setDistribution(ai.getRemoteUrl());
-            customArtifactInfo.setRepoURL(MAVEN_REPO_URL);
+            customArtifactInfo.setRepoURL(getMavenRepoURL());
             customArtifactInfo.setPackaging(ai.getPackaging());
 
-            if (ArtifactUtils.ignoreArtifact(customArtifactInfo)) {
+            if (ArtifactUtils.ignoredArtifactType(customArtifactInfo)) {
               LOGGER.info(
                   "Skipping {}:{}:{}-{}",
                   customArtifactInfo.getGroupId(),
@@ -257,13 +238,7 @@ public class MavenIndexProducer {
             final URL url = ArtifactUtils.constructURL(customArtifactInfo);
             Stopwatch stopwatch = Stopwatch.createStarted();
 
-            final boolean l =
-                doaMvnArtifactNode.containsNodeWithVersionGQ(
-                    ai.getGroupId(),
-                    ai.getArtifactId(),
-                    ai.getVersion(),
-                    ai.getClassifier(),
-                    Neo4JConnector.getCrawlerVersion());
+            final boolean l = artifactCrawlDecider.shouldProcessArtifact(ai, url);
             if (l) {
               LOGGER.info("Artifact up-to-date: " + url);
               continue;
@@ -333,5 +308,40 @@ public class MavenIndexProducer {
       }
     }
     return null;
+  }
+
+
+  private static class Java11HttpClient implements ResourceFetcher {
+
+    private final HttpClient client =
+        HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
+
+    private URI uri;
+
+    @Override
+    public void connect(String id, String url) throws IOException {
+      this.uri = URI.create(url + "/");
+    }
+
+    @Override
+    public void disconnect() throws IOException {
+    }
+
+    @Override
+    public InputStream retrieve(String name) throws IOException, FileNotFoundException {
+      HttpRequest request = HttpRequest.newBuilder().uri(uri.resolve(name)).GET().build();
+      try {
+        HttpResponse<InputStream> response =
+            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+          return response.body();
+        } else {
+          throw new IOException("Unexpected response: " + response);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new IOException(e);
+      }
+    }
   }
 }
